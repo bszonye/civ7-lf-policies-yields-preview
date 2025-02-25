@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="lf-policies-yields-preview" version="1" xmlns="ModInfo">
+	<Properties>
+		<Name>Leonardfactory Policies Yields Preview</Name>
+		<Description>Preview for policies yields directly in the selection screen</Description>
+		<Authors>leonardfactory</Authors>
+		<Package>Mod</Package>
+		<AffectsSavedGames>0</AffectsSavedGames>
+	</Properties>
+	<Dependencies>
+		<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME" />
+	</Dependencies>
+	<ActionCriteria>
+		<Criteria id="always">
+			<AlwaysMet></AlwaysMet>
+		</Criteria>
+	</ActionCriteria>
+	<ActionGroups>
+		<ActionGroup id="game-lf-policies-ui" scope="game" criteria="always">
+            <Properties>
+				<LoadOrder>500</LoadOrder>
+			</Properties>			
+			<Actions>
+				<!-- <UpdateText>
+					<Item>text/ItalianFixes.xml</Item>
+				</UpdateText> -->
+				<UIScripts>
+					<Item>scripts/addons/policy-chooser-item-addon.js</Item>
+					<Item>scripts/policy-preview-calculator.js</Item>
+				</UIScripts>
+			</Actions>
+		</ActionGroup>
+	</ActionGroups>
+</Mod>

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "lib": ["ESNext"],
+    "paths": {
+      "/*": [
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Sid Meier's Civilization VII\\Base\\modules\\*"
+      ]
+    }
+  },
+  "include": ["**/*.js", "types/**/*.d.ts"],
+  "exclude": ["node_modules"],
+  "typeAcquisition": {
+    "enable": true
+  }
+}
