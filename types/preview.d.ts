@@ -20,3 +20,15 @@ declare interface ResolvedModifier {
     SubjectRequirements: ResolvedRequirement[];
     OwnerRequirements: ResolvedRequirement[];
 }
+
+declare interface YieldsDelta {
+    Amount: {
+        [YieldType: string]: number;
+    };
+    Percent: {
+        [YieldType: string]: number;
+    };
+    AmountNoMultiplier: {
+        [YieldType: string]: number;
+    };
+}

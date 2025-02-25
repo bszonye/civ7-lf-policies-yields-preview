@@ -126,20 +126,74 @@ declare interface RequirementArgument extends BaseTableEntry {
 }
 
 /**
+ * Represents a terrain type in the game.
+ * 
+ * @property {string} TerrainType - Unique identifier or type of the terrain.
+ * @property {number} Appeal - Appeal value affecting attractiveness.
+ * @property {number} DefenseModifier - Defensive modifier provided by the terrain.
+ * @property {boolean} Hills - Whether the terrain has hills.
+ * @property {boolean} Impassable - Whether the terrain is impassable.
+ * @property {number} InfluenceCost - Cost required to claim or utilize the terrain.
+ * @property {boolean} Mountain - Whether the terrain is classified as a mountain.
+ * @property {number} MovementCost - Cost of moving through this terrain.
+ * @property {string} Name - Display name of the terrain.
+ * @property {number} SightModifier - Modifier affecting visibility from this terrain.
+ * @property {number} SightThroughModifier - Modifier affecting visibility through this terrain.
+ * @property {boolean} Water - Whether the terrain contains water.
+ */
+declare interface Terrain {
+  TerrainType: string;
+  Appeal: number;
+  DefenseModifier: number;
+  Hills: boolean;
+  Impassable: boolean;
+  InfluenceCost: number;
+  Mountain: boolean;
+  MovementCost: number;
+  Name: string;
+  SightModifier: number;
+  SightThroughModifier: number;
+  Water: boolean;
+}
+
+/**
+ * Represents a tag associated with a specific type.
+ * 
+ * @property {string} Tag - The tag identifier.
+ * @property {string} Type - The associated type for the tag.
+ */
+declare interface TypeTag {
+  Tag: string;
+  Type: string;
+}
+
+
+
+declare type GameInfoArray<T> = T[] & { 
+  lookup(hash: number): T | undefined;
+};
+
+/**
  * Represents the entire GameInfo structure in Civ7's modding toolkit.
  */
 declare interface IGameInfo {
-  Traditions: Tradition[];
-  Modifiers: Modifier[];
-  DynamicModifiers: DynamicModifier[];
-  ModifierArguments: ModifierArgument[];
-  TraditionModifiers: TraditionModifier[];
-  GameEffects: GameEffect[];
-  RequirementSets: RequirementSet[];
-  RequirementSetRequirements: RequirementSetRequirement[];
-  Requirements: Requirement[];
-  RequirementArguments: RequirementArgument[];
-  Terrains: any;
+  Traditions: GameInfoArray<Tradition>;
+  Modifiers: GameInfoArray<Modifier>;
+  DynamicModifiers: GameInfoArray<DynamicModifier>;
+  ModifierArguments: GameInfoArray<ModifierArgument>;
+  TraditionModifiers: GameInfoArray<TraditionModifier>;
+  GameEffects: GameInfoArray<GameEffect>;
+  RequirementSets: GameInfoArray<RequirementSet>;
+  RequirementSetRequirements: GameInfoArray<RequirementSetRequirement>;
+  Requirements: GameInfoArray<Requirement>;
+  RequirementArguments: GameInfoArray<RequirementArgument>;
+  Terrains: GameInfoArray<Terrain>;
+  TypeTags: GameInfoArray<TypeTag>;
 }
 
+declare type IYieldTypes = {
+  [key: string]: number;
+} 
+
 declare var GameInfo: IGameInfo;
+declare var YieldTypes: IYieldTypes;
