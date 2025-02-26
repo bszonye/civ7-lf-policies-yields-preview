@@ -189,6 +189,7 @@ declare interface IGameInfo {
   RequirementArguments: GameInfoArray<RequirementArgument>;
   Terrains: GameInfoArray<Terrain>;
   TypeTags: GameInfoArray<TypeTag>;
+  Yields: GameInfoArray<any>;
 }
 
 declare type IYieldTypes = {

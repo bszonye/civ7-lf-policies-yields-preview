@@ -1,3 +1,4 @@
+import { UnwrappedPlayerYieldsCacheInstance } from "./global-cache.js";
 
 /**
  * Creates an empty yields object.
@@ -68,22 +69,64 @@ function parseYieldsType(yieldsType) {
  */
 export function resolveYields(player, yieldsDelta) {
     const yields = {};
+    const CachedPlayerYields = UnwrappedPlayerYieldsCacheInstance.get();
 
     for (const type in YieldTypes) {
         yields[type] = yieldsDelta.Amount[type] || 0;
+        yields[type] *= 1 + ((CachedPlayerYields[type]?.Percent || 0) / 100);
     }
 
     for (const type in yieldsDelta.Percent) {
-        const netYield = player.Stats.getNetYield(type);
-        const increase = (netYield + yieldsDelta.Amount[type] || 0) * (yieldsDelta.Percent[type] / 100);
-        yields[type] = yields[type] + increase;
+        const baseYield = CachedPlayerYields[type]?.BaseAmount || 0;        
+        const increase = (baseYield + yieldsDelta.Amount[type] || 0) * (yieldsDelta.Percent[type] / 100);
+        yields[type] += increase;
     }
 
     // TODO This is probably wrong, since even the previous net yield is probably
     // already including some multiplied / non-multiplied yields.
     for (const type in yieldsDelta.AmountNoMultiplier) {
-        yields[type] = yields[type] + yieldsDelta.AmountNoMultiplier[type];
+        yields[type] += yieldsDelta.AmountNoMultiplier[type];
+    }
+
+    for (const type in yields) {
+        yields[type] = Math.round(yields[type]);
     }
 
     return yields;
+}
+
+// TODO try-catch
+function unwrapYieldsOfType(yields) {
+    const rawStep = yields.base.steps[0];
+    if (rawStep.description !== "LOC_ATTR_YIELD_INCOMES") {
+        console.error("Unexpected yields description", rawStep.description);
+        return {
+            BaseAmount: 0,
+            Percent: 0,
+        }
+    }
+
+    return {
+        BaseAmount: rawStep.base.value,
+        Percent: rawStep.modifier.value,
+    }
+}
+
+/**
+ * Returns the unwrapped yields for the current player.
+ * This value is useful for previewing the yields of a policy, since
+ * we need to calculate _active_ bonuses, like percent modifiers, even
+ * to bonuses.
+ */
+export function unwrapCurrentPlayerYields() {
+    /**  @type {UnwrappedPlayerYields} */
+    const unwrappedYields = {};
+    const player = Players.get(GameContext.localPlayerID);
+    const allYields = player.Stats.getYields();
+    for (let index = 0; index < allYields.length; index++) {
+        const yields = allYields[index];
+        const type = GameInfo.Yields[index].YieldType;
+        unwrappedYields[type] = unwrapYieldsOfType(yields);
+    }
+    return unwrappedYields;
 }

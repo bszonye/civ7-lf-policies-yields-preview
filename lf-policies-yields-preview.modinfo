@@ -29,6 +29,7 @@
 					<Item>scripts/policy-preview-calculator.js</Item>
 					<Item>scripts/requirements/city-requirements.js</Item>
 					<Item>scripts/yields.js</Item>
+					<Item>scripts/global-cache.js</Item>
 				</UIScripts>
 			</Actions>
 		</ActionGroup>

@@ -1,4 +1,5 @@
 import { previewPolicyYields } from "../policy-preview-calculator.js";
+import { UnwrappedPlayerYieldsCacheInstance } from "../global-cache.js";
 
 function setupCSSOverrides() {
     const style = document.createElement('style');
@@ -54,7 +55,15 @@ function setupPolicyChooserItemOverride() {
 function setupScreenPoliciesOverride() {
     const ScreenPolicies = Controls.getDefinition('screen-policies').createInstance;
 
+    const _onAttach = ScreenPolicies.prototype.onAttach;
     const _createPolicyNode = ScreenPolicies.prototype.createPolicyNode;
+    console.warn("LFAddon: ScreenPolicies", ScreenPolicies != null);
+    
+    ScreenPolicies.prototype.onAttach = function () {
+        _onAttach.call(this);
+        UnwrappedPlayerYieldsCacheInstance.update();
+    }
+
     ScreenPolicies.prototype.createPolicyNode = function (policy, isSelectable) {
         const node = _createPolicyNode.call(this, policy, isSelectable);
 

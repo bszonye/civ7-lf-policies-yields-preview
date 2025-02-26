@@ -6,7 +6,7 @@ export function previewPolicyYields(policy) {
     if (!policy) {
         return {};
     }
-    
+
     try {
         const modifiers = getModifiersForTradition(policy.TraditionType);
     
@@ -121,31 +121,32 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
             const activeTraditions = subject.Culture.getActiveTraditions().length;
             const amount = Number(modifier.Arguments.Amount.Value) * activeTraditions;
-            addYieldsAmount(yieldsDelta, modifier, amount);
+            return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_ATTRIBUTE": {
             const attributePoints = subject.Identity.getSpentAttributePoints(modifier.Arguments.AttributeType.Value);
             const amount = Number(modifier.Arguments.Amount.Value) * attributePoints;
-            addYieldsAmount(yieldsDelta, modifier, amount);
+            return addYieldsAmount(yieldsDelta, modifier, amount);
         }
         
         // City
         case "EFFECT_CITY_ADJUST_WORKER_YIELD": {
             const specialists = subject?.Workers?.getNumWorkers(true);
             const amount = Number(modifier.Arguments.Amount.Value) * specialists;
-            addYieldsAmount(yieldsDelta, modifier, amount);
+            return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD": {
             if (modifier.Arguments.Percent) {
-                addYieldsPercent(yieldsDelta, modifier, Number(modifier.Arguments.Percent.Value));
+                return addYieldsPercent(yieldsDelta, modifier, Number(modifier.Arguments.Percent.Value));
             }
             else if (modifier.Arguments.Amount) {
-                addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
+                return addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
             }
             else {
                 console.warn(`Unhandled ModifierArguments: ${modifier.Arguments}`);
+                return;
             }
         }
 
@@ -163,7 +164,7 @@ function resolveBaseSubjects(modifier) {
     switch (modifier.CollectionType) {
         case "COLLECTION_PLAYER_CITIES":
             return player.Cities.getCities();
-        case "COLLECTION_PLAYER_PLOT_YIELDS":
+        case "COLLECTION_PLAYER_PLOT_YIELDS": {
             let plots = [];
             player.Cities.getCities().forEach(city => {
                 plots.push(...city.getPurchasedPlots().map(plot => {
@@ -174,6 +175,7 @@ function resolveBaseSubjects(modifier) {
                 }));
             });
             return plots;
+        }
         case "COLLECTION_OWNER":
             return [player];
         default:
