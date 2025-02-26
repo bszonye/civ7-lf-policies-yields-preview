@@ -28,17 +28,18 @@ function setupPolicyChooserItemOverride() {
         const node = this.policyChooserNode;
         if (!node) return;
 
-        const yields = previewPolicyYields(node);
-        console.warn("LFAddon: PolicyChooserItem", JSON.stringify(node), JSON.stringify(yields));
+        const { yields, modifiers } = previewPolicyYields(node);
+        // console.warn("LFAddon: PolicyChooserItem", JSON.stringify(node), JSON.stringify(yields));
         const yieldsPreviewItems = Object.entries(yields)
             .filter(([key, value]) => value != 0 && value != null)
             .map(([key, value]) => `${value >= 0 ? '+' : ''}${value} [icon:${key}]`);
 
-        if (yieldsPreviewItems.length === 0) return;
+        // if (yieldsPreviewItems.length === 0) return;
         
         const yieldsPreviewText = yieldsPreviewItems.join(" ");
-
-        const container = document.createElement("div");
+        // const button = document.createElement("fxs-activatable");        
+        const container = document.createElement("fxs-activatable");
+        // button.appendChild(container);
         container.style.top = "-12px";
         container.classList.value = "policy-chooser-item--preview absolute w-auto text-center";
         container.innerHTML = `
@@ -47,6 +48,10 @@ function setupPolicyChooserItemOverride() {
         </div>
         `;
         
+        container.addEventListener('action-activate', () => {
+            console.warn("LFAddon: PolicyChooserItem action-activate", node.TraditionType, JSON.stringify(modifiers));
+        });
+
 
         this.Root.appendChild(container);
     };
@@ -57,7 +62,7 @@ function setupScreenPoliciesOverride() {
 
     const _onAttach = ScreenPolicies.prototype.onAttach;
     const _createPolicyNode = ScreenPolicies.prototype.createPolicyNode;
-    console.warn("LFAddon: ScreenPolicies", ScreenPolicies != null);
+    // console.warn("LFAddon: ScreenPolicies", ScreenPolicies != null);
     
     ScreenPolicies.prototype.onAttach = function () {
         _onAttach.call(this);

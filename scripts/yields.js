@@ -13,6 +13,35 @@ export function createEmptyYieldsDelta() {
 }
 
 /**
+ * Same as `addYieldsAmount`, but instead of adding a fixed amount, it adds a percentage of the base amount.
+ * This is useful for modifiers that add a percentage of the base amount, like +10% of base food, 
+ * when applied to single Cities (so `addYieldsPercent` would not work since the percentage is
+ * applied to Player's total yields).
+ * 
+ * @param {YieldsDelta} yieldsDelta
+ * @param {ResolvedModifier} modifier
+ * @param {any} subject
+ * @param {number} percent 
+ * @returns 
+ */
+export function addYieldsPercentForCitySubject(yieldsDelta, modifier, subject, percent) {
+    if (typeof modifier.Arguments?.YieldType?.Value === "undefined") {
+        console.error(`Modifier ${modifier.Modifier.ModifierId} is missing a YieldType argument.`, modifier.Arguments);
+        return;
+    }
+
+    parseYieldsType(modifier.Arguments.YieldType.Value).forEach(type => {
+        if (!yieldsDelta.Amount[type]) {
+            yieldsDelta.Amount[type] = 0;
+        }
+
+        const baseYield = unwrapYieldsOfType(subject.Yields.getYieldsForType(type));
+        const increase = baseYield.BaseAmount * (percent / 100);
+        yieldsDelta.Amount[type] += increase;
+    });
+}
+
+/**
  * Add an amount to the yields.
  * @param {YieldsDelta} yieldsDelta 
  * @param {ResolvedModifier} modifier 
@@ -51,7 +80,7 @@ export function addYieldsPercent(yieldsDelta, modifier, percent) {
         if (!yieldsDelta.Percent[type]) {
             yieldsDelta.Percent[type] = 0;
         }
-        yieldsDelta[type] += percent;
+        yieldsDelta.Percent[type] += percent;
     });
 }
 
@@ -98,13 +127,13 @@ export function resolveYields(player, yieldsDelta) {
 // TODO try-catch
 function unwrapYieldsOfType(yields) {
     const rawStep = yields.base.steps[0];
-    if (rawStep.description !== "LOC_ATTR_YIELD_INCOMES") {
-        console.error("Unexpected yields description", rawStep.description);
-        return {
-            BaseAmount: 0,
-            Percent: 0,
-        }
-    }
+    // if (rawStep.description !== "LOC_ATTR_YIELD_INCOMES") {
+    //     console.error("Unexpected yields description", rawStep.description);
+    //     return {
+    //         BaseAmount: 0,
+    //         Percent: 0,
+    //     }
+    // }
 
     return {
         BaseAmount: rawStep.base.value,

@@ -190,6 +190,7 @@ declare interface IGameInfo {
   Terrains: GameInfoArray<Terrain>;
   TypeTags: GameInfoArray<TypeTag>;
   Yields: GameInfoArray<any>;
+  Projects: GameInfoArray<any>;
 }
 
 declare type IYieldTypes = {

@@ -1,15 +1,15 @@
 import { hasCityBuilding, hasCityTerrain } from "./requirements/city-requirements.js";
-import { addYieldsAmount, addYieldsPercent, createEmptyYieldsDelta, resolveYields } from "./yields.js";
+import { addYieldsAmount, addYieldsPercent, addYieldsPercentForCitySubject, createEmptyYieldsDelta, resolveYields } from "./yields.js";
 
 
 export function previewPolicyYields(policy) {
     if (!policy) {
-        return {};
+        return { yields: {}, modifiers: [] };
     }
 
-    try {
-        const modifiers = getModifiersForTradition(policy.TraditionType);
+    const modifiers = getModifiersForTradition(policy.TraditionType);
     
+    try {
         const yieldsDelta = createEmptyYieldsDelta();
     
         // Context
@@ -20,12 +20,12 @@ export function previewPolicyYields(policy) {
             applyYieldsForSubjects(yieldsDelta, subjects, modifier);
         });
     
-        return resolveYields(player, yieldsDelta);
+        return { yields: resolveYields(player, yieldsDelta), modifiers };
     }
     catch (error) {
-        console.error("Error in previewPolicyYields for policy ", policy);
+        console.error("Error in previewPolicyYields for policy ", policy.TraditionType);
         console.error(error);
-        return {};
+        return { yields: {}, modifiers };
     }
 }
 
@@ -139,7 +139,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
 
         case "EFFECT_CITY_ADJUST_YIELD": {
             if (modifier.Arguments.Percent) {
-                return addYieldsPercent(yieldsDelta, modifier, Number(modifier.Arguments.Percent.Value));
+                addYieldsPercentForCitySubject(yieldsDelta, modifier, subject, Number(modifier.Arguments.Percent.Value)); 
             }
             else if (modifier.Arguments.Amount) {
                 return addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
@@ -193,32 +193,51 @@ function resolveSubjectsWithRequirements(player, modifier) {
 
     return baseSubjects.filter(subject => {
         return modifier.SubjectRequirements.every(requirement => {
-            // TODO Implement outside fn to negate this switch
-            switch (requirement.Requirement.RequirementType) {
-                case "REQUIREMENT_CITY_IS_CAPITAL":
-                    return subject.isCapital;
-                case "REQUIREMENT_CITY_IS_CITY":
-                    return !subject.isTown;
-                case "REQUIREMENT_CITY_IS_TOWN":
-                    return subject.isTown;
-                case "REQUIREMENT_CITY_IS_ORIGINAL_OWNER":
-                    return subject.originalOwner === player.id;
-                case "REQUIREMENT_CITY_HAS_BUILDING":
-                    return hasCityBuilding(subject, requirement.Arguments);
-                case "REQUIREMENT_CITY_HAS_PROJECT":
-                    return subject.hasProject(requirement.Arguments.ProjectType.Value);
-                case "REQUIREMENT_CITY_HAS_TERRAIN":
-                    return hasCityTerrain(subject, requirement.Arguments);
-
-                // Plot
-
-                // Player (Owner)
-
-                
-                default:
-                    console.warn(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
-                    return false;
-            }
+            const isSatisfied = isRequirementSatisfied(player, subject, requirement);
+            return requirement.Requirement.Inverse ? !isSatisfied : isSatisfied;
         });
     });
+}
+
+/**
+ * 
+ * @param {*} player 
+ * @param {*} subject 
+ * @param {ResolvedRequirement} requirement 
+ * @returns 
+ */
+function isRequirementSatisfied(player, subject, requirement) {
+    switch (requirement.Requirement.RequirementType) {
+        case "REQUIREMENT_CITY_IS_CAPITAL":
+            return subject.isCapital;
+        case "REQUIREMENT_CITY_IS_CITY":
+            return !subject.isTown;
+        case "REQUIREMENT_CITY_IS_TOWN":
+            return subject.isTown;
+        case "REQUIREMENT_CITY_IS_ORIGINAL_OWNER":
+            return subject.originalOwner === player.id;
+        case "REQUIREMENT_CITY_HAS_BUILDING":
+            return hasCityBuilding(subject, requirement.Arguments);
+        case "REQUIREMENT_CITY_HAS_PROJECT": {
+            if (requirement.Arguments.HasAnyProject?.Value === "true") {
+                return subject.Growth.projectType !== -1;
+            }
+
+            if (subject.Growth.projectType === -1) return false;
+
+            const projectTypeName = GameInfo.Projects.lookup(subject.projectType)?.ProjectType;
+            return projectTypeName === requirement.Arguments.ProjectType?.Value;
+        }
+        case "REQUIREMENT_CITY_HAS_TERRAIN":
+            return hasCityTerrain(subject, requirement.Arguments);
+
+        // Plot
+
+        // Player (Owner)
+
+        
+        default:
+            console.warn(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
+            return false;
+    }
 }
