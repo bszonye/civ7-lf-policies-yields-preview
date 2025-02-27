@@ -31,8 +31,17 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
     switch (modifier.EffectType) {
         // Player (subject = player)
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
-            const activeTraditions = subject.Culture.getActiveTraditions().length;
-            const amount = Number(modifier.Arguments.Amount.Value) * activeTraditions;
+            const activeTraditions = subject.Culture.getActiveTraditions();
+            let count = 0;
+            // TODO this is bugged for Regis, since the tradition itself is a CivUnique
+            for (const tradition of activeTraditions) {
+                const traditionType = GameInfo.Traditions.lookup(tradition);
+                if (!traditionType.TraitType && modifier.Arguments.CivUnique?.Value === 'true') {
+                    continue;
+                }
+                count++; 
+            }
+            const amount = Number(modifier.Arguments.Amount.Value) * count;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
@@ -70,6 +79,16 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             const buildingsCount = getPlayerBuildingsCountForModifier(player, modifier);
             const amount = Number(modifier.Arguments.Amount.Value) * attributePoints * buildingsCount;
             return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_PLAYER_ADJUST_YIELD": {
+            return addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
+        }
+
+        // TODO This is really complex, like "+1 for each time a disaster provided fertility".
+        // We'd need to check disasters, not sure how right now.
+        case "EFFECT_PLAYER_ADJUST_YIELD_FROM_DISTATERS": {
+            return;
         }
 
         // Player (Units)

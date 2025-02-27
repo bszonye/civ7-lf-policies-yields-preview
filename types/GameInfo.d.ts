@@ -25,6 +25,7 @@ declare interface Tradition extends BaseTableEntry {
   Description: string;
   IsCrisis: boolean;
   Name: string;
+  TraitType?: string | null;
 }
 
 /**
