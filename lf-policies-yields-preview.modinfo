@@ -25,8 +25,10 @@
 					<Item>text/ItalianFixes.xml</Item>
 				</UpdateText> -->
 				<UIScripts>
-					<Item>scripts/addons/policy-chooser-item-addon.js</Item>					
-					<Item>scripts/policy-preview-calculator.js</Item>
+					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>					
+					<Item>scripts/ui/screen-policies-yields-decorator.js</Item>					
+					<Item>scripts/preview-policy-yields.js</Item>
+					<Item>scripts/effects/apply-effects.js</Item>
 					<Item>scripts/requirements/city-requirements.js</Item>
 					<Item>scripts/yields.js</Item>
 					<Item>scripts/global-cache.js</Item>

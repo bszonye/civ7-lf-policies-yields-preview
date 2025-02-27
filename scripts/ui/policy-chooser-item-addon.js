@@ -1,4 +1,4 @@
-import { previewPolicyYields } from "../policy-preview-calculator.js";
+import { previewPolicyYields } from "../preview-policy-yields.js";
 import { UnwrappedPlayerYieldsCacheInstance } from "../global-cache.js";
 
 function setupCSSOverrides() {

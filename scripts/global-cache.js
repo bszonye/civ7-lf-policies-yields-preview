@@ -11,6 +11,7 @@ class UnwrappedPlayerYieldsCache {
 
     update() {
         this._yields = unwrapCurrentPlayerYields();
+        // TODO Remove log
         console.warn("UnwrappedPlayerYieldsCache updated", JSON.stringify(this._yields));
     }
 
