@@ -64,6 +64,20 @@ export function addYieldsAmount(yieldsDelta, modifier, amount) {
     });
 }
 
+export function addYieldTypeAmount(yieldsDelta, type, amount) {
+    if (!yieldsDelta.Amount[type]) {
+        yieldsDelta.Amount[type] = 0;
+    }
+    yieldsDelta.Amount[type] += amount;
+}
+
+export function addYieldTypeAmountNoMultiplier(yieldsDelta, type, amount) {
+    if (!yieldsDelta.AmountNoMultiplier[type]) {
+        yieldsDelta.AmountNoMultiplier[type] = 0;
+    }
+    yieldsDelta.AmountNoMultiplier[type] += amount;
+}
+
 /**
  * Add a percentage to the yields.
  * @param {YieldsDelta} yieldsDelta

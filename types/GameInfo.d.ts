@@ -35,6 +35,7 @@ declare interface Modifier extends BaseTableEntry {
   ModifierType: string;
   OwnerRequirementSetId?: string | null;
   SubjectRequirementSetId?: string | null;
+  NewOnly?: boolean;
   Permanent: boolean;
   RunOnce: boolean;
 }
@@ -157,6 +158,79 @@ declare interface Terrain {
 }
 
 /**
+ * Represents a Constructible in the game.
+ * @property {string} ConstructibleType - Unique identifier for the constructible (PK)
+ * @property {string | null} AdjacentDistrict - Identifier for the adjacent district, if applicable
+ * @property {boolean} AdjacentLake - Whether the constructible must be adjacent to a lake
+ * @property {boolean} AdjacentRiver - Whether the constructible must be adjacent to a river
+ * @property {string | null} AdjacentTerrain - Identifier for the adjacent terrain, if applicable
+ * @property {string | null} Age - Age category for the constructible
+ * @property {boolean} Archaeology - Whether the constructible is related to archaeology
+ * @property {boolean} CanBeHidden - Whether the constructible can be hidden
+ * @property {string} ConstructibleClass - Class type of the constructible
+ * @property {number} Cost - Base cost of the constructible
+ * @property {string} CostProgressionModel - Progression model for cost calculation
+ * @property {number} CostProgressionParam1 - Parameter for cost progression calculation
+ * @property {number} Defense - Defense value of the constructible
+ * @property {string | null} Description - Localization key for the description
+ * @property {boolean} Discovery - Whether the constructible is related to discovery
+ * @property {boolean} DistrictDefense - Whether the constructible provides district defense
+ * @property {boolean} ExistingDistrictOnly - Whether the constructible requires an existing district
+ * @property {boolean} ImmuneDamage - Whether the constructible is immune to damage
+ * @property {boolean} InRailNetwork - Whether the constructible is part of the rail network
+ * @property {string} MilitaryDomain - Military domain classification
+ * @property {string} Name - Localization key for the name
+ * @property {boolean} NoFeature - Whether the constructible cannot be placed on features
+ * @property {boolean} NoRiver - Whether the constructible cannot be placed on a river
+ * @property {number} Population - Population requirement for the constructible
+ * @property {number} ProductionBoostOverRoute - Production boost when placed over a route
+ * @property {boolean} Repairable - Whether the constructible can be repaired
+ * @property {boolean} RequiresAppealPlacement - Whether the constructible requires appeal placement
+ * @property {boolean} RequiresDistantLands - Whether the constructible requires distant lands
+ * @property {boolean} RequiresHomeland - Whether the constructible requires homeland
+ * @property {boolean} RequiresUnlock - Whether the constructible requires an unlock condition
+ * @property {string | null} RiverPlacement - Specific river placement requirement, if any
+ * @property {string | null} Tooltip - Localization key for the tooltip
+ * @property {boolean} VictoryItem - Whether the constructible is a victory condition item
+ */
+declare interface Constructible extends BaseTableEntry {
+  ConstructibleType: string;
+  AdjacentDistrict?: string | null;
+  AdjacentLake: boolean;
+  AdjacentRiver: boolean;
+  AdjacentTerrain?: string | null;
+  Age?: string | null;
+  Archaeology: boolean;
+  CanBeHidden: boolean;
+  ConstructibleClass: string;
+  Cost: number;
+  CostProgressionModel: string;
+  CostProgressionParam1: number;
+  Defense: number;
+  Description?: string | null;
+  Discovery: boolean;
+  DistrictDefense: boolean;
+  ExistingDistrictOnly: boolean;
+  ImmuneDamage: boolean;
+  InRailNetwork: boolean;
+  MilitaryDomain: string;
+  Name: string;
+  NoFeature: boolean;
+  NoRiver: boolean;
+  Population: number;
+  ProductionBoostOverRoute: number;
+  Repairable: boolean;
+  RequiresAppealPlacement: boolean;
+  RequiresDistantLands: boolean;
+  RequiresHomeland: boolean;
+  RequiresUnlock: boolean;
+  RiverPlacement?: string | null;
+  Tooltip?: string | null;
+  VictoryItem: boolean;
+}
+
+
+/**
  * Represents a tag associated with a specific type.
  * 
  * @property {string} Tag - The tag identifier.
@@ -167,6 +241,125 @@ declare interface TypeTag {
   Type: string;
 }
 
+/**
+ * Represents a Unit in the game.
+ * @property {string} UnitType - Unique identifier for the unit (PK)
+ * @property {number} AirSlots - Number of air slots available for the unit
+ * @property {boolean} AllowBarbarians - Whether the unit can be used by barbarians
+ * @property {boolean} AllowTeleportToOtherPlayerCapitals - Whether the unit can teleport to other player capitals
+ * @property {number} AntiAirCombat - Anti-air combat strength of the unit
+ * @property {number} BaseMoves - Number of base movement points
+ * @property {number} BaseSightRange - Base sight range of the unit
+ * @property {number} BuildCharges - Number of build charges available
+ * @property {boolean} CanBeDamaged - Whether the unit can take damage
+ * @property {boolean} CanCapture - Whether the unit can capture cities or other units
+ * @property {boolean} CanEarnExperience - Whether the unit can earn experience
+ * @property {boolean} CanPurchase - Whether the unit can be purchased
+ * @property {boolean} CanRetreatWhenCaptured - Whether the unit can retreat when captured
+ * @property {boolean} CanTargetAir - Whether the unit can target air units
+ * @property {boolean} CanTrain - Whether the unit can be trained
+ * @property {boolean} CanTriggerDiscovery - Whether the unit can trigger a discovery
+ * @property {string} CoreClass - Core class of the unit
+ * @property {string} CostProgressionModel - Model for cost progression
+ * @property {number} CostProgressionParam1 - Parameter for cost progression
+ * @property {string | null} Description - Localization key for the description
+ * @property {string} Domain - Domain type of the unit
+ * @property {boolean} EnabledByReligion - Whether the unit is enabled by religion
+ * @property {boolean} EvangelizeBelief - Whether the unit can evangelize beliefs
+ * @property {boolean} ExtractsArtifacts - Whether the unit can extract artifacts
+ * @property {string} FormationClass - Formation class of the unit
+ * @property {boolean} FoundCity - Whether the unit can found a city
+ * @property {boolean} FoundReligion - Whether the unit can found a religion
+ * @property {boolean} IgnoreMoves - Whether the unit ignores movement rules
+ * @property {number} InitialLevel - Initial level of the unit
+ * @property {boolean} LaunchInquisition - Whether the unit can launch an inquisition
+ * @property {number} Maintenance - Maintenance cost of the unit
+ * @property {boolean} MakeTradeRoute - Whether the unit can establish trade routes
+ * @property {boolean} MustPurchase - Whether the unit must be purchased
+ * @property {string} Name - Localization key for the name
+ * @property {number} NumRandomChoices - Number of random choices available to the unit
+ * @property {number} PrereqPopulation - Population requirement for the unit
+ * @property {string | null} PromotionClass - Promotion class of the unit
+ * @property {string | null} PseudoYieldType - Pseudo-yield type associated with the unit
+ * @property {string | null} PurchaseYield - Yield type used for purchasing the unit
+ * @property {number} ReligionEvictPercent - Percentage of religious eviction by the unit
+ * @property {number} ReligiousHealCharges - Number of religious heal charges
+ * @property {number} ReligiousStrength - Religious strength of the unit
+ * @property {boolean} RequiresInquisition - Whether the unit requires an inquisition
+ * @property {number} SpreadCharges - Number of religious spread charges
+ * @property {boolean} Spy - Whether the unit is a spy
+ * @property {boolean} Stackable - Whether the unit can be stacked with others
+ * @property {string | null} StrategicResource - Required strategic resource for the unit
+ * @property {boolean} TeamVisibility - Whether the unit has team visibility
+ * @property {boolean} Teleport - Whether the unit can teleport
+ * @property {number | null} Tier - Tier level of the unit
+ * @property {boolean} TrackReligion - Whether the unit tracks religion
+ * @property {string | null} TraitType - Trait type associated with the unit
+ * @property {string} UnitMovementClass - Movement class of the unit
+ * @property {string | null} VictoryType - Victory type associated with the unit
+ * @property {boolean} VictoryUnit - Whether the unit contributes to victory conditions
+ * @property {boolean} WMDCapable - Whether the unit is capable of using weapons of mass destruction
+ * @property {boolean} ZoneOfControl - Whether the unit has a zone of control
+ */
+declare interface Unit extends BaseTableEntry {
+  UnitType: string;
+  AirSlots: number;
+  AllowBarbarians: boolean;
+  AllowTeleportToOtherPlayerCapitals: boolean;
+  AntiAirCombat: number;
+  BaseMoves: number;
+  BaseSightRange: number;
+  BuildCharges: number;
+  CanBeDamaged: boolean;
+  CanCapture: boolean;
+  CanEarnExperience: boolean;
+  CanPurchase: boolean;
+  CanRetreatWhenCaptured: boolean;
+  CanTargetAir: boolean;
+  CanTrain: boolean;
+  CanTriggerDiscovery: boolean;
+  CoreClass: string;
+  CostProgressionModel: string;
+  CostProgressionParam1: number;
+  Description?: string | null;
+  Domain: string;
+  EnabledByReligion: boolean;
+  EvangelizeBelief: boolean;
+  ExtractsArtifacts: boolean;
+  FormationClass: string;
+  FoundCity: boolean;
+  FoundReligion: boolean;
+  IgnoreMoves: boolean;
+  InitialLevel: number;
+  LaunchInquisition: boolean;
+  Maintenance: number;
+  MakeTradeRoute: boolean;
+  MustPurchase: boolean;
+  Name: string;
+  NumRandomChoices: number;
+  PrereqPopulation: number;
+  PromotionClass?: string | null;
+  PseudoYieldType?: string | null;
+  PurchaseYield?: string | null;
+  ReligionEvictPercent: number;
+  ReligiousHealCharges: number;
+  ReligiousStrength: number;
+  RequiresInquisition: boolean;
+  SpreadCharges: number;
+  Spy: boolean;
+  Stackable: boolean;
+  StrategicResource?: string | null;
+  TeamVisibility: boolean;
+  Teleport: boolean;
+  Tier?: number | null;
+  TrackReligion: boolean;
+  TraitType?: string | null;
+  UnitMovementClass: string;
+  VictoryType?: string | null;
+  VictoryUnit: boolean;
+  WMDCapable: boolean;
+  ZoneOfControl: boolean;
+}
 
 
 declare type GameInfoArray<T> = T[] & { 
@@ -191,6 +384,8 @@ declare interface IGameInfo {
   TypeTags: GameInfoArray<TypeTag>;
   Yields: GameInfoArray<any>;
   Projects: GameInfoArray<any>;
+  Constructibles: GameInfoArray<Constructible>;
+  Units: GameInfoArray<Unit>;
 }
 
 declare type IYieldTypes = {

@@ -41,3 +41,14 @@ declare interface UnwrappedPlayerYields {
         Percent: number;
     }
 }
+
+declare interface UnitTypeInfo {
+    UnitType: Unit;
+    Tags: string[];
+    Count: number;
+    MaintenanceCost: number;
+}
+
+declare interface UnitTypesInfo {
+    [unitType: string]: UnitTypeInfo;
+}
