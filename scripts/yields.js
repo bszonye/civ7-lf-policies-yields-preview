@@ -86,8 +86,8 @@ export function addYieldsPercent(yieldsDelta, modifier, percent) {
     if (typeof modifier.Arguments?.YieldType?.Value === "undefined") {
         console.error(`Modifier ${modifier.Modifier.ModifierId} is missing a YieldType argument.`, modifier.Arguments);
         return;
-    }   
-
+    }
+    
     parseYieldsType(modifier.Arguments.YieldType.Value).forEach(type => {
         if (!yieldsDelta.Percent[type]) {
             yieldsDelta.Percent[type] = 0;

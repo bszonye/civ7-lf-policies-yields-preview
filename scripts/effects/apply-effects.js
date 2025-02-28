@@ -186,7 +186,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             // TODO Check `TRADITION_TIRAKUNA` for `Arguments.Apply` with `Rate` value.
             // TODO Implement `Arguments.PercentMultiplier` (check TRADITION_ASSEMBLY_LINE) 
             if (modifier.Arguments.Percent) {
-                addYieldsPercentForCitySubject(yieldsDelta, modifier, subject, Number(modifier.Arguments.Percent.Value)); 
+                return addYieldsPercentForCitySubject(yieldsDelta, modifier, subject, Number(modifier.Arguments.Percent.Value)); 
             }
             else if (modifier.Arguments.Amount) {
                 return addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
