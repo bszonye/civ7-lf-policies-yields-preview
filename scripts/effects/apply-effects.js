@@ -81,6 +81,18 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
+        case "EFFECT_PLAYER_ADJUST_YIELD_PER_ATTRIBUTE_AND_ALLIANCES": {
+            const attributePoints = player.Identity?.getSpentAttributePoints(modifier.Arguments.AttributeType.Value) || 0;
+            const allPlayers = Players.getAlive();
+            const allies = allPlayers.filter(otherPlayer => 
+                otherPlayer.isMajor && 
+                otherPlayer.id != GameContext.localPlayerID && 
+                player.Diplomacy?.hasAllied(otherPlayer)
+            ).length;
+            const amount = Number(modifier.Arguments.Amount.Value) * attributePoints * allies;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
         case "EFFECT_PLAYER_ADJUST_YIELD": {
             return addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
         }
@@ -90,6 +102,38 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_PLAYER_ADJUST_YIELD_FROM_DISTATERS": {
             return;
         }
+
+        case "EFFECT_PLAYER_ADJUST_YIELD_PER_NUM_CITIES": {
+            let numSettlements = 0;
+            if (modifier.Arguments.Cities?.Value === 'true') numSettlements += player.Stats.numCities;            
+            if (modifier.Arguments.Towns?.Value === 'true') numSettlements += player.Stats.numTowns;
+            const amount = Number(modifier.Arguments.Amount.Value) * numSettlements;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_PLAYER_ADJUST_YIELD_PER_NUM_TRADE_ROUTES": {
+            const amount = Number(modifier.Arguments.Amount.Value) * player.Trade.countPlayerTradeRoutes();
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_PLAYER_ADJUST_YIELD_PER_RESOURCE": {
+            const resourcesCount = modifier.Arguments.Imported?.Value === 'true'
+                ? player.Resources.getCountImportedResources()
+                : player.Resources.getResources().length;
+            const amount = Number(modifier.Arguments.Amount.Value) * resourcesCount;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_PLAYER_ADJUST_YIELD_PER_SUZERAIN": {
+            const cityStates = Players.getAlive().filter(otherPlayer => 
+                otherPlayer.isMinor && 
+                otherPlayer.Influence?.hasSuzerain &&
+                otherPlayer.Influence.getSuzerain() === GameContext.localPlayerID
+            ).length;
+            const amount = Number(modifier.Arguments.Amount.Value) * cityStates;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
 
         // Player (Units)
         case "EFFECT_PLAYER_ADJUST_UNIT_MAINTENANCE_EFFICIENCY": {

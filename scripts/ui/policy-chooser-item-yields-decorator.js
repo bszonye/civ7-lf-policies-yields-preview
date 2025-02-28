@@ -23,7 +23,7 @@ class PolicyChooserItemYieldsDecorator {
         .policy-chooser-item__yields {
               font-weight: 700;
               line-height: 1.3333333333rem;
-              background: linear-gradient(180deg, rgba(35, 37, 43, 0) 0%, rgba(35, 37, 43, 0.85) 100%);            padding: 0.25rem 0.5rem;
+              background: linear-gradient(180deg, rgba(35, 37, 43, 0.45) 0%, rgba(35, 37, 43, 0.85) 100%);            padding: 0.25rem 0.5rem;
         }
 
         .policy-chooser-item__yields div {
