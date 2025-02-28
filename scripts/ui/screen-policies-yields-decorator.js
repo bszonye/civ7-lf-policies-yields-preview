@@ -14,6 +14,8 @@ class ScreenPoliciesYieldsDecorator {
     }
 
     afterAttach() {}
+    beforeDetach() {}
+    afterDetach() {}
 
     /**
      * We need to patch the `createPolicyNode` method to set the TraditionType on the node so we can preview the yields.

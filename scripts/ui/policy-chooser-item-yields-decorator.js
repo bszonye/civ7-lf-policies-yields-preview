@@ -35,6 +35,8 @@ class PolicyChooserItemYieldsDecorator {
 
     beforeAttach() {}
     afterAttach() {}
+    beforeDetach() {}
+    afterDetach() {}
 
     applyPrototypePatch() {
         const proto = Object.getPrototypeOf(this.item);
@@ -73,7 +75,9 @@ class PolicyChooserItemYieldsDecorator {
             `;
             
             container.addEventListener('action-activate', () => {
-                console.warn("LFAddon: PolicyChooserItem action-activate", node.TraditionType, JSON.stringify(modifiers));
+                console.warn("LFAddon: PolicyChooserItem action-activate", node.TraditionType);
+                const result = previewPolicyYields(node);
+                console.warn("LFAddon: PolicyChooserItem", JSON.stringify(result));
             });
     
     

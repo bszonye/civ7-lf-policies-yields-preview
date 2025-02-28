@@ -3,7 +3,7 @@
  * @returns {UnitTypesInfo}
  */
 export function getPlayerUnitsTypesMainteneance(player) {
-    const units = player.getUnits();
+    const units = player.Units?.getUnits() || [];
     /** @type {UnitTypesInfo} */
     const unitTypes = {};
 
