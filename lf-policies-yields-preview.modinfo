@@ -32,7 +32,9 @@
 					<Item>scripts/effects/constructibles.js</Item>
 					<Item>scripts/effects/units.js</Item>
 					<Item>scripts/requirements/city-requirements.js</Item>
+					<Item>scripts/requirements/plot-requirements.js</Item>
 					<Item>scripts/yields.js</Item>
+					<Item>scripts/modifiers.js</Item>
 					<Item>scripts/global-cache.js</Item>
 				</UIScripts>
 			</Actions>

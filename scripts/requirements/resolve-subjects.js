@@ -2,10 +2,11 @@ import { hasCityBuilding, hasCityTerrain } from "./city-requirements.js";
 
 /**
  * @param {ResolvedModifier} modifier 
+ * @param {any} parentSubject May be a city, a plot, a player, etc. Usually a city for nested modifiers (EFFECT_ATTACH_MODIFIER_TO_CITY)
  * @returns 
  */
-export function resolveSubjectsWithRequirements(player, modifier) {
-    const baseSubjects = resolveBaseSubjects(modifier);
+export function resolveSubjectsWithRequirements(player, modifier, parentSubject = null) {
+    const baseSubjects = resolveBaseSubjects(modifier, parentSubject);
 
     return baseSubjects.filter(subject => {
         return modifier.SubjectRequirements.every(requirement => {
@@ -18,13 +19,13 @@ export function resolveSubjectsWithRequirements(player, modifier) {
 /**
  * @param {ResolvedModifier} modifier
  */
-function resolveBaseSubjects(modifier) {
+function resolveBaseSubjects(modifier, parentSubject = null) {
     const player = Players.get(GameContext.localPlayerID);
     switch (modifier.CollectionType) {
         case "COLLECTION_PLAYER_CAPITAL_CITY":
             return [player.Cities.getCapital()];
         
-            case "COLLECTION_PLAYER_CITIES":
+        case "COLLECTION_PLAYER_CITIES":
             return player.Cities.getCities();
         
             // We don't care about other players cities, since we need anyway the effect
@@ -47,6 +48,21 @@ function resolveBaseSubjects(modifier) {
 
         case "COLLECTION_OWNER":
             return [player];
+
+        // Nested (City)
+        case "COLLECTION_CITY_PLOT_YIELDS": {
+            if (!parentSubject) {
+                console.error("COLLECTION_CITY_PLOT_YIELDS requires a parentSubject (City)");
+                return [];
+            }
+
+            return parentSubject.getPurchasedPlots().map(plot => {
+                return {
+                    city: parentSubject,
+                    plot,
+                };
+            });
+        }
             
         case "COLLECTION_ALL_UNITS":
             console.warn("COLLECTION_ALL_UNITS not implemented");
@@ -102,6 +118,19 @@ function isRequirementSatisfied(player, subject, requirement) {
             return hasCityTerrain(subject, requirement.Arguments);
 
         // Plot
+        case "REQUIREMENT_PLOT_DISTRICT_CLASS": {
+            const { plot } = subject;
+            const location = GameplayMap.getLocationFromIndex(plot);
+            const districtId = MapCities.getDistrict(location.x, location.y);
+            console.warn("REQUIREMENT_PLOT_DISTRICT_CLASS check for plot at" + location.x + "," + location.y + " with districtId " + districtId);
+            const district = districtId ? Districts.get(districtId) : null;
+            if (!district) return false;
+            const districtClass = GameInfo.Districts.lookup(district.type)?.DistrictClass;
+            console.warn("District type is " + district.type + " and class is " + districtClass);
+            const requiredClasses = requirement.Arguments.DistrictClass?.Value.split(",").map(s => s.trim());
+            console.warn("Required classes are " + requiredClasses);
+            return requiredClasses.includes(districtClass);
+        }
 
         // Player (Owner)
 

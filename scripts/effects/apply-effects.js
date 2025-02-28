@@ -1,6 +1,8 @@
+import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmountNoMultiplier } from "../yields.js";
 import { getPlayerBuildingsCountForModifier } from "./constructibles.js";
 import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, unitsMaintenanceEfficencyToReduction } from "./units.js";
+import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
 /**
  * @param {YieldsDelta} yieldsDelta 
@@ -134,6 +136,14 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
+        case "EFFECT_ATTACH_MODIFIERS": {
+            // Nested modifiers; they are applied once for each subject from the parent modifier.
+            const nestedModifierId = modifier.Arguments.ModifierId.Value;
+            const nestedModifier = resolveModifierById(nestedModifierId);
+            const nestedSubjects = resolveSubjectsWithRequirements(player, nestedModifier, subject);
+            return applyYieldsForSubjects(yieldsDelta, nestedSubjects, nestedModifier);
+        }
+
 
         // Player (Units)
         case "EFFECT_PLAYER_ADJUST_UNIT_MAINTENANCE_EFFICIENCY": {
@@ -185,6 +195,13 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
                 console.warn(`Unhandled ModifierArguments: ${modifier.Arguments}`);
                 return;
             }
+        }
+
+        // Plot
+        case "EFFECT_PLOT_ADJUST_YIELD": {
+            // TODO Percent?
+            const amount = Number(modifier.Arguments.Amount.Value);
+            return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
         // Ignored effects

@@ -3,6 +3,8 @@ declare var Controls: any;
 declare var Players: any;
 declare var GameContext: any;
 declare var GameplayMap: any;
+declare var MapCities: any;
+declare var Districts: any;
 declare var Loading: any;
 declare var Locale: any;
 declare var Constructibles: any;

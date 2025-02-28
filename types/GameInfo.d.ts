@@ -387,6 +387,7 @@ declare interface IGameInfo {
   Projects: GameInfoArray<any>;
   Constructibles: GameInfoArray<Constructible>;
   Units: GameInfoArray<Unit>;
+  Districts: GameInfoArray<any>;
 }
 
 declare type IYieldTypes = {
