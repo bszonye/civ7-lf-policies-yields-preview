@@ -1,5 +1,3 @@
-import { UnwrappedPlayerYieldsCacheInstance } from "./global-cache.js";
-
 /**
  * Creates an empty yields object.
  * @returns {YieldsDelta}
@@ -105,37 +103,6 @@ export function addYieldsPercent(yieldsDelta, modifier, percent) {
  */
 function parseYieldsType(yieldsType) {
     return yieldsType.split(",").map(type => type.trim());
-}
-
-/**
- * @param {YieldsDelta} yieldsDelta 
- */
-export function resolveYields(player, yieldsDelta) {
-    const yields = {};
-    const CachedPlayerYields = UnwrappedPlayerYieldsCacheInstance.get();
-
-    for (const type in YieldTypes) {
-        yields[type] = yieldsDelta.Amount[type] || 0;
-        yields[type] *= 1 + ((CachedPlayerYields[type]?.Percent || 0) / 100);
-    }
-
-    for (const type in yieldsDelta.Percent) {
-        const baseYield = CachedPlayerYields[type]?.BaseAmount || 0;        
-        const increase = (baseYield + yieldsDelta.Amount[type] || 0) * (yieldsDelta.Percent[type] / 100);
-        yields[type] += increase;
-    }
-
-    // TODO This is probably wrong, since even the previous net yield is probably
-    // already including some multiplied / non-multiplied yields.
-    for (const type in yieldsDelta.AmountNoMultiplier) {
-        yields[type] += yieldsDelta.AmountNoMultiplier[type];
-    }
-
-    for (const type in yields) {
-        yields[type] = Math.round(yields[type]);
-    }
-
-    return yields;
 }
 
 // TODO try-catch
