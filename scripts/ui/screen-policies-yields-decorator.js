@@ -13,6 +13,8 @@ class ScreenPoliciesYieldsDecorator {
         UnwrappedPlayerYieldsCacheInstance.update();
     }
 
+    afterAttach() {}
+
     /**
      * We need to patch the `createPolicyNode` method to set the TraditionType on the node so we can preview the yields.
      * This is necessary because the TraditionType is not available on the node by default.

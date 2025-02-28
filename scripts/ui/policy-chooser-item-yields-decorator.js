@@ -21,19 +21,20 @@ class PolicyChooserItemYieldsDecorator {
         const style = document.createElement('style');
         style.textContent = /* css */ `
         .policy-chooser-item__yields {
-            border-image-source: url("fs://game/hud_sidepanel_list-bg.png");
-            border-image-outset: 0 0 0 0;
-            border-image-repeat: stretch stretch;
-            border-image-slice: 8 8 8 8 fill;
-            border-image-width: 0.4444444444rem 0.4444444444rem 0.4444444444rem 0.4444444444rem;
-            background: linear-gradient(180deg, #333640 0%, rgba(35, 37, 43, 0.95) 100%);
-            padding: 0.25rem 0.5rem;
+              font-weight: 700;
+              line-height: 1.3333333333rem;
+              background: linear-gradient(180deg, rgba(35, 37, 43, 0) 0%, rgba(35, 37, 43, 0.85) 100%);            padding: 0.25rem 0.5rem;
+        }
+
+        .policy-chooser-item__yields div {
+            margin-bottom: -0.15rem;
         }
         `;
         document.head.appendChild(style);
     }
 
     beforeAttach() {}
+    afterAttach() {}
 
     applyPrototypePatch() {
         const proto = Object.getPrototypeOf(this.item);
@@ -55,7 +56,7 @@ class PolicyChooserItemYieldsDecorator {
             // console.warn("LFAddon: PolicyChooserItem", JSON.stringify(node), JSON.stringify(yields));
             const yieldsPreviewItems = Object.entries(yields)
                 .filter(([key, value]) => value != 0 && value != null)
-                .map(([key, value]) => `${value >= 0 ? '+' : ''}${value} [icon:${key}]`);
+                .map(([key, value]) => `${value >= 0 ? '+' : ''}${value}[icon:${key}]`);
     
             // if (yieldsPreviewItems.length === 0) return;
             
@@ -63,11 +64,11 @@ class PolicyChooserItemYieldsDecorator {
             // const button = document.createElement("fxs-activatable");        
             const container = document.createElement("fxs-activatable");
             // button.appendChild(container);
-            container.style.top = "-12px";
-            container.classList.value = "policy-chooser-item--preview absolute w-auto text-center";
+            container.style.bottom = "0px";
+            container.classList.value = "policy-chooser-item--preview absolute w-full";
             container.innerHTML = `
-            <div class="policy-chooser-item__yields flex items-center font-body-base text-center text-accent-4">
-                ${Locale.stylize(yieldsPreviewText)}
+            <div class="policy-chooser-item__yields w-full font-body-sm text-center text-accent-3">
+                <div class="w-auto flex items-center">${Locale.stylize(yieldsPreviewText)}</div>
             </div>
             `;
             
@@ -82,3 +83,13 @@ class PolicyChooserItemYieldsDecorator {
 }
 
 Controls.decorate('policy-chooser-item', (val) => new PolicyChooserItemYieldsDecorator(val));
+
+// engine.whenReady.then(() => {
+//     const player = Players.get(GameContext.localPlayerID);
+
+//     for (let i = 0; i < GameInfo.Yields.length; i++) {
+//         const yieldType = GameInfo.Yields[i].YieldType;
+//         const yields = player.Stats.getYieldsForType(yieldType);
+
+//     }
+// });
