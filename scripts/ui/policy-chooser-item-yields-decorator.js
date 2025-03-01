@@ -23,11 +23,13 @@ class PolicyChooserItemYieldsDecorator {
         .policy-chooser-item__yields {
               font-weight: 700;
               line-height: 1.3333333333rem;
-              background: linear-gradient(180deg, rgba(35, 37, 43, 0.45) 0%, rgba(35, 37, 43, 0.85) 100%);            padding: 0.25rem 0.5rem;
+              border-radius: 0.65rem;              
+              background: linear-gradient(180deg, rgba(19, 20, 21, 0.45) 0%, rgba(27, 27, 30, 0.85) 100%);            padding: 0.25rem 0.5rem;
         }
 
         .policy-chooser-item__yields div {
             margin-bottom: -0.15rem;
+            padding-left: 0.23rem;
         }
         `;
         document.head.appendChild(style);
@@ -64,10 +66,10 @@ class PolicyChooserItemYieldsDecorator {
             
             const yieldsPreviewText = yieldsPreviewItems.join(" ");
             // const button = document.createElement("fxs-activatable");        
-            const container = document.createElement("fxs-activatable");
+            const container = document.createElement("div");
             // button.appendChild(container);
-            container.style.bottom = "0px";
-            container.classList.value = "policy-chooser-item--preview absolute w-full";
+            // container.style.bottom = "0px";
+            container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";
             container.innerHTML = `
             <div class="policy-chooser-item__yields w-full font-body-sm text-center text-accent-3">
                 <div class="w-auto flex items-center">${Locale.stylize(yieldsPreviewText)}</div>
@@ -81,7 +83,7 @@ class PolicyChooserItemYieldsDecorator {
             });
     
     
-            this.Root.appendChild(container);
+            this.Root.querySelector(`div[data-l10n-id="${node.name}"]`).parentNode.appendChild(container);
         };
     }
 }
