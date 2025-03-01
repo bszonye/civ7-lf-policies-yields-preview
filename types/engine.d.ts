@@ -129,7 +129,7 @@ declare interface GameplayMap {
     getPlotDistance: (x1: number, y1: number, x2: number, y2: number) => number;
     getPlotLatitude: (x: number, y: number) => number;
     getRainfall: (x: number, y: number) => number;
-    getResourceType: (x: number, y: number) => string;
+    getResourceType: (x: number, y: number) => number;
     getRevealedState: (x: number, y: number, playerId: number) => string;
     getRevealedStates: (x: number, y: number) => Record<number, string>;
     getRiverType: (x: number, y: number) => string;
@@ -171,3 +171,7 @@ declare interface MapConstructibles {
 }
 
 declare var MapConstructibles: MapConstructibles;
+
+declare var ResourceTypes = {
+    NO_RESOURCE: -1,
+}

@@ -1,6 +1,6 @@
 import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier, parseArgumentsArray } from "../yields.js";
-import { AdjancenciesCache, findCityConstructiblesRespectingAdjacency, getPlayerBuildingsCountForModifier, getYieldsForConstructibleAdjacency } from "./constructibles.js";
+import { AdjancenciesCache, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getPlayerBuildingsCountForModifier, getPlotsGrantingAdjacency, getYieldsForAdjacency } from "./constructibles.js";
 import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, unitsMaintenanceEfficencyToReduction } from "./units.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
@@ -201,14 +201,40 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             const adjancencies = parseArgumentsArray(modifier.Arguments, 'ConstructibleAdjacency'); 
             adjancencies.forEach(adjacencyId => {
                 const adjacencyType = AdjancenciesCache.get(adjacencyId);
-                const validConstructibles = findCityConstructiblesRespectingAdjacency(subject, adjacencyId);
+                const validConstructibles = findCityConstructiblesMatchingAdjacency(subject, adjacencyId);
                 validConstructibles.forEach(constructible => {
-                    const amount = getYieldsForConstructibleAdjacency(constructible, adjacencyType);
+                    const amount = getYieldsForAdjacency(constructible.location, adjacencyType);
                     addYieldTypeAmount(yieldsDelta, adjacencyType.YieldType, amount);
                 });
             });
             return;
         }
+        
+        case "EFFECT_CITY_ADJUST_ADJACENCY_FLAT_AMOUNT": {
+            const adjancencies = parseArgumentsArray(modifier.Arguments, 'Adjacency_YieldChange');
+            adjancencies.forEach(adjacencyId => {
+                const adjacencyType = AdjancenciesCache.get(adjacencyId);
+                const constructibles = findCityConstructibles(subject);
+                constructibles.forEach(({ constructible }) => {
+                    const adjacentPlots = getPlotsGrantingAdjacency(constructible.location, adjacencyType).length; 
+                    // TODO Are we sure about `Divisor`?                      
+                    const amount = Number(modifier.Arguments.Amount.Value) * adjacentPlots / Number(modifier.Arguments.Divisor?.Value || 1);
+                    addYieldTypeAmount(yieldsDelta, adjacencyType.YieldType, amount);
+                });
+            });
+            return;
+        }
+
+        // TODO Implement this one. Only with ADJACENCY_YIELD refactor.
+        case "EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_WAREHOUSE_YIELD": {
+            const warehousesYields = parseArgumentsArray(modifier.Arguments, 'ConstructibleWarehouseYield');
+            warehousesYields.forEach(warehouseYield => {
+                
+            });
+            console.warn(`EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_WAREHOUSE_YIELD not implemented`);
+            return;
+        }
+
 
         // Plot
         case "EFFECT_PLOT_ADJUST_YIELD": {
@@ -219,6 +245,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
 
         // Ignored effects
         case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION":
+        case "EFFECT_CITY_ADJUST_AVOID_RANDOM_EVENT":
         case "EFFECT_UNIT_ADJUST_MOVEMENT":
         case "EFFECT_ADJUST_PLAYER_OR_CITY_BUILDING_PURCHASE_EFFICIENCY":
         case "EFFECT_ADJUST_PLAYER_OR_CITY_UNIT_PURCHASE_EFFICIENCY":

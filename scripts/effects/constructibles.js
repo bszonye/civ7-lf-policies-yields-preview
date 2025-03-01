@@ -128,16 +128,37 @@ const ConstructibleAdjacencies = new class {
 }
 
 /**
+ * Get all the constructibles in the city that _MAY_ receive adjacency bonuses from 
+ * the given adjacency type.
+ * Once the constructibles are filtered, the caller should check if the adjacency
+ * is actually valid for the constructible.
+ * 
  * @param {City} city
  * @param {string} adjacency
  */
-export function findCityConstructiblesRespectingAdjacency(city, adjacency) {
+export function findCityConstructiblesMatchingAdjacency(city, adjacency) {
     const constructibles = city.Constructibles.getIds();
     return constructibles
         .map(constructibleId => Constructibles.getByComponentID(constructibleId))
         .filter(constructible => {
             const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
             return isConstructibleAdjacencyValid(city, constructible, constructibleType, adjacency);
+        });
+}
+
+/**
+ * @param {City} city
+ */
+export function findCityConstructibles(city) {
+    const constructibles = city.Constructibles.getIds();
+    return constructibles
+        .map(constructibleId => Constructibles.getByComponentID(constructibleId))
+        .map(constructible => {
+            const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
+            return {
+                constructible,
+                constructibleType,
+            };
         });
 }
 
@@ -152,31 +173,47 @@ function isConstructibleAdjacencyValid(city, constructible, constructibleType, a
     return validAdjacencies.some(ayc => ayc.ID === adjacency);
 }
 
+// ====================================================================================================
+// ==== ADJACENCY YIELDS ==============================================================================
+// ====================================================================================================
+
 /**
- * @param {ConstructibleInstance} constructible
+ * Given an AdjacencyYieldChange, return the amount of yields granted by the adjacency
+ * This amount is the number of adjacent plots that meet the adjacency requirements,
+ * multiplied by the YieldChange of the adjacency.
+ * 
+ * @param {Location} location
  * @param {AdjacencyYieldChange} adjacency
  */
-export function getYieldsForConstructibleAdjacency(constructible, adjacency) {
-    const adjacentPlots = GameplayMap.getPlotIndicesInRadius(constructible.location.x, constructible.location.y, 1);
-    let amount = 0;
-    let tilesCount = 0;
+export function getYieldsForAdjacency(location, adjacency) {
+    const adjacentGrantingPlots = getPlotsGrantingAdjacency(location, adjacency);
+    if (adjacentGrantingPlots.length < adjacency.TilesRequired) return 0;
+    // TODO adjacency.ProjectMaxYield ?
+    return adjacentGrantingPlots.length * adjacency.YieldChange;
+}
+/**
+ * Given an AdjacencyYieldChange, return the amount of yields granted by the adjacency
+ * @param {Location} location
+ * @param {AdjacencyYieldChange} adjacency
+ */
+export function getPlotsGrantingAdjacency(location, adjacency) {
+    const adjacentPlots = GameplayMap.getPlotIndicesInRadius(location.x, location.y, 1);
+    let plots = [];
     for (let i = 0; i < adjacentPlots.length; i++) {
-        
         const plot = adjacentPlots[i];
         const loc = GameplayMap.getLocationFromIndex(plot);
-        if (loc.x === constructible.location.x && loc.y === constructible.location.y) continue;
+        if (loc.x === location.x && loc.y === location.y) continue;
         if (!isPlotGrantingAdjacency(adjacency, plot)) continue;
-        
-        amount += adjacency.YieldChange;
-        tilesCount++;
+
+        plots.push(plot);
     }
 
-    if (tilesCount < adjacency.TilesRequired) return 0;
-    // TODO adjacency.ProjectMaxYield ?
-    return amount;
+    return plots;
 }
 
 /**
+ * Check if a plot meets the adjacency requirements
+ * 
  * @param {AdjacencyYieldChange} adjacency 
  * @param {number} plot
  */
@@ -201,6 +238,11 @@ export function isPlotGrantingAdjacency(adjacency, plot) {
     if (adjacency.AdjacentDistrict) {
         const district = getPlotDistrict(plot);
         if (district.districtType.DistrictType !== adjacency.AdjacentDistrict) return false;
+    }
+
+    if (adjacency.AdjacentResource) {
+        const resourceType = GameplayMap.getResourceType(loc.x, loc.y);
+        if (resourceType == ResourceTypes.NO_RESOURCE) return false;
     }
 
     if (adjacency.Age) {

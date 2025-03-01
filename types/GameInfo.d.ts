@@ -496,6 +496,18 @@ declare interface Age extends BaseTableEntry {
   TradeSystemParameterSet?: string | null;
 }
 
+declare interface ConstructibleWarehouseYield extends BaseTableEntry {
+  ConstructibleType: string;
+  YieldChangeId: string;
+  RequiresActivation: boolean;
+}
+
+declare interface ConstructibleWildcardWarehouseYield extends BaseTableEntry {
+  YieldChangeId: string;
+  ConstructibleTag?: string | null; // Optional because it's not marked as NOT NULL
+  RequiresActivation: boolean;
+}
+
 
 declare type GameInfoArray<T> = T[] & { 
   lookup(hash: number): T | undefined;
@@ -525,6 +537,8 @@ declare interface IGameInfo {
   Adjacency_YieldChanges: GameInfoArray<AdjacencyYieldChange>;
   Constructible_Adjacencies: GameInfoArray<ConstructibleAdjacency>;
   Constructible_WildcardAdjacencies: GameInfoArray<ConstructibleWildcardAdjacency>;
+  Constructible_WarehouseYields: GameInfoArray<ConstructibleWarehouseYield>;
+  Constructible_WildcardWarehouseYields: GameInfoArray<ConstructibleWildcardWarehouseYield>;
   Ages: GameInfoArray<Age>;
 }
 
