@@ -27,15 +27,19 @@
 				<UIScripts>
 					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>					
 					<Item>scripts/ui/screen-policies-yields-decorator.js</Item>					
-					<Item>scripts/preview-policy-yields.js</Item>
 					<Item>scripts/effects/apply-effects.js</Item>
-					<Item>scripts/effects/constructibles.js</Item>
-					<Item>scripts/effects/units.js</Item>
-					<Item>scripts/requirements/city-requirements.js</Item>
-					<Item>scripts/requirements/plot-requirements.js</Item>
-					<Item>scripts/yields.js</Item>
+					<Item>scripts/effects/yields.js</Item>
+					<Item>scripts/game/adjacency.js</Item>
+					<Item>scripts/game/city.js</Item>
+					<Item>scripts/game/constructibles.js</Item>
+					<Item>scripts/game/helpers.js</Item>
+					<Item>scripts/game/plot.js</Item>
+					<Item>scripts/game/units.js</Item>
+					<Item>scripts/requirements/requirement.js</Item>
+					<Item>scripts/requirements/resolve-subjects.js</Item>
+					<Item>scripts/preview-policy-yields.js</Item>
 					<Item>scripts/modifiers.js</Item>
-					<Item>scripts/global-cache.js</Item>
+					<Item>scripts/cache.js</Item>
 				</UIScripts>
 			</Actions>
 		</ActionGroup>

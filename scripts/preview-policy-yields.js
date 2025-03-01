@@ -1,8 +1,8 @@
 import { applyYieldsForSubjects } from "./effects/apply-effects.js";
-import { UnwrappedPlayerYieldsCacheInstance } from "./global-cache.js";
+import { PolicyYieldsCache } from "./cache.js";
 import { resolveModifier } from "./modifiers.js";
 import { resolveSubjectsWithRequirements } from "./requirements/resolve-subjects.js";
-import { createEmptyYieldsDelta } from "./yields.js";
+import { createEmptyYieldsDelta } from "./effects/yields.js";
 
 
 export function previewPolicyYields(policy) {
@@ -54,10 +54,12 @@ function getModifiersForTradition(traditionType) {
 
 /**
  * @param {YieldsDelta} yieldsDelta 
+ * @returns {ResolvedYields}
  */
 export function resolveYields(player, yieldsDelta) {
+    /** @type {ResolvedYields} */
     const yields = {};
-    const CachedPlayerYields = UnwrappedPlayerYieldsCacheInstance.get();
+    const CachedPlayerYields = PolicyYieldsCache.getYields();
 
     for (const type in YieldTypes) {
         yields[type] = yieldsDelta.Amount[type] || 0;

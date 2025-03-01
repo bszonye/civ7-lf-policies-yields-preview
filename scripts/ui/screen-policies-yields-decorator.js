@@ -1,4 +1,4 @@
-import { UnwrappedPlayerYieldsCacheInstance } from "../global-cache.js";
+import { PolicyYieldsCache } from "../cache.js";
 
 class ScreenPoliciesYieldsDecorator {
     static latestAppliedProto = null;
@@ -10,7 +10,7 @@ class ScreenPoliciesYieldsDecorator {
     }
 
     beforeAttach() {
-        UnwrappedPlayerYieldsCacheInstance.update();
+        PolicyYieldsCache.update();
     }
 
     afterAttach() {}

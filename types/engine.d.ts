@@ -39,6 +39,7 @@ interface City {
         getIds: () => ID[];
         getMaintenance: (type: string) => number[];
         getIdsOfType: (type: string) => ID[];
+        hasConstructible: (type: string, unknownArg: boolean) => boolean;
     }
 }
   

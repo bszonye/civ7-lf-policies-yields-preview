@@ -6,7 +6,7 @@
  * - BuildingType: BuildingType
  * - Tag: Tag (checks if the city has any building with the tag)
  * 
- * @param {any} city
+ * @param {City} city
  * @param {ResolvedArguments} args
  */
 export function hasCityBuilding(city, args) {
@@ -45,3 +45,13 @@ export function hasCityTerrain(city, args) {
     console.warn(`Unhandled ModifierArgument: ${args}`);
     return false;
 }
+
+/**
+ * Get the number of specialists in a city.
+ * @param {City} city
+ */
+export function getCitySpecialistsCount(city) {
+    const specialists = city.population - city.urbanPopulation - city.ruralPopulation;
+    return specialists;
+}
+

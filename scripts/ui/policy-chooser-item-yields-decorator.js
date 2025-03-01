@@ -1,5 +1,31 @@
 import { previewPolicyYields } from "../preview-policy-yields.js";
 
+const YieldsColorMap = {
+    "YIELD_GOLD": "rgba(255, 235, 75, 0.15)",
+    "YIELD_FOOD": "rgba(141, 255, 75, 0.15)",
+    "YIELD_PRODUCTION": "rgba(174, 79, 15, 0.15)",
+    "YIELD_DIPLOMACY": "rgba(88, 192, 231, 0.15)",
+    "YIELD_SCIENCE": "rgba(50, 151, 255, 0.15)",
+    "YIELD_CULTURE": "rgba(197, 75, 255, 0.15)",
+    "YIELD_HAPPINESS": "rgba(253, 175, 50, 0.15)",
+}    
+
+/**
+ * @param {string} type
+ * @param {number} value
+ */
+function renderYieldTextSpan(type, value) {
+    const element = document.createElement("div");
+    element.classList.value = "policy-chooser-item__yield";
+    // element.style.backgroundColor = YieldsColorMap[type];
+    if (value < 0) {
+        element.classList.add("text-negative");
+    }
+    const positiveSign = value >= 0 ? "+" : "";
+    element.innerHTML = Locale.stylize(`${positiveSign}${value}[icon:${type}]`);
+    return element;
+}
+
 class PolicyChooserItemYieldsDecorator {
     static hasCSSOverrides = false;
     static latestAppliedProto = null;
@@ -27,10 +53,26 @@ class PolicyChooserItemYieldsDecorator {
               background: linear-gradient(180deg, rgba(19, 20, 21, 0.45) 0%, rgba(27, 27, 30, 0.85) 100%);            padding: 0.25rem 0.5rem;
         }
 
-        .policy-chooser-item__yields div {
-            margin-bottom: -0.15rem;
+        .policy-chooser-item__yields > div {
+            padding: 0;
+        }
+
+        .policy-chooser-item__yield {
+            margin: 0;
+            line-height: 1.3333333333rem;
+            padding-left: 0.35rem;
+        }
+
+        .policy-chooser-item__yield:first-child {
+            border-top-left-radius: 0.65rem;
+            border-bottom-left-radius: 0.65rem;
             padding-left: 0.23rem;
         }
+
+        .policy-chooser-item__yield:last-child {
+            border-top-right-radius: 0.65rem;
+            border-bottom-right-radius: 0.65rem;
+        }   
         `;
         document.head.appendChild(style);
     }
@@ -58,30 +100,33 @@ class PolicyChooserItemYieldsDecorator {
     
             const { yields, modifiers } = previewPolicyYields(node);
             // console.warn("LFAddon: PolicyChooserItem", JSON.stringify(node), JSON.stringify(yields));
-            const yieldsPreviewItems = Object.entries(yields)
-                .filter(([key, value]) => value != 0 && value != null)
-                .map(([key, value]) => `${value >= 0 ? '+' : ''}${value}[icon:${key}]`);
-    
-            // if (yieldsPreviewItems.length === 0) return;
+            const validYields = Object.entries(yields)
+                .filter(([type, value]) => value != 0 && value != null);
+
+            if (validYields.length === 0) return;
             
-            const yieldsPreviewText = yieldsPreviewItems.join(" ");
-            // const button = document.createElement("fxs-activatable");        
+            // const yieldsPreviewText = yieldsPreviewItems.map(i => i.text).join(" ");
+                    
             const container = document.createElement("fxs-activatable");
-            // button.appendChild(container);
-            // container.style.bottom = "0px";
             container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";
-            container.innerHTML = `
-            <div class="policy-chooser-item__yields w-full font-body-sm text-center text-accent-3">
-                <div class="w-auto flex items-center">${Locale.stylize(yieldsPreviewText)}</div>
-            </div>
-            `;
             
+            const yieldsContainer = document.createElement("div");
+            yieldsContainer.classList.value = "policy-chooser-item__yields w-full font-body-sm text-center text-accent-3";
+            container.appendChild(yieldsContainer);
+
+            const yieldsTextContainer = document.createElement("div");
+            yieldsTextContainer.classList.value = "w-auto flex items-center";
+            yieldsContainer.appendChild(yieldsTextContainer);
+
+            validYields.forEach(([type, value]) => {
+                yieldsTextContainer.appendChild(renderYieldTextSpan(type, value));
+            });
+        
             container.addEventListener('action-activate', () => {
                 console.warn("LFAddon: PolicyChooserItem action-activate", node.TraditionType);
                 const result = previewPolicyYields(node);
                 console.warn("LFAddon: PolicyChooserItem", JSON.stringify(result));
             });
-    
     
             this.Root.querySelector(`div[data-l10n-id="${node.name}"]`).parentNode.appendChild(container);
         };
@@ -89,13 +134,3 @@ class PolicyChooserItemYieldsDecorator {
 }
 
 Controls.decorate('policy-chooser-item', (val) => new PolicyChooserItemYieldsDecorator(val));
-
-// engine.whenReady.then(() => {
-//     const player = Players.get(GameContext.localPlayerID);
-
-//     for (let i = 0; i < GameInfo.Yields.length; i++) {
-//         const yieldType = GameInfo.Yields[i].YieldType;
-//         const yields = player.Stats.getYieldsForType(yieldType);
-
-//     }
-// });

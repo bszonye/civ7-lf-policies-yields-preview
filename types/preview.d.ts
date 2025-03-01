@@ -33,6 +33,10 @@ declare interface YieldsDelta {
     };
 }
 
+declare interface ResolvedYields {
+    [YieldType: string]: number;
+}
+
 declare interface UnwrappedPlayerYields {
     [YieldType: string]: {
         /** Amount generated (no negative, e.g. only cities) before percent */

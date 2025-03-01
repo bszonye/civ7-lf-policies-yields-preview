@@ -1,3 +1,5 @@
+import { parseArgumentsArray } from "../game/helpers.js";
+
 /**
  * Creates an empty yields object.
  * @returns {YieldsDelta}
@@ -101,20 +103,6 @@ export function addYieldsPercent(yieldsDelta, modifier, percent) {
         }
         yieldsDelta.Percent[type] += percent;
     });
-}
-
-/**
- * E.g. "YIELD_FOOD, YIELD_PRODUCTION" -> ["YIELD_FOOD", "YIELD_PRODUCTION"]
- * @param {ResolvedArguments} args
- * @param {string} name The name of the argument
- * @returns {string[]}
- */
-export function parseArgumentsArray(args, name) {
-    if (!args[name]) {
-        console.error(`Argument ${name} is missing.`, args);
-        return [];
-    }
-    return args[name].Value.split(",").map(type => type.trim());
 }
 
 // TODO try-catch

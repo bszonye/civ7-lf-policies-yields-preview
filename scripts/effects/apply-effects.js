@@ -1,7 +1,10 @@
 import { resolveModifierById } from "../modifiers.js";
-import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier, parseArgumentsArray } from "../yields.js";
-import { AdjancenciesCache, computeConstructibleMaintenanceEfficencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBuildingsCountForModifier, getPlayerBuildingsCountForModifier, getPlotsGrantingAdjacency, getYieldsForAdjacency } from "./constructibles.js";
-import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, calculateMaintenanceEfficencyToReduction, getCitySpecialistsCount } from "./units.js";
+import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier } from "./yields.js";
+import { computeConstructibleMaintenanceEfficiencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBuildingsCountForModifier, getPlayerBuildingsCountForModifier } from "../game/constructibles.js";
+import { getYieldsForAdjacency, getPlotsGrantingAdjacency, AdjancenciesCache } from "../game/adjacency.js";
+import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfModifier } from "../game/units.js";
+import { getCitySpecialistsCount } from "../game/city.js";
+import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
 /**
@@ -147,7 +150,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
 
         // Player (Units)
         case "EFFECT_PLAYER_ADJUST_UNIT_MAINTENANCE_EFFICIENCY": {
-            const unitTypes = getPlayerUnitsTypesMainteneance(player);
+            const unitTypes = retrieveUnitTypesMaintenance(player);
             let totalReduction = 0;
             let totalCost = 0;
             for (let unitType in unitTypes) {
@@ -155,7 +158,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
                     continue;
                 }
 
-                const reduction = calculateMaintenanceEfficencyToReduction(
+                const reduction = calculateMaintenanceEfficiencyToReduction(
                     modifier, 
                     unitTypes[unitType].Count, 
                     unitTypes[unitType].MaintenanceCost
@@ -236,7 +239,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             let totalGoldReduction = 0;
             let totalHappinessReduction = 0;
             constructibles.forEach(({ constructible, constructibleType }) => {
-                const { gold, happiness } = computeConstructibleMaintenanceEfficencyReduction(
+                const { gold, happiness } = computeConstructibleMaintenanceEfficiencyReduction(
                     city, 
                     constructible, 
                     constructibleType, 
@@ -283,7 +286,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_CITY_ADJUST_WORKER_MAINTENANCE_EFFICIENCY": {
             const specialists = getCitySpecialistsCount(subject);
             const maintenanceCost = 2 * specialists; // Total Maintenance Cost is 2 per specialist
-            const value = calculateMaintenanceEfficencyToReduction(
+            const value = calculateMaintenanceEfficiencyToReduction(
                 modifier,
                 specialists,
                 maintenanceCost

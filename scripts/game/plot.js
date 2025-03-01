@@ -1,4 +1,4 @@
-import { parseArgumentsArray } from "../yields.js";
+import { parseArgumentsArray } from "./helpers.js";
 
 export function getPlotDistrict(plot) {
     const location = GameplayMap.getLocationFromIndex(plot);
@@ -29,4 +29,17 @@ export function hasPlotDistrictOfClass(plot, requirement) {
 
     const requiredClasses = parseArgumentsArray(requirement.Arguments, 'DistrictClass');
     return requiredClasses.includes(districtType?.DistrictClass);
+}
+
+/**
+ * @param {number} x
+ * @param {number} y
+ */
+export function getPlotConstructiblesByLocation(x, y) {
+    const constructibleIDs = MapConstructibles.getConstructibles(x, y);
+    const constructibles = constructibleIDs.map(id => Constructibles.getByComponentID(id));
+    return constructibles.map(constructible => ({
+        constructible,
+        constructibleType: GameInfo.Constructibles.lookup(constructible.type),
+    }));
 }
