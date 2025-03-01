@@ -1,7 +1,7 @@
 import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier, parseArgumentsArray } from "../yields.js";
-import { AdjancenciesCache, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getPlayerBuildingsCountForModifier, getPlotsGrantingAdjacency, getYieldsForAdjacency } from "./constructibles.js";
-import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, unitsMaintenanceEfficencyToReduction } from "./units.js";
+import { AdjancenciesCache, computeConstructibleMaintenanceEfficencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getPlayerBuildingsCountForModifier, getPlotsGrantingAdjacency, getYieldsForAdjacency } from "./constructibles.js";
+import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, calculateMaintenanceEfficencyToReduction } from "./units.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
 /**
@@ -155,7 +155,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
                     continue;
                 }
 
-                const reduction = unitsMaintenanceEfficencyToReduction(
+                const reduction = calculateMaintenanceEfficencyToReduction(
                     modifier, 
                     unitTypes[unitType].Count, 
                     unitTypes[unitType].MaintenanceCost
@@ -232,6 +232,28 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
                 
             });
             console.warn(`EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_WAREHOUSE_YIELD not implemented`);
+            return;
+        }
+
+        case "EFFECT_CITY_ADJUST_BUILDING_MAINTENANCE_EFFICIENCY": {
+            /** @type {City}  */
+            const city = subject;
+            const constructibles = findCityConstructibles(subject);
+            let totalGoldReduction = 0;
+            let totalHappinessReduction = 0;
+            constructibles.forEach(({ constructible, constructibleType }) => {
+                const { gold, happiness } = computeConstructibleMaintenanceEfficencyReduction(
+                    city, 
+                    constructible, 
+                    constructibleType, 
+                    modifier
+                );
+                totalGoldReduction += gold;
+                totalHappinessReduction += happiness;
+            });
+
+            addYieldTypeAmountNoMultiplier(yieldsDelta, "YIELD_GOLD", totalGoldReduction);
+            addYieldTypeAmountNoMultiplier(yieldsDelta, "YIELD_HAPPINESS", totalHappinessReduction);
             return;
         }
 

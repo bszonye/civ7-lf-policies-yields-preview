@@ -1,4 +1,5 @@
 import { getPlotDistrict } from "../requirements/plot-requirements.js";
+import { calculateMaintenanceEfficencyToReduction } from "./units.js";
 
 /**
  * 
@@ -56,6 +57,38 @@ export function getPlayerBuildingsCountByType(player, type) {
         count += city.Constructibles.getIdsOfType(type).length;
     }
     return count;
+}
+
+
+// MAINTENANCE REDUCTION
+
+/**
+ * @param {City} city
+ * @param {ConstructibleInstance} constructible
+ * @param {Constructible} constructibleType
+ * @param {ResolvedModifier} modifier}
+ */
+export function computeConstructibleMaintenanceEfficencyReduction(city, constructible, constructibleType, modifier) {
+    const maintenances = city.Constructibles.getMaintenance(constructible.type);
+    let gold = 0;
+    let happiness = 0;
+    for (const index in maintenances) {
+        const reduction = maintenances[index] * -1;
+        if (reduction == 0) {
+            continue;
+        }
+
+        const yieldType = GameInfo.Yields[index].YieldType;
+
+        if (yieldType == "YIELD_GOLD" && modifier.Arguments.Gold?.Value === 'true') {
+            gold += calculateMaintenanceEfficencyToReduction(modifier, 1, reduction);
+        }
+        if (yieldType == "YIELD_HAPPINESS" && modifier.Arguments.Happiness?.Value === 'true') {
+            happiness += calculateMaintenanceEfficencyToReduction(modifier, 1, reduction);
+        }
+    }
+
+    return { gold, happiness };
 }
 
 export const AdjancenciesCache = new class {

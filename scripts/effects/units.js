@@ -53,12 +53,13 @@ export function isUnitTypeInfoTargetOfModifier(unitType, modifier) {
 
 /**
  * @param {ResolvedModifier} modifier 
- * @param {number} unitsCount
+ * @param {number} count
  * @param {number} maintenanceCost
  */
-export function unitsMaintenanceEfficencyToReduction(modifier, unitsCount, maintenanceCost) {
+// TODO Move in utils
+export function calculateMaintenanceEfficencyToReduction(modifier, count, maintenanceCost) {
     if (modifier.Arguments.Amount?.Value) {
-        const reduction = Number(modifier.Arguments.Amount.Value) * unitsCount;     
+        const reduction = Number(modifier.Arguments.Amount.Value) * count;     
         return reduction; 
     }
     if (modifier.Arguments.Percent?.Value) {
