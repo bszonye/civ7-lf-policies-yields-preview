@@ -1,14 +1,24 @@
 import { previewPolicyYields } from "../preview-policy-yields.js";
 
 const YieldsColorMap = {
-    "YIELD_GOLD": "rgba(255, 235, 75, 0.15)",
-    "YIELD_FOOD": "rgba(141, 255, 75, 0.15)",
-    "YIELD_PRODUCTION": "rgba(174, 79, 15, 0.15)",
-    "YIELD_DIPLOMACY": "rgba(88, 192, 231, 0.15)",
-    "YIELD_SCIENCE": "rgba(50, 151, 255, 0.15)",
-    "YIELD_CULTURE": "rgba(197, 75, 255, 0.15)",
-    "YIELD_HAPPINESS": "rgba(253, 175, 50, 0.15)",
-}    
+    "YIELD_GOLD": "rgba(255, 235, 75, 0.3)",
+    "YIELD_FOOD": "rgba(141, 255, 75, 0.3)",
+    "YIELD_PRODUCTION": "rgba(174, 79, 15, 0.3)",
+    "YIELD_DIPLOMACY": "rgba(88, 192, 231, 0.3)",
+    "YIELD_SCIENCE": "rgba(50, 151, 255, 0.3)",
+    "YIELD_CULTURE": "rgba(197, 75, 255, 0.3)",
+    "YIELD_HAPPINESS": "rgba(253, 175, 50, 0.3)",
+}
+
+const DarkYieldsColorMap = {
+    "YIELD_GOLD": "rgba(51, 47, 15, 0.4)",
+    "YIELD_FOOD": "rgba(28, 51, 15, 0.4)",
+    "YIELD_PRODUCTION": "rgba(35, 16, 3, 0.4)",
+    "YIELD_DIPLOMACY": "rgba(18, 38, 46, 0.4)",
+    "YIELD_SCIENCE": "rgba(10, 30, 51, 0.4)",
+    "YIELD_CULTURE": "rgba(40, 15, 51, 0.4)",
+    "YIELD_HAPPINESS": "rgba(51, 35, 10, 0.4)"
+}
 
 /**
  * @param {string} type
@@ -46,32 +56,38 @@ class PolicyChooserItemYieldsDecorator {
 
         const style = document.createElement('style');
         style.textContent = /* css */ `
-        .policy-chooser-item__yields {
+        .policy-chooser-item--preview div.policy-chooser-item__yields {
               font-weight: 700;
               line-height: 1.3333333333rem;
-              border-radius: 0.65rem;              
-              background: linear-gradient(180deg, rgba(19, 20, 21, 0.45) 0%, rgba(27, 27, 30, 0.85) 100%);            padding: 0.25rem 0.5rem;
+              border-radius: 0.38rem;
+              padding: 0.3rem;
+              background: linear-gradient(180deg, rgba(19, 20, 21, 0.45) 0%, rgba(27, 27, 30, 0.85) 100%);
         }
 
-        .policy-chooser-item__yields > div {
-            padding: 0;
-        }
-
-        .policy-chooser-item__yield {
+        .policy-chooser-item--preview div.policy-chooser-item__yield {
             margin: 0;
-            line-height: 1.3333333333rem;
-            padding-left: 0.35rem;
+            line-height: 1.3333333333rem;                    
+            border-radius: 0.35rem;
+            margin-left: 0.3rem;
+            /*
+            Colorful version:
+            padding-top: 0.15rem;
+            padding-bottom: 0.15rem;
+            padding-right: 0.15rem;
+            padding-left: 0.35rem;    
+            */
         }
 
         .policy-chooser-item__yield:first-child {
-            border-top-left-radius: 0.65rem;
-            border-bottom-left-radius: 0.65rem;
+            /*border-top-left-radius: 0.65rem;
+            border-bottom-left-radius: 0.65rem;*/
             padding-left: 0.23rem;
+            margin-left: 0 !important;
         }
 
         .policy-chooser-item__yield:last-child {
-            border-top-right-radius: 0.65rem;
-            border-bottom-right-radius: 0.65rem;
+            /*border-top-right-radius: 0.65rem;
+            border-bottom-right-radius: 0.65rem;*/
         }   
         `;
         document.head.appendChild(style);
@@ -111,15 +127,11 @@ class PolicyChooserItemYieldsDecorator {
             container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";
             
             const yieldsContainer = document.createElement("div");
-            yieldsContainer.classList.value = "policy-chooser-item__yields w-full font-body-sm text-center text-accent-3";
+            yieldsContainer.classList.value = "policy-chooser-item__yields font-body-sm text-center text-accent-3 flex items-center";
             container.appendChild(yieldsContainer);
 
-            const yieldsTextContainer = document.createElement("div");
-            yieldsTextContainer.classList.value = "w-auto flex items-center";
-            yieldsContainer.appendChild(yieldsTextContainer);
-
             validYields.forEach(([type, value]) => {
-                yieldsTextContainer.appendChild(renderYieldTextSpan(type, value));
+                yieldsContainer.appendChild(renderYieldTextSpan(type, value));
             });
         
             container.addEventListener('action-activate', () => {
