@@ -84,18 +84,18 @@ export function computeConstructibleMaintenanceEfficencyReduction(city, construc
     let gold = 0;
     let happiness = 0;
     for (const index in maintenances) {
-        const reduction = maintenances[index] * -1;
-        if (reduction == 0) {
+        const cost = maintenances[index] * -1;
+        if (cost == 0) {
             continue;
         }
 
         const yieldType = GameInfo.Yields[index].YieldType;
 
         if (yieldType == "YIELD_GOLD" && modifier.Arguments.Gold?.Value === 'true') {
-            gold += calculateMaintenanceEfficencyToReduction(modifier, 1, reduction);
+            gold += calculateMaintenanceEfficencyToReduction(modifier, 1, cost);
         }
         if (yieldType == "YIELD_HAPPINESS" && modifier.Arguments.Happiness?.Value === 'true') {
-            happiness += calculateMaintenanceEfficencyToReduction(modifier, 1, reduction);
+            happiness += calculateMaintenanceEfficencyToReduction(modifier, 1, cost);
         }
     }
 

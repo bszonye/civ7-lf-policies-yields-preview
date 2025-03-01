@@ -21,3 +21,15 @@ declare interface ConstructibleInstance {
     id: ID;
 }
   
+declare interface TradeRouteInstance {
+    id: ID;
+    name: string;
+    leftCityID: ID;
+    rightCityID: ID;
+    leftPayload: {
+        resourceValues: ID[];
+    };
+    rightPayload: {
+        resourceValues: ID[];
+    };
+}

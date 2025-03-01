@@ -66,7 +66,7 @@ class PolicyChooserItemYieldsDecorator {
             
             const yieldsPreviewText = yieldsPreviewItems.join(" ");
             // const button = document.createElement("fxs-activatable");        
-            const container = document.createElement("div");
+            const container = document.createElement("fxs-activatable");
             // button.appendChild(container);
             // container.style.bottom = "0px";
             container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";

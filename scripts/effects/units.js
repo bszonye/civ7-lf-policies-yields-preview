@@ -51,10 +51,13 @@ export function isUnitTypeInfoTargetOfModifier(unitType, modifier) {
     return true;
 }
 
+
+// -- TO BE MOVED --
+
 /**
  * @param {ResolvedModifier} modifier 
  * @param {number} count
- * @param {number} maintenanceCost
+ * @param {number} maintenanceCost Total maintenance cost
  */
 // TODO Move in utils
 export function calculateMaintenanceEfficencyToReduction(modifier, count, maintenanceCost) {
@@ -63,9 +66,34 @@ export function calculateMaintenanceEfficencyToReduction(modifier, count, mainte
         return reduction; 
     }
     if (modifier.Arguments.Percent?.Value) {
-        const reduction = maintenanceCost * Number(modifier.Arguments.Percent.Value) / 100;
-        return reduction;
+        const percent = Number(modifier.Arguments.Percent.Value) / 100;
+        // Can be negative / positive.
+        const value = percent > 0 ?
+            // Positive percent is applied to yields, not to cost; this means that 2 golds
+            // provide X% more gold, not X% less gold.
+            maintenanceCost - maintenanceCost / (1 + percent) :
+            // Negative percent instead is applied directly to the maintenance cost.
+            maintenanceCost * percent; 
+        
+        return value;
     }
     console.warn(`Unhandled ModifierArguments: ${JSON.stringify(modifier.Arguments)}. Cannot calculate maintenance reduction.`);
     return 0;
+}
+
+
+// TRADE (TODO Move to trade.js)
+/**
+ * @param {TradeRouteInstance} route 
+ */
+export function calculateRouteGoldYield(route) {
+    // const ageMultiplier = GameInfo.Ages.lookup(Game.age).TradeSystemParameterSet
+}
+
+/**
+ * @param {City} city 
+ */
+export function getCitySpecialistsCount(city) {
+    const specialists = city.population - city.urbanPopulation - city.ruralPopulation
+    return specialists;
 }

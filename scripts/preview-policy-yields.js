@@ -61,7 +61,7 @@ export function resolveYields(player, yieldsDelta) {
 
     for (const type in YieldTypes) {
         yields[type] = yieldsDelta.Amount[type] || 0;
-        yields[type] *= 1 + ((CachedPlayerYields[type]?.Percent || 0) / 100);
+        // yields[type] *= 1 + ((CachedPlayerYields[type]?.Percent || 0) / 100);
     }
 
     for (const type in yieldsDelta.Percent) {

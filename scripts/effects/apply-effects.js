@@ -1,7 +1,7 @@
 import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier, parseArgumentsArray } from "../yields.js";
 import { AdjancenciesCache, computeConstructibleMaintenanceEfficencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBuildingsCountForModifier, getPlayerBuildingsCountForModifier, getPlotsGrantingAdjacency, getYieldsForAdjacency } from "./constructibles.js";
-import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, calculateMaintenanceEfficencyToReduction } from "./units.js";
+import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, calculateMaintenanceEfficencyToReduction, getCitySpecialistsCount } from "./units.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
 /**
@@ -175,12 +175,6 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             const amount = Number(modifier.Arguments.Amount.Value) * attributePoints;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
-                
-        case "EFFECT_CITY_ADJUST_WORKER_YIELD": {
-            const specialists = subject?.Workers?.getNumWorkers(true);
-            const amount = Number(modifier.Arguments.Amount.Value) * specialists;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
-        }
 
         case "EFFECT_CITY_ADJUST_YIELD": {
             // TODO Check `TRADITION_TIRAKUNA` for `Arguments.Apply` with `Rate` value.
@@ -263,6 +257,39 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
+        // TODO Is it just food? Or just the growth rate, so no yield type?
+        case "EFFECT_CITY_ADJUST_GROWTH": {
+            console.warn(`EFFECT_CITY_ADJUST_GROWTH not implemented`);
+            return;
+        }
+
+        // +X% to Production to overbuild
+        case "EFFECT_CITY_ADJUST_OVERBUILD_PRODUCTION_MOD": return;
+        // +X% to Production to adjust project production
+        case "EFFECT_CITY_ADJUST_PROJECT_PRODUCTION": return;
+
+        case "EFFECT_CITY_ADJUST_TRADE_YIELD": {
+            // TODO Hard to find trade yields. Seems a bug in `city.Yields.getTradeYields()`
+            return;
+        }
+
+        // City (Workers)
+        case "EFFECT_CITY_ADJUST_WORKER_YIELD": {
+            const specialists = getCitySpecialistsCount(subject);
+            const amount = Number(modifier.Arguments.Amount.Value) * specialists;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_CITY_ADJUST_WORKER_MAINTENANCE_EFFICIENCY": {
+            const specialists = getCitySpecialistsCount(subject);
+            const maintenanceCost = 2 * specialists; // Total Maintenance Cost is 2 per specialist
+            const value = calculateMaintenanceEfficencyToReduction(
+                modifier,
+                specialists,
+                maintenanceCost
+            );
+            return addYieldsAmount(yieldsDelta, modifier, value);
+        }
 
         // Plot
         case "EFFECT_PLOT_ADJUST_YIELD": {
@@ -284,7 +311,10 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_DIPLOMACY_AGENDA_TIMED_UPDATE":
         case "EFFECT_DISTRICT_ADJUST_FORTIFIED_COMBAT_STRENGTH":
         case "EFFECT_PLAYER_ADJUST_SETTLEMENT_CAP":
-
+        case "EFFECT_CITY_ADJUST_RESOURCE_CAP":
+        case "EFFECT_CITY_ADJUST_TRADE_ROUTE_RANGE":
+        case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION":
+        case "EFFECT_CITY_ADJUST_WONDER_PRODUCTION":
 
             return;
 
