@@ -28,7 +28,7 @@ export function addYieldsPercentForCitySubject(yieldsDelta, modifier, subject, p
         return;
     }
 
-    parseYieldsType(modifier.Arguments.YieldType.Value).forEach(type => {
+    parseArgumentsArray(modifier.Arguments, 'YieldType').forEach(type => {
         if (!yieldsDelta.Amount[type]) {
             yieldsDelta.Amount[type] = 0;
         }
@@ -53,7 +53,7 @@ export function addYieldsAmount(yieldsDelta, modifier, amount) {
 
     const percentMultiplier = modifier.Arguments.PercentMultiplier?.Value === "true";
     
-    parseYieldsType(modifier.Arguments.YieldType.Value).forEach(type => {
+    parseArgumentsArray(modifier.Arguments, 'YieldType').forEach(type => {
         const key = percentMultiplier ? "AmountNoMultiplier" : "Amount";
         if (!yieldsDelta[key][type]) {
             yieldsDelta[key][type] = 0;
@@ -62,11 +62,18 @@ export function addYieldsAmount(yieldsDelta, modifier, amount) {
     });
 }
 
+/**
+ * @param {YieldsDelta} yieldsDelta
+ * @param {string} type
+ * @param {number} amount 
+ */
 export function addYieldTypeAmount(yieldsDelta, type, amount) {
-    if (!yieldsDelta.Amount[type]) {
-        yieldsDelta.Amount[type] = 0;
-    }
-    yieldsDelta.Amount[type] += amount;
+    type?.split(",").map(t => t.trim()).forEach(t => {
+        if (!yieldsDelta.Amount[t]) {
+            yieldsDelta.Amount[t] = 0;
+        }
+        yieldsDelta.Amount[t] += amount;
+    });
 }
 
 export function addYieldTypeAmountNoMultiplier(yieldsDelta, type, amount) {
@@ -88,7 +95,7 @@ export function addYieldsPercent(yieldsDelta, modifier, percent) {
         return;
     }
     
-    parseYieldsType(modifier.Arguments.YieldType.Value).forEach(type => {
+    parseArgumentsArray(modifier.Arguments, 'YieldType').forEach(type => {
         if (!yieldsDelta.Percent[type]) {
             yieldsDelta.Percent[type] = 0;
         }
@@ -97,12 +104,17 @@ export function addYieldsPercent(yieldsDelta, modifier, percent) {
 }
 
 /**
- * E.g. "YIELD_FOOD, YIELD_PRODUCTION"
- * @param {string} yieldsType
+ * E.g. "YIELD_FOOD, YIELD_PRODUCTION" -> ["YIELD_FOOD", "YIELD_PRODUCTION"]
+ * @param {ResolvedArguments} args
+ * @param {string} name The name of the argument
  * @returns {string[]}
  */
-function parseYieldsType(yieldsType) {
-    return yieldsType.split(",").map(type => type.trim());
+export function parseArgumentsArray(args, name) {
+    if (!args[name]) {
+        console.error(`Argument ${name} is missing.`, args);
+        return [];
+    }
+    return args[name].Value.split(",").map(type => type.trim());
 }
 
 // TODO try-catch

@@ -1,0 +1,23 @@
+declare interface Location {
+    x: number;
+    y: number;
+}
+  
+declare interface ID {
+    owner: number;
+    id: number;
+    type: number;
+}
+  
+declare interface ConstructibleInstance {
+    damaged: boolean;
+    complete: boolean;
+    location: Location;
+    cityId: ID;
+    owner: number;
+    originalOwner: number;
+    type: number;
+    localId: number;
+    id: ID;
+}
+  

@@ -362,6 +362,140 @@ declare interface Unit extends BaseTableEntry {
   ZoneOfControl: boolean;
 }
 
+declare interface District extends BaseTableEntry {
+  DistrictType: string;
+  AirSlots: number;
+  AutoPlace: boolean;
+  AutoRemove: boolean;
+  CanAttack: boolean;
+  CaptureRemovesBuildings: boolean;
+  CaptureRemovesCityDefenses: boolean;
+  CaptureRemovesDistrict: boolean;
+  CitizenSlots: number;
+  CityStrengthModifier: number;
+  Description?: string | null;
+  DistrictClass: string;
+  FreeEmbark: boolean;
+  HitPoints: number;
+  Maintenance: number;
+  MaxConstructibles: number;
+  MilitaryDomain: string;
+  Name: string;
+  NatureYields: boolean;
+  OnePerCity: boolean;
+  OverwritePreviousAge: boolean;
+  ResourceBlocks: boolean;
+  Roads: boolean;
+  TravelTime: number;
+  UrbanCoreType: string;
+  Water: boolean;
+  Workable: boolean;
+}
+
+declare interface Yield extends BaseTableEntry {
+  YieldType: string;
+  DefaultValue: number;
+  IconString: string;
+  Name: string;
+  OccupiedCityChange: number;
+}
+
+declare interface Project extends BaseTableEntry {
+  ProjectType: string;
+  AdvisorType?: string | null;
+  CanPurchase: boolean;
+  CityOnly: boolean;
+  Cost?: number | null;
+  CostProgressionModel: string;
+  CostProgressionParam1: number;
+  Description: string;
+  ExclusiveSpecialization: boolean;
+  Food: boolean;
+  MaxPlayerInstances?: number | null;
+  Name: string;
+  OuterDefenseRepair: boolean;
+  PopupText?: string | null;
+  PrereqAnyCity: boolean;
+  PrereqConstructible?: string | null;
+  PrereqPopulation: number;
+  PrereqResource?: string | null;
+  ProjectVictoryCinematicLocation: string;
+  RequireCompletedLegacyPathType?: string | null;
+  RequiresUnlock: boolean;
+  ShortName: string;
+  SpaceRace: boolean;
+  TownDefault: boolean;
+  TownOnly: boolean;
+  UpgradeToCity: boolean;
+  WMD: boolean;
+}
+
+declare interface AdjacencyYieldChange extends BaseTableEntry {
+  ID: string;
+  AdjacentBiome?: string | null;
+  AdjacentConstructible?: string | null;
+  AdjacentConstructibleTag?: string | null;
+  AdjacentDistrict?: string | null;
+  AdjacentFeature?: string | null;
+  AdjacentFeatureClass?: string | null;
+  AdjacentLake: boolean;
+  AdjacentNaturalWonder: boolean;
+  AdjacentNavigableRiver: boolean;
+  AdjacentQuarter: boolean;
+  AdjacentResource: boolean;
+  AdjacentResourceClass: string;
+  AdjacentRiver: boolean;
+  AdjacentSeaResource: boolean;
+  AdjacentTerrain?: string | null;
+  AdjacentUniqueQuarter: boolean;
+  AdjacentUniqueQuarterType?: string | null;
+  Age?: string | null;
+  ProjectMaxYield: boolean;
+  Self: boolean;
+  TilesRequired: number;
+  YieldChange: number;
+  YieldType: string;
+}
+declare interface ConstructibleAdjacency extends BaseTableEntry {
+  ConstructibleType: string;
+  YieldChangeId: string;
+  Name: string;
+  RequiresActivation: boolean;
+}
+
+declare interface ConstructibleWildcardAdjacency extends BaseTableEntry {
+  YieldChangeId: string;
+  ConstructibleClass?: string | null;
+  ConstructibleTag?: string | null;
+  CurrentAgeConstructiblesOnly?: boolean;
+  HasBiome?: string | null;
+  HasNavigableRiver?: boolean;
+  HasTerrain?: string | null;
+  HasYield?: string | null;
+  RequiresActivation: boolean;
+}
+
+declare interface Age extends BaseTableEntry {
+  AgeType: string;
+  AgeTechBackgroundTexture?: string | null;
+  AgeTechBackgroundTextureOffsetX: number;
+  ChronologyIndex: number;
+  Description?: string | null;
+  EmbarkedUnitStrength: number;
+  GenerateDiscoveries: boolean;
+  GreatPersonBaseCost: number;
+  HumanPlayersPrimaryHemisphere: boolean;
+  MainCultureProgressionTreeType?: string | null;
+  MainTechProgressionTreeType?: string | null;
+  Name: string;
+  NoVictoriesSecondaryHemisphere: boolean;
+  NumDefenders: number;
+  SettlementCountOnTransition: number;
+  StartingTraditionSlots: number;
+  TechTreeLayoutMethod?: number | null;
+  TradeSystemParameterSet?: string | null;
+}
+
 
 declare type GameInfoArray<T> = T[] & { 
   lookup(hash: number): T | undefined;
@@ -383,11 +517,15 @@ declare interface IGameInfo {
   RequirementArguments: GameInfoArray<RequirementArgument>;
   Terrains: GameInfoArray<Terrain>;
   TypeTags: GameInfoArray<TypeTag>;
-  Yields: GameInfoArray<any>;
-  Projects: GameInfoArray<any>;
+  Yields: GameInfoArray<Yield>;
+  Projects: GameInfoArray<Project>;
   Constructibles: GameInfoArray<Constructible>;
   Units: GameInfoArray<Unit>;
-  Districts: GameInfoArray<any>;
+  Districts: GameInfoArray<District>;
+  Adjacency_YieldChanges: GameInfoArray<AdjacencyYieldChange>;
+  Constructible_Adjacencies: GameInfoArray<ConstructibleAdjacency>;
+  Constructible_WildcardAdjacencies: GameInfoArray<ConstructibleWildcardAdjacency>;
+  Ages: GameInfoArray<Age>;
 }
 
 declare type IYieldTypes = {

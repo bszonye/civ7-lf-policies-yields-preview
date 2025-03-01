@@ -1,4 +1,6 @@
+import { parseArgumentsArray } from "../yields.js";
 import { hasCityBuilding, hasCityTerrain } from "./city-requirements.js";
+import { hasPlotDistrictOfClass } from "./plot-requirements.js";
 
 /**
  * @param {ResolvedModifier} modifier 
@@ -119,17 +121,7 @@ function isRequirementSatisfied(player, subject, requirement) {
 
         // Plot
         case "REQUIREMENT_PLOT_DISTRICT_CLASS": {
-            const { plot } = subject;
-            const location = GameplayMap.getLocationFromIndex(plot);
-            const districtId = MapCities.getDistrict(location.x, location.y);
-            console.warn("REQUIREMENT_PLOT_DISTRICT_CLASS check for plot at" + location.x + "," + location.y + " with districtId " + districtId);
-            const district = districtId ? Districts.get(districtId) : null;
-            if (!district) return false;
-            const districtClass = GameInfo.Districts.lookup(district.type)?.DistrictClass;
-            console.warn("District type is " + district.type + " and class is " + districtClass);
-            const requiredClasses = requirement.Arguments.DistrictClass?.Value.split(",").map(s => s.trim());
-            console.warn("Required classes are " + requiredClasses);
-            return requiredClasses.includes(districtClass);
+            return hasPlotDistrictOfClass(subject.plot, requirement);
         }
 
         // Player (Owner)

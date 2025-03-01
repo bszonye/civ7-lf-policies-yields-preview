@@ -1,6 +1,6 @@
 import { resolveModifierById } from "../modifiers.js";
-import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmountNoMultiplier } from "../yields.js";
-import { getPlayerBuildingsCountForModifier } from "./constructibles.js";
+import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier, parseArgumentsArray } from "../yields.js";
+import { AdjancenciesCache, findCityConstructiblesRespectingAdjacency, getPlayerBuildingsCountForModifier, getYieldsForConstructibleAdjacency } from "./constructibles.js";
 import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, unitsMaintenanceEfficencyToReduction } from "./units.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
@@ -195,6 +195,19 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
                 console.warn(`Unhandled ModifierArguments: ${modifier.Arguments}`);
                 return;
             }
+        }
+
+        case "EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_ADJACENCY": {
+            const adjancencies = parseArgumentsArray(modifier.Arguments, 'ConstructibleAdjacency'); 
+            adjancencies.forEach(adjacencyId => {
+                const adjacencyType = AdjancenciesCache.get(adjacencyId);
+                const validConstructibles = findCityConstructiblesRespectingAdjacency(subject, adjacencyId);
+                validConstructibles.forEach(constructible => {
+                    const amount = getYieldsForConstructibleAdjacency(constructible, adjacencyType);
+                    addYieldTypeAmount(yieldsDelta, adjacencyType.YieldType, amount);
+                });
+            });
+            return;
         }
 
         // Plot
