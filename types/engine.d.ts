@@ -37,7 +37,8 @@ interface City {
     getPurchasedPlots: () => any[];
     Constructibles: {
         getIds: () => ID[];
-        getMaintenance: (type: number) => number[];
+        getMaintenance: (type: string) => number[];
+        getIdsOfType: (type: string) => ID[];
     }
 }
   

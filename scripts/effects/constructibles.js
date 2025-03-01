@@ -2,16 +2,25 @@ import { getPlotDistrict } from "../requirements/plot-requirements.js";
 import { calculateMaintenanceEfficencyToReduction } from "./units.js";
 
 /**
- * 
- * @param {*} player 
- * @param {ResolvedModifier} modifier 
+ * @param {*} player
+ * @param {ResolvedModifier} modifier
  */
 export function getPlayerBuildingsCountForModifier(player, modifier) {
+    return getBuildingsCountForModifier(player.Cities.getCities() || [], modifier);
+}
+
+
+/**
+ * 
+ * @param {City[]} cities 
+ * @param {ResolvedModifier} modifier 
+ */
+export function getBuildingsCountForModifier(cities, modifier) {
     if (modifier.Arguments.Tag?.Value) {
-        return getPlayerBuildingsByTag(player, modifier.Arguments.Tag.Value).length;
+        return getBuildingsByTag(cities, modifier.Arguments.Tag.Value).length;
     }
     else if (modifier.Arguments.ConstructibleType?.Value) {
-        return getPlayerBuildingsCountByType(player, modifier.Arguments.ConstructibleType.Value);
+        return getBuildingsCountByType(cities, modifier.Arguments.ConstructibleType.Value);
     }
     
     console.warn(`Unhandled ModifierArgument: ${JSON.stringify(modifier.Arguments)}`);
@@ -20,14 +29,13 @@ export function getPlayerBuildingsCountForModifier(player, modifier) {
 
 /**
  * 
- * @param {*} player 
+ * @param {City[]} cities 
  * @param {string} tag 
  * @returns any[]
  */
-export function getPlayerBuildingsByTag(player, tag) {
+export function getBuildingsByTag(cities, tag) {
     const tagsCache = {};
 
-    const cities = player.Cities?.getCities() || [];
     return cities.flatMap(city => {
         const cityConstructibles = city.Constructibles.getIds();
         for (let i = 0; i < cityConstructibles.length; i++) {
@@ -49,8 +57,11 @@ export function getPlayerBuildingsByTag(player, tag) {
     });
 }
 
-export function getPlayerBuildingsCountByType(player, type) {
-    const cities = player.Cities?.getCities() || [];
+/**
+ * @param {City[]} cities
+ * @param {string} type
+ */
+export function getBuildingsCountByType(cities, type) {
     let count = 0;
     for (let i = 0; i < cities.length; i++) {
         const city = cities[i];
@@ -69,7 +80,7 @@ export function getPlayerBuildingsCountByType(player, type) {
  * @param {ResolvedModifier} modifier}
  */
 export function computeConstructibleMaintenanceEfficencyReduction(city, constructible, constructibleType, modifier) {
-    const maintenances = city.Constructibles.getMaintenance(constructible.type);
+    const maintenances = city.Constructibles.getMaintenance(constructibleType.ConstructibleType);
     let gold = 0;
     let happiness = 0;
     for (const index in maintenances) {

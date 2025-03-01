@@ -1,6 +1,6 @@
 import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier, parseArgumentsArray } from "../yields.js";
-import { AdjancenciesCache, computeConstructibleMaintenanceEfficencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getPlayerBuildingsCountForModifier, getPlotsGrantingAdjacency, getYieldsForAdjacency } from "./constructibles.js";
+import { AdjancenciesCache, computeConstructibleMaintenanceEfficencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBuildingsCountForModifier, getPlayerBuildingsCountForModifier, getPlotsGrantingAdjacency, getYieldsForAdjacency } from "./constructibles.js";
 import { getPlayerUnitsTypesMainteneance, isUnitTypeInfoTargetOfModifier, calculateMaintenanceEfficencyToReduction } from "./units.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
@@ -255,6 +255,12 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             addYieldTypeAmountNoMultiplier(yieldsDelta, "YIELD_GOLD", totalGoldReduction);
             addYieldTypeAmountNoMultiplier(yieldsDelta, "YIELD_HAPPINESS", totalHappinessReduction);
             return;
+        }
+
+        case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_YIELD": {
+            const buildingsCount = getBuildingsCountForModifier(subject, modifier);
+            const amount = Number(modifier.Arguments.Amount.Value) * buildingsCount;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
 
