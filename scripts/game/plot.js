@@ -1,5 +1,5 @@
 import { PolicyYieldsCache } from "../cache.js";
-import { isConstructibleValidForQuarter } from "./constructibles.js";
+import { isConstructibleValidForQuarter } from "./helpers.js";
 import { parseArgumentsArray } from "./helpers.js";
 
 export function getPlotDistrict(plot) {
@@ -38,7 +38,7 @@ export function hasPlotDistrictOfClass(plot, requirement) {
  * @param {number} y
  */
 export function getPlotConstructiblesByLocation(x, y) {
-    const constructibleIDs = MapConstructibles.getConstructibles(x, y);
+    const constructibleIDs = MapConstructibles.getHiddenFilteredConstructibles(x, y);
     const constructibles = constructibleIDs.map(id => Constructibles.getByComponentID(id));
     return constructibles.map(constructible => ({
         constructible,
@@ -56,6 +56,7 @@ export function isPlotQuarter(plot) {
 
     return constructibles.length >= 2;
 }
+
 /**
  * Get the adjacent plots to a location
  * @param {number} plotIndex
@@ -70,9 +71,10 @@ export function getAdjacentPlots(plotIndex, radius = 1) {
 }
 
 /**
- * @param {Location} location 
- * @param {ResolvedArguments} args 
+ * @param {Location} location
+ * @param {ResolvedArguments} args
  */
+
 export function hasPlotConstructibleByArguments(location, args) {
     const constructibles = getPlotConstructiblesByLocation(location.x, location.y);
     return constructibles.some(c => {
@@ -80,8 +82,9 @@ export function hasPlotConstructibleByArguments(location, args) {
             return c.constructibleType.ConstructibleType === args.ConstructibleType.Value;
         }
         if (args.Tag?.Value) {
-            const tags = PolicyYieldsCache.getTagsForConstructibleType(c.constructibleType.ConstructibleType);
+            const tags = PolicyYieldsCache.getTypeTags(c.constructibleType.ConstructibleType);
             return tags.has(args.Tag.Value);
         }
     });
 }
+

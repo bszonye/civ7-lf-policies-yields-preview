@@ -42,6 +42,10 @@ export function resolveModifier(modifier) {
  * @returns {ResolvedRequirementSet}
  */
 export function resolveRequirementSet(requirementSetId) {
+    if (!requirementSetId) {
+        return null;
+    }
+
     const Requirements = GameInfo.RequirementSetRequirements
         .filter(rs => rs.RequirementSetId === requirementSetId)
         .map(rs => {
@@ -62,7 +66,7 @@ export function resolveRequirementSet(requirementSetId) {
             }
         });
 
-    const RequirementSet = GameInfo.RequirementSets.find(rs => rs.RequirementSetId === requirementSetId);
+    const RequirementSet = GameInfo.RequirementSets.find(rs => rs.RequirementSetId == requirementSetId);
 
     return {
         ...RequirementSet,

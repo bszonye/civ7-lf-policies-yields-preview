@@ -496,6 +496,28 @@ declare interface Age extends BaseTableEntry {
   TradeSystemParameterSet?: string | null;
 }
 
+declare interface WarehouseYieldChange extends BaseTableEntry {
+  ID: string;
+  Age?: string;
+  BiomeInCity?: string;
+  ConstructibleInCity?: string;
+  DistrictInCity?: string;
+  FeatureClassInCity?: string;
+  FeatureInCity?: string;
+  LakeInCity: boolean;
+  MinorRiverInCity: boolean;
+  NaturalWonderInCity: boolean;
+  NavigableRiverInCity: boolean;
+  Overbuilt: boolean;
+  ResourceInCity: boolean;
+  RouteInCity: boolean;
+  TerrainInCity?: string;
+  TerrainTagInCity?: string;
+  YieldChange: number;
+  YieldType: string;
+}
+
+
 declare interface ConstructibleWarehouseYield extends BaseTableEntry {
   ConstructibleType: string;
   YieldChangeId: string;
@@ -507,6 +529,63 @@ declare interface ConstructibleWildcardWarehouseYield extends BaseTableEntry {
   ConstructibleTag?: string | null; // Optional because it's not marked as NOT NULL
   RequiresActivation: boolean;
 }
+
+declare interface Biome {
+  BiomeType: string;
+  Description?: string;
+  MaxLatitude?: number;
+  Name: string;
+}
+
+declare interface Feature {
+  FeatureType: string;
+  AddsFreshWater: boolean;
+  AllowSettlement: boolean;
+  AntiquityPriority: number;
+  Appeal: number;
+  DefenseModifier: number;
+  Description?: string;
+  FeatureClassType?: string;
+  Impassable: boolean;
+  MaximumElevation: number;
+  MaxLatitude: number;
+  MinimumElevation: number;
+  MinLatitude: number;
+  MovementChange: number;
+  Name: string;
+  NoLake: boolean;
+  PlacementClass: string;
+  PlacementDensity: number;
+  Removable: boolean;
+  SightThroughModifier: number;
+  Tooltip?: string;
+}
+
+declare interface FeatureClass {
+  FeatureClassType: string;
+  Adjective: string;
+  Description: string;
+  Name: string;
+}
+declare interface Resource extends BaseTableEntry {
+  ResourceType: string;
+  AdjacentToLand: boolean;
+  AssignCoastal: boolean;
+  AssignInland: boolean;
+  BonusResourceSlots: number;
+  Clumped: boolean;
+  Hemispheres: number;
+  LakeEligible: boolean;
+  Name: string;
+  NoRiver: boolean;
+  RequiresRiver: boolean;
+  ResourceClassType: string;
+  Tooltip: string;
+  Tradeable: boolean;
+  Weight: number;
+}
+
+
 
 
 declare type GameInfoArray<T> = T[] & { 
@@ -537,9 +616,14 @@ declare interface IGameInfo {
   Adjacency_YieldChanges: GameInfoArray<AdjacencyYieldChange>;
   Constructible_Adjacencies: GameInfoArray<ConstructibleAdjacency>;
   Constructible_WildcardAdjacencies: GameInfoArray<ConstructibleWildcardAdjacency>;
+  Warehouse_YieldChanges: GameInfoArray<WarehouseYieldChange>;
   Constructible_WarehouseYields: GameInfoArray<ConstructibleWarehouseYield>;
   Constructible_WildcardWarehouseYields: GameInfoArray<ConstructibleWildcardWarehouseYield>;
   Ages: GameInfoArray<Age>;
+  Biomes: GameInfoArray<Biome>;
+  Features: GameInfoArray<Feature>;
+  FeatureClasses: GameInfoArray<FeatureClass>;
+  Resources: GameInfoArray<Resource>;
 }
 
 declare type IYieldTypes = {

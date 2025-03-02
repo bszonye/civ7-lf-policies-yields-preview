@@ -1,3 +1,4 @@
+import { PolicyYieldsCache } from "../cache.js";
 
 /**
  * @param {ResolvedModifier} modifier
@@ -23,13 +24,14 @@ export function calculateMaintenanceEfficiencyToReduction(modifier, count, maint
     }
     console.warn(`Unhandled ModifierArguments: ${JSON.stringify(modifier.Arguments)}. Cannot calculate maintenance reduction.`);
     return 0;
-}/**
+}
+
+/**
  * E.g. "YIELD_FOOD, YIELD_PRODUCTION" -> ["YIELD_FOOD", "YIELD_PRODUCTION"]
  * @param {ResolvedArguments} args
  * @param {string} name The name of the argument
  * @returns {string[]}
  */
-
 export function parseArgumentsArray(args, name) {
     if (!args[name]) {
         console.error(`Argument ${name} is missing.`, args);
@@ -38,3 +40,28 @@ export function parseArgumentsArray(args, name) {
     return args[name].Value.split(",").map(type => type.trim());
 }
 
+/**
+ * Check if the constructible is ageless
+ * @param {string} constructibleType 
+ * @returns {boolean}
+ */
+export function isConstructibleAgeless(constructibleType) {
+    return !PolicyYieldsCache.hasTypeTag(constructibleType, 'AGELESS');
+}
+
+/**
+ * @param {Constructible} constructibleType 
+ */
+export function isConstructibleValidForQuarter(constructibleType) {
+    const isIgnored = PolicyYieldsCache.hasTypeTag(
+        constructibleType.ConstructibleType, 
+        'IGNORE_DISTRICT_PLACEMENT_CAP'
+    );
+    if (isIgnored) return false;
+
+    const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
+    const currentAge = GameInfo.Ages.lookup(Game.age).AgeType;
+    if (!isAgeless && currentAge != constructibleType.Age) return false;
+    
+    return true;
+}

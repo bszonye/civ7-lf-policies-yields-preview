@@ -1,6 +1,6 @@
 import { PolicyYieldsCache } from "../cache.js";
 import { hasCityBuilding, hasCityTerrain } from "../game/city.js";
-import { getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, hasPlotConstructibleByArguments } from "../game/plot.js";
+import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots } from "../game/plot.js";
 
 /**
  *

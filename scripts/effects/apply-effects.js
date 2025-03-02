@@ -6,6 +6,8 @@ import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfModifier, getArmyCo
 import { getCityAssignedResourcesCount, getCitySpecialistsCount } from "../game/city.js";
 import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
+import { getPlayerCityStatesSuzerain } from "../game/player.js";
+import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
 
 /**
  * @param {YieldsDelta} yieldsDelta 
@@ -132,11 +134,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         }
 
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_SUZERAIN": {
-            const cityStates = Players.getAlive().filter(otherPlayer => 
-                otherPlayer.isMinor && 
-                otherPlayer.Influence?.hasSuzerain &&
-                otherPlayer.Influence.getSuzerain() === GameContext.localPlayerID
-            ).length;
+            const cityStates = getPlayerCityStatesSuzerain(player).length;
             const amount = Number(modifier.Arguments.Amount.Value) * cityStates;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
@@ -226,13 +224,35 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             return;
         }
 
-        // TODO Implement this one. Only with ADJACENCY_YIELD refactor.
+        case "EFFECT_CITY_GRANT_WAREHOUSE_YIELD": {
+            const warehousesYieldChanges = parseArgumentsArray(modifier.Arguments, 'WarehouseYieldChange');
+            warehousesYieldChanges.forEach(warehouseYield => {
+                const warehouseYieldType = GameInfo.Warehouse_YieldChanges.find(wyc => wyc.ID === warehouseYield);
+                const amount = getYieldsForWarehouseChange(subject, warehouseYieldType);
+                addYieldTypeAmount(yieldsDelta, warehouseYieldType.YieldType, amount);
+            });
+            return;
+        }
+
         case "EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_WAREHOUSE_YIELD": {
             const warehousesYields = parseArgumentsArray(modifier.Arguments, 'ConstructibleWarehouseYield');
             warehousesYields.forEach(warehouseYield => {
-                
+                const warehouseYieldType = GameInfo.Warehouse_YieldChanges.find(wyc => wyc.ID === warehouseYield);
+                const constructibles = findCityConstructiblesMatchingWarehouse(subject, warehouseYieldType);
+                if (!constructibles.length) {
+                    return;
+                }
+
+                // The amount is the same for each Constructible, since it's a bonus based on all the plots
+                // in the city.
+                // So we calculate it once and apply it to all the Constructibles.
+                // I personally suppose that there is only _one_ Constructible per city that can get this bonus,
+                // but I'm not sure.
+                const amount = getYieldsForWarehouseChange(subject, warehouseYieldType);
+                constructibles.forEach(constructible => {
+                    addYieldTypeAmount(yieldsDelta, warehouseYieldType.YieldType, amount);
+                });
             });
-            console.warn(`EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_WAREHOUSE_YIELD not implemented`);
             return;
         }
 
@@ -322,6 +342,12 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
+        case "EFFECT_CITY_ADJUST_YIELD_PER_SUZERAIN": {
+            const cityStates = getPlayerCityStatesSuzerain(player).length;
+            const amount = Number(modifier.Arguments.Amount.Value) * cityStates;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
         // ==============================
         // ========== Plot ==============
         // ==============================
@@ -355,7 +381,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_CITY_ADJUST_WONDER_PRODUCTION":
         case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION_MOD_PER_SETTLEMENT":
         case "TRIGGER_PLAYER_GRANT_YIELD_ON_UNIT_CREATED":
-
+        case "EFFECT_CITY_GRANT_UNIT":
             return;
 
         default:

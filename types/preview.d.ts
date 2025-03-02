@@ -21,8 +21,8 @@ declare interface ResolvedModifier {
     Arguments: ResolvedArguments;
     CollectionType: string;
     EffectType: string;
-    SubjectRequirementSet: ResolvedRequirementSet;
-    OwnerRequirementSet: ResolvedRequirementSet;
+    SubjectRequirementSet: ResolvedRequirementSet | null;
+    OwnerRequirementSet: ResolvedRequirementSet | null;
 }
 
 declare interface YieldsDelta {

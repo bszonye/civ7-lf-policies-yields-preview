@@ -41,7 +41,7 @@ interface City {
     localId: number;
     id: CityID;
     getConnectedCities: () => ID[]; // ??
-    getPurchasedPlots: () => any[];
+    getPurchasedPlots: () => number[];
     Resources: {
         getTotalCountAssignedResources: () => number;
     };
@@ -212,7 +212,7 @@ declare interface GameplayMap {
     getAdjacentPlotLocation: (x: number, y: number, direction: string) => { x: number; y: number };
     getProperty: (x: number, y: number, propertyName: string) => any;
     findSecondContinent: () => number;
-    getBiomeType: (x: number, y: number) => string;
+    getBiomeType: (x: number, y: number) => number;
     getAreaId: (x: number, y: number) => number;
     getLandmassId: (x: number, y: number) => number;
     getRegionId: (x: number, y: number) => number;
@@ -220,10 +220,10 @@ declare interface GameplayMap {
     getContinentType: (x: number, y: number) => string;
     getDirectionToPlot: (x1: number, y1: number, x2: number, y2: number) => string;
     getElevation: (x: number, y: number) => number;
-    getRouteType: (x: number, y: number) => string;
+    getRouteType: (x: number, y: number) => number;
     getRouteAgeType: (x: number, y: number) => string;
-    getFeatureType: (x: number, y: number) => string;
-    getFeatureClassType: (x: number, y: number) => string;
+    getFeatureType: (x: number, y: number) => number;
+    getFeatureClassType: (x: number, y: number) => number;
     getFertilityType: (x: number, y: number) => string;
     getGridWidth: () => number;
     getGridHeight: () => number;
@@ -281,6 +281,7 @@ declare var GameplayMap: GameplayMap;
 
 declare interface MapConstructibles {
     getConstructibles(x: number, y: number): ID[];
+    getHiddenFilteredConstructibles(x: number, y: number): ID[];
 }
 
 declare var MapConstructibles: MapConstructibles;

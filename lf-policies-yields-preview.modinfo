@@ -33,8 +33,10 @@
 					<Item>scripts/game/city.js</Item>
 					<Item>scripts/game/constructibles.js</Item>
 					<Item>scripts/game/helpers.js</Item>
+					<Item>scripts/game/player.js</Item>
 					<Item>scripts/game/plot.js</Item>
 					<Item>scripts/game/units.js</Item>
+					<Item>scripts/game/warehouse.js</Item>
 					<Item>scripts/requirements/requirement.js</Item>
 					<Item>scripts/requirements/resolve-subjects.js</Item>
 					<Item>scripts/preview-policy-yields.js</Item>

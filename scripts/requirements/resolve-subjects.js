@@ -17,9 +17,13 @@ export function resolveSubjectsWithRequirements(player, modifier, parentSubject 
 /**
  * @param {Player} player
  * @param {any} subject
- * @param {ResolvedRequirementSet} requirementSet
+ * @param {ResolvedRequirementSet | null} requirementSet
  */
 function filterSubjectByRequirementSet(player, subject, requirementSet) {
+    if (!requirementSet) {
+        return true;
+    }
+
     const operator = getRequirementSetOperator(requirementSet);
 
     return requirementSet.Requirements[operator](requirement => {
@@ -47,7 +51,7 @@ function getRequirementSetOperator(requirementSet) {
         case "REQUIREMENTSET_TEST_ANY":
             return "some";
         default:
-            console.warn(`Unhandled RequirementSetType: ${requirementSet.RequirementSetType}`);
+            console.warn(`Unhandled RequirementSetType: ${requirementSet.RequirementSetType}`, JSON.stringify(requirementSet));
             return "every";
     }
 }
@@ -56,15 +60,15 @@ function getRequirementSetOperator(requirementSet) {
  * @param {City[]} cities 
  */
 function wrapCitySubjects(cities) {
-    return cities.map(city => ({
-        ...city,
+    cities.forEach(city => {
         // Some requirements operate both on the city and the plot; in order
         // to make the subject usable in those cases, we need to provide the plot index.
         // TODO Technically in the plot we have the city too, so the good thing to do
         // would be to refactor subject to always be { city, plot }, but it requires a
         // lot of changes.
-        plot: GameplayMap.getIndexFromLocation(city.location),
-    }));
+        city["plot"] = GameplayMap.getIndexFromLocation(city.location);
+    });
+    return cities;
 }
 
 /**

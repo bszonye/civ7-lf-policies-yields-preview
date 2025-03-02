@@ -4,7 +4,7 @@ export const PolicyYieldsCache = new class {
     /** @type {UnwrappedPlayerYields} */
     _yields = {};
     /** @type {Record<string, Set<string>>} */
-    _constructibleTypeTags = {};
+    _typeTags = {};
 
     update() {
         this._yields = unwrapCurrentPlayerYields();
@@ -14,7 +14,7 @@ export const PolicyYieldsCache = new class {
 
     cleanup() {
         this._yields = {};
-        this._constructibleTypeTags = {};
+        this._typeTags = {};
     }
 
     /** @returns {UnwrappedPlayerYields} */
@@ -27,27 +27,27 @@ export const PolicyYieldsCache = new class {
     }
 
     /**
-     * @param {string} constructibleType 
+     * @param {string} type 
      * @returns {Set<string>}
      */
-    getTagsForConstructibleType(constructibleType) {
-        if (!this._constructibleTypeTags[constructibleType]) {
+    getTypeTags(type) {
+        if (!this._typeTags[type]) {
             const tags = GameInfo.TypeTags
-                .filter(tag => tag.Type === constructibleType)
+                .filter(tag => tag.Type === type)
                 .map(tag => tag.Tag);
 
-            this._constructibleTypeTags[constructibleType] = new Set(tags);
+            this._typeTags[type] = new Set(tags);
         }
 
-        return this._constructibleTypeTags[constructibleType];
+        return this._typeTags[type];
     }
 
     /**
-     * Check if the constructible type has the tag assigned
-     * @param {string} constructibleType
+     * Check if the  type has the tag assigned
+     * @param {string} type
      * @param {string} tag
      */
-    hasConstructibleTypeTag(constructibleType, tag) {
-        return this.getTagsForConstructibleType(constructibleType).has(tag);
+    hasTypeTag(type, tag) {
+        return this.getTypeTags(type).has(tag);
     }
 }

@@ -42,7 +42,7 @@ export function getBuildingsByTag(cities, tag) {
             const constructible = Constructibles.getByComponentID(constructibleId);
             const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
             
-            const tags = PolicyYieldsCache.getTagsForConstructibleType(constructibleType.ConstructibleType);
+            const tags = PolicyYieldsCache.getTypeTags(constructibleType.ConstructibleType);
             if (tags?.has(tag)) {
                 return [constructible];
             }
@@ -140,28 +140,3 @@ function isConstructibleAdjacencyValid(city, constructible, constructibleType, a
     return validAdjacencies.some(ayc => ayc.ID === adjacency);
 }
 
-/**
- * Check if the constructible is ageless
- * @param {string} constructibleType 
- * @returns {boolean}
- */
-export function isConstructibleAgeless(constructibleType) {
-    return !PolicyYieldsCache.hasConstructibleTypeTag(constructibleType, 'AGELESS');
-}
-
-/**
- * @param {Constructible} constructibleType 
- */
-export function isConstructibleValidForQuarter(constructibleType) {
-    const isIgnored = PolicyYieldsCache.hasConstructibleTypeTag(
-        constructibleType.ConstructibleType, 
-        'IGNORE_DISTRICT_PLACEMENT_CAP'
-    );
-    if (isIgnored) return false;
-
-    const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
-    const currentAge = GameInfo.Ages.lookup(Game.age).AgeType;
-    if (!isAgeless && currentAge != constructibleType.Age) return false;
-    
-    return true;
-}

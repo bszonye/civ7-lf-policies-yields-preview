@@ -56,7 +56,7 @@ export const ConstructibleAdjacencies = new class {
                     }
                     return true;
 
-                    // Not used, we'd need to understand better what they represent anyway
+                    // TODO Not used in modern, we'd need to understand better what they represent anyway
                     // if (ca.HasNavigableRiver && ...) {
                 })
                 .map(ca => ca.YieldChangeId);
