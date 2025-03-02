@@ -1,3 +1,4 @@
+import { PolicyYieldsCache } from "scripts/cache.js";
 import { parseArgumentsArray } from "./helpers.js";
 
 export function getPlotDistrict(plot) {
@@ -43,3 +44,14 @@ export function getPlotConstructiblesByLocation(x, y) {
         constructibleType: GameInfo.Constructibles.lookup(constructible.type),
     }));
 }
+
+// export function isPlotQuarter(plot) {
+//     const location = GameplayMap.getLocationFromIndex(plot);
+//     const constructibles = getPlotConstructiblesByLocation(location.x, location.y)
+//         .filter(c => {
+//             const isAgeless =
+//             return     c.constructibleType.ConstructibleClass === 'BUILDING' &&
+//             c.constructibleType.
+//             !PolicyYieldsCache.getTagsForConstructibleType(c.constructibleType.ConstructibleType).has('IGNORE_DISTRICT_PLACEMENT_CAP')
+//         });
+// }

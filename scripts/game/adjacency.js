@@ -92,6 +92,17 @@ export function getPlotsGrantingAdjacency(location, adjacency) {
 }
 
 /**
+ * Get the adjacent plots to a location
+ * @param {number} plotIndex
+ */
+export function getAdjacentPlots(plotIndex) {
+    const location = GameplayMap.getLocationFromIndex(plotIndex);
+    return GameplayMap
+        .getPlotIndicesInRadius(location.x, location.y, 1)
+        .filter(plot => plot !== plotIndex);
+}
+
+/**
  * Check if a plot meets the adjacency requirements
  *
  * @param {AdjacencyYieldChange} adjacency

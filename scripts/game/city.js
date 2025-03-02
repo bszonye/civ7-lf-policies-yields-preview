@@ -55,3 +55,10 @@ export function getCitySpecialistsCount(city) {
     return specialists;
 }
 
+/**
+ * Get the number of assigned resources in a city.
+ * @param {City} city
+ */
+export function getCityAssignedResourcesCount(city) {
+    return city.Resources.getTotalCountAssignedResources();
+}

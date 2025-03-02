@@ -3,6 +3,8 @@ import { unwrapCurrentPlayerYields } from "./effects/yields.js";
 export const PolicyYieldsCache = new class {
     /** @type {UnwrappedPlayerYields} */
     _yields = {};
+    /** @type {Record<string, Set<string>>} */
+    _constructibleTypeTags = {};
 
     update() {
         this._yields = unwrapCurrentPlayerYields();
@@ -12,6 +14,7 @@ export const PolicyYieldsCache = new class {
 
     cleanup() {
         this._yields = {};
+        this._constructibleTypeTags = {};
     }
 
     /** @returns {UnwrappedPlayerYields} */
@@ -23,4 +26,19 @@ export const PolicyYieldsCache = new class {
         return this._yields[yieldType];
     }
 
+    /**
+     * @param {string} constructibleType 
+     * @returns {Set<string>}
+     */
+    getTagsForConstructibleType(constructibleType) {
+        if (!this._constructibleTypeTags[constructibleType]) {
+            const tags = GameInfo.TypeTags
+                .filter(tag => tag.Type === constructibleType)
+                .map(tag => tag.Tag);
+
+            this._constructibleTypeTags[constructibleType] = new Set(tags);
+        }
+
+        return this._constructibleTypeTags[constructibleType];
+    }
 }

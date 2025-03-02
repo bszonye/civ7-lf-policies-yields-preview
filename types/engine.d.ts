@@ -1,11 +1,18 @@
 declare var engine: any;
 declare var Controls: any;
-declare var Players: any;
+declare var Players: {
+    get: (playerId: number) => Player;
+    getAlive: () => Player[];
+    Religion?: {
+        get: (playerId: number) => any;
+    }
+};
 declare var GameContext: any;
 declare var MapCities: any;
 declare var Districts: any;
 declare var Loading: any;
 declare var Locale: any;
+declare var RevealedStates: any;
 
 declare interface Constructibles {
     getByComponentID: (componentId: ID) => ConstructibleInstance;
@@ -35,12 +42,15 @@ interface City {
     id: CityID;
     getConnectedCities: () => ID[]; // ??
     getPurchasedPlots: () => any[];
+    Resources: {
+        getTotalCountAssignedResources: () => number;
+    };
     Constructibles: {
         getIds: () => ID[];
         getMaintenance: (type: string) => number[];
         getIdsOfType: (type: string) => ID[];
         hasConstructible: (type: string, unknownArg: boolean) => boolean;
-    }
+    };
 }
   
 
@@ -51,6 +61,106 @@ interface PlayerCities {
     getCapital: () => any;
     // findClosest: (x: number, y: number) => any; // Returns the closest city to given coordinates
     destroy: (cityId: ID) => void;     
+}
+
+interface PlayerUnits {
+    getUnitIds: () => ID[];
+}
+
+interface PlayerCulture {
+    getNumWorksInArchive: () => number;
+    getArchivedGreatWork: (numInArchive: number) => number;
+    getGreatWorkType: (index: number) => number;
+}
+
+declare interface Player {
+    Units: PlayerUnits;
+    Cities: PlayerCities;
+    Culture: PlayerCulture;
+    Identity: any;
+    Diplomacy: any;
+    Stats: any;
+    Trade: any;
+    Influence: any;
+    Resources: any;
+    isMinor: boolean;
+    isMajor: boolean;
+    id: number;
+}
+
+declare var Player: Player;
+
+declare interface Units {
+    get(id: ID): Unit;
+}
+
+declare var Units: Units;
+
+declare interface UnitExperience {
+    getStoredCommendations: number;
+    getStoredPromotionPoints: number;
+    spentExperience: number;
+    experienceToNextLevel: number;
+    experiencePoints: number;
+    canEarnExperience: boolean;
+    getTotalPromotionsEarned: number;
+    getLevel: number;
+    getNumCommendations: number;
+    getNumPromotions: number;
+    canPromote: boolean;
+}
+
+declare interface Unit {
+    Experience: UnitExperience;
+    activityType: number;
+    operationQueueSize: number;
+    hasPendingOperations: boolean;
+    sightRange: number;
+    canSeeThroughTerrain: boolean;
+    canSeeThroughFeatures: boolean;
+    isCombat: boolean;
+    age: number;
+    formationID: number;
+    formationUnitCount: number;
+    hasHiddenVisibility: boolean;
+    noDefensiveBonusCount: number;
+    noDefensiveBonus: boolean;
+    isFortified: boolean;
+    isReadyToAutomate: boolean;
+    isAutomated: boolean;
+    hasAdjacentMove: boolean;
+    canCyclePast: boolean;
+    isReadyToMove: boolean;
+    isReadyToSelect: boolean;
+    buildCharges: number;
+    sightModifiers: any;
+    hasMoved: boolean;
+    movementDisabledThisTurn: boolean;
+    canMove: boolean;
+    needsMovementCompletion: boolean;
+    embarkationType: number;
+    isEmbarked: boolean;
+    needsAttention: boolean;
+    isOnMap: boolean;
+    isBusy: boolean;
+    isDead: boolean;
+    operationTimer: number;
+    isBarbarian: boolean;
+    isGreatPerson: boolean;
+    isCommanderUnit: boolean;
+    isAerodromeCommander: boolean;
+    isSquadronCommander: boolean;
+    isFleetCommander: boolean;
+    isArmyCommander: boolean;
+    originCityId: number;
+    location: Location;
+    armyId: ID;
+    name: string;
+    owner: number;
+    type: number;
+    originalOwner: number;
+    localId: number;
+    id: ID;
 }
 
 declare interface Game {
@@ -133,8 +243,8 @@ declare interface GameplayMap {
     getPlotLatitude: (x: number, y: number) => number;
     getRainfall: (x: number, y: number) => number;
     getResourceType: (x: number, y: number) => number;
-    getRevealedState: (x: number, y: number, playerId: number) => string;
-    getRevealedStates: (x: number, y: number) => Record<number, string>;
+    getRevealedState: (playerId: number, x: number, y: number) => string;
+    getRevealedStates: (playerId: number) => number[];
     getRiverType: (x: number, y: number) => string;
     getTerrainType: (x: number, y: number) => number;
     getYield: (x: number, y: number, yieldType: string) => number;

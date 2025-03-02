@@ -2,8 +2,8 @@ import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier } from "./yields.js";
 import { computeConstructibleMaintenanceEfficiencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBuildingsCountForModifier, getPlayerBuildingsCountForModifier } from "../game/constructibles.js";
 import { getYieldsForAdjacency, getPlotsGrantingAdjacency, AdjancenciesCache } from "../game/adjacency.js";
-import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfModifier } from "../game/units.js";
-import { getCitySpecialistsCount } from "../game/city.js";
+import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfModifier, getArmyCommanders } from "../game/units.js";
+import { getCityAssignedResourcesCount, getCitySpecialistsCount } from "../game/city.js";
 import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 
@@ -34,7 +34,9 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
     }
 
     switch (modifier.EffectType) {
-        // Player (subject = player)
+        // ==============================
+        // ========== Player ============
+        // ==============================
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
             const activeTraditions = subject.Culture.getActiveTraditions();
             let count = 0;
@@ -172,7 +174,9 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         }
 
 
-        // City
+        // ==============================
+        // ========== City ==============
+        // ==============================
         case "EFFECT_CITY_ADJUST_YIELD_PER_ATTRIBUTE": {
             const attributePoints = player.Identity?.getSpentAttributePoints(modifier.Arguments.AttributeType.Value) || 0;
             const amount = Number(modifier.Arguments.Amount.Value) * attributePoints;
@@ -294,12 +298,43 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             return addYieldsAmount(yieldsDelta, modifier, value);
         }
 
-        // Plot
+        case "EFFECT_CITY_ADJUST_YIELD_PER_COMMANDER_LEVEL": {
+            const commanders = getArmyCommanders(subject);
+            const totalLevels = commanders.reduce((acc, commander) => acc + commander.Experience.getLevel, 0);
+            const amount = Number(modifier.Arguments.Amount.Value) * totalLevels;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_CITY_ADJUST_YIELD_PER_GREAT_WORK": {
+            // TODO Not sure, these methods are undocumented
+            const greatWorks = subject.Constructibles.getGreatWorks()?.length || 0;            
+            const amount = Number(modifier.Arguments.Amount.Value) * greatWorks;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_CITY_ADJUST_YIELD_PER_POPULATION": {
+            // TODO only QUIPU does this, and it's a bit more complex
+        }
+
+        case "EFFECT_CITY_ADJUST_YIELD_PER_RESOURCE": {
+            const assignedResources = getCityAssignedResourcesCount(subject);
+            const amount = Number(modifier.Arguments.Amount.Value) * assignedResources;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        // ==============================
+        // ========== Plot ==============
+        // ==============================
         case "EFFECT_PLOT_ADJUST_YIELD": {
             // TODO Percent?
             const amount = Number(modifier.Arguments.Amount.Value);
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
+
+        // ==============================
+        // ========== Unit ==============
+        // ==============================
+        
 
         // Ignored effects
         case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION":
@@ -318,6 +353,8 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_CITY_ADJUST_TRADE_ROUTE_RANGE":
         case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION":
         case "EFFECT_CITY_ADJUST_WONDER_PRODUCTION":
+        case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION_MOD_PER_SETTLEMENT":
+        case "TRIGGER_PLAYER_GRANT_YIELD_ON_UNIT_CREATED":
 
             return;
 

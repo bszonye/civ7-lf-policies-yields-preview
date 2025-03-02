@@ -51,6 +51,18 @@ export function isUnitTypeInfoTargetOfModifier(unitType, modifier) {
     return true;
 }
 
+/**
+ * @param {Player} player 
+ */
+export function getArmyCommanders(player) {
+    const unitIds = player.Units.getUnitIds();
+    const commanders = unitIds
+        .map(id => Units.get(id))
+        .filter(unit => unit.Experience.canEarnExperience && unit.isArmyCommander);
+
+    return commanders;
+}
+
 
 // TRADE (TODO Move to trade.js)
 /**

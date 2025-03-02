@@ -1,5 +1,6 @@
 import { calculateMaintenanceEfficiencyToReduction } from "./helpers.js";
 import { ConstructibleAdjacencies } from "./adjacency.js";
+import { PolicyYieldsCache } from "scripts/cache.js";
 
 /**
  * @param {*} player
@@ -34,8 +35,6 @@ export function getBuildingsCountForModifier(cities, modifier) {
  * @returns any[]
  */
 export function getBuildingsByTag(cities, tag) {
-    const tagsCache = {};
-
     return cities.flatMap(city => {
         const cityConstructibles = city.Constructibles.getIds();
         for (let i = 0; i < cityConstructibles.length; i++) {
@@ -43,14 +42,8 @@ export function getBuildingsByTag(cities, tag) {
             const constructible = Constructibles.getByComponentID(constructibleId);
             const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
             
-            if (!tagsCache[constructibleType.ConstructibleType]) {
-                tagsCache[constructibleType.ConstructibleType] = GameInfo.TypeTags
-                    .filter(tag => tag.Type === constructibleType.ConstructibleType)
-                    .map(tag => tag.Tag);
-            }
-            const tags = tagsCache[constructibleType.ConstructibleType];
-
-            if (tags?.includes(tag)) {
+            const tags = PolicyYieldsCache.getTagsForConstructibleType(constructibleType.ConstructibleType);
+            if (tags?.has(tag)) {
                 return [constructible];
             }
         }
