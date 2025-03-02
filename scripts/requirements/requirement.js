@@ -1,6 +1,8 @@
+import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "scripts/game/units.js";
 import { PolicyYieldsCache } from "../cache.js";
 import { hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
 import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots } from "../game/plot.js";
+import { isPlayerAtWarWithOpposingIdeology } from "scripts/game/player.js";
 
 /**
  *
@@ -116,6 +118,13 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return isPlotQuarter(subject.plot);
         }
 
+        case "REQUIREMENT_PLOT_TERRAIN_TYPE_MATCHES": {
+            const loc = GameplayMap.getLocationFromIndex(subject.plot);
+            const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
+            const terrain = GameInfo.Terrains.lookup(terrainType);
+            return terrain.TerrainType == requirement.Arguments.TerrainType.Value;
+        }
+
         case "REQUIREMENT_PLOT_ADJACENT_TERRAIN_TYPE_MATCHES": {
             return getAdjacentPlots(subject.plot).some(plot => {
                 const loc = GameplayMap.getLocationFromIndex(plot);
@@ -138,7 +147,57 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return GameplayMap.getOwner(loc.x, loc.y) == player.id;
         }
 
+        // Units
+        case "REQUIREMENT_UNIT_TAG_MATCHES": {
+            return hasUnitTag(subject, requirement.Arguments.Tag?.Value);
+        }
+
+        case "REQUIREMENT_UNIT_IS_IN_HOMELANDS": {
+            /** @type {UnitInstance} */
+            const unit = subject;
+            return !player.isDistantLands(unit.location);
+        }
+
+        case "REQUIREMENT_UNIT_DOMAIN_MATCHES": {
+            /** @type {UnitInstance} */
+            const unit = subject;
+            const unitType = GameInfo.Units.lookup(unit.type);
+            return unitType.Domain == requirement.Arguments.UnitDomain.Value;
+        }
+
+        case "REQUIREMENT_UNIT_CLASS_MATCHES": {
+            /** @type {UnitInstance} */
+            const unit = subject;
+            const unitTypeInfo = GameInfo.Units.lookup(unit.type);
+            return isUnitTypeInfoTargetOfArguments(unitTypeInfo, requirement.Arguments);
+            // return unitTypeInfo.Class == requirement.Arguments.UnitClassType.Value;
+        }
+
+        case "REQUIREMENT_UNIT_CORE_CLASS_MATCHES": {
+            /** @type {UnitInstance} */
+            const unit = subject;
+            const unitTypeInfo = GameInfo.Units.lookup(unit.type);
+            return unitTypeInfo.CoreClass == requirement.Arguments.UnitCoreClass.Value;
+        }
+
+        case "REQUIREMENT_UNIT_DOMAIN_MATCHES": {
+            /** @type {UnitInstance} */
+            const unit = subject;
+            const unitTypeInfo = GameInfo.Units.lookup(unit.type);
+            return unitTypeInfo.Domain == requirement.Arguments.UnitDomain.Value;
+        }
+
+        case "REQUIREMENT_UNIT_IN_OWNER_TERRITORY": {
+            /** @type {UnitInstance} */
+            const unit = subject;
+            return GameplayMap.getOwner(unit.location.x, unit.location.y) == player.id;
+        }
+
         // Player (Owner)
+        case "REQUIREMENT_PLAYER_IS_AT_WAR_WITH_OPPOSING_IDEOLOGY": {
+            return isPlayerAtWarWithOpposingIdeology(subject);
+        }
+
         default:
             console.warn(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
             return false;

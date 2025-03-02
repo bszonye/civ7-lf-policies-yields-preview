@@ -23,7 +23,7 @@ export function getPlayerRelationshipsCountForModifier(player, modifier) {
         }
 
         if (modifier.Arguments.UseAlliances.Value === 'true' &&
-            player.Diplomacy?.hasAllied(otherPlayer)) {
+            player.Diplomacy?.hasAllied(otherPlayer.id)) {
             allies++;
         }
 
@@ -36,4 +36,31 @@ export function getPlayerRelationshipsCountForModifier(player, modifier) {
         }
     });
     return allies;
+}
+
+/**
+ * @param {Player} player
+ */
+export function isPlayerAtWarWithOpposingIdeology(player) {
+    const allPlayers = Players.getAlive();
+    for (const otherPlayer of allPlayers) {
+        if (!otherPlayer.isMajor || otherPlayer.id == GameContext.localPlayerID) {
+            continue;
+        }
+
+        if (!player.Diplomacy?.isAtWarWith(otherPlayer.id)) {
+            continue;
+        }
+
+        const playerIdeology = player.Diplomacy?.getIdeology();
+        const otherPlayerIdeology = otherPlayer.Diplomacy?.getIdeology();
+        if (playerIdeology == -1 || otherPlayerIdeology == -1) continue;
+        
+        // Same ideology
+        if (playerIdeology == otherPlayerIdeology) continue;
+
+        return true;
+    }
+
+    return false;
 }

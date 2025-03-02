@@ -71,6 +71,16 @@ function wrapCitySubjects(cities) {
     return cities;
 }
 
+/** 
+ * @param {UnitInstance[]} units 
+ */
+function wrapUnitSubjects(units) {
+    units.forEach(unit => {
+        unit["plot"] = GameplayMap.getIndexFromLocation(unit.location);
+    });
+    return units;
+}
+
 /**
  * @param {ResolvedModifier} modifier
  */
@@ -118,20 +128,25 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                 };
             });
         }
-            
+        
+        // We are interested only in our units
         case "COLLECTION_ALL_UNITS":
-            console.warn("COLLECTION_ALL_UNITS not implemented");
-            return [];
+            return wrapUnitSubjects(
+                player.Units.getUnitIds().map(unitId => Units.get(unitId))
+            );
 
         case "COLLECTION_PLAYER_UNITS":
-            return player.Units.getUnitIds().map(unitId => Units.get(unitId));
+            return wrapUnitSubjects(
+                player.Units.getUnitIds().map(unitId => Units.get(unitId))
+            );
 
         case "COLLECTION_UNIT_COMBAT": {
-            return player.Units.getUnitIds().map(unitId => {
+            const combatUnits = player.Units.getUnitIds().map(unitId => {
                 const unit = Units.get(unitId);
                 if (!unit.isCombat) return null;
                 return unit; 
             }).filter(Boolean);
+            return wrapUnitSubjects(combatUnits);
         }
 
         // Nested (Unit)

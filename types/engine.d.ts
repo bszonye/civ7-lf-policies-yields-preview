@@ -79,7 +79,12 @@ declare interface Player {
     Cities: PlayerCities;
     Culture: PlayerCulture;
     Identity: any;
-    Diplomacy: any;
+    Diplomacy: {
+        getIdeology: () => number; // -1 if no ideology
+        getRelationshipEnum: (otherPlayer: Player) => number;
+        hasAllied: (otherPlayerId: number) => boolean;
+        isAtWarWith: (otherPlayerId: number) => boolean;
+    };
     Stats: any;
     Trade: any;
     Influence: any;
@@ -87,12 +92,14 @@ declare interface Player {
     isMinor: boolean;
     isMajor: boolean;
     id: number;
+    isDistantLands(coord: Location): boolean;
 }
 
 declare var Player: Player;
 
 declare interface Units {
-    get(id: ID): Unit;
+    get(id: ID): UnitInstance;
+    hasTag: (unitId: ID, tag: string) => boolean;
 }
 
 declare var Units: Units;
@@ -111,7 +118,7 @@ declare interface UnitExperience {
     canPromote: boolean;
 }
 
-declare interface Unit {
+declare interface UnitInstance {
     Experience: UnitExperience;
     activityType: number;
     operationQueueSize: number;

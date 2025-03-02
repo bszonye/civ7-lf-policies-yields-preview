@@ -1,3 +1,5 @@
+import { PolicyYieldsCache } from "scripts/cache";
+
 /**
  * @param {*} player 
  * @returns {UnitTypesInfo}
@@ -17,9 +19,7 @@ export function retrieveUnitTypesMaintenance(player) {
 
         unitTypes[unit.type] = {
             UnitType: unitTypeInfo,
-            // TODO Cache
-            Tags: GameInfo.TypeTags.filter(tag => tag.Type === unit.type).map(tag => tag.Tag),
-            Count: player?.Units.getNumUnitsOfType(unit.type),
+            Count: count,
             MaintenanceCost: maintenance,
         };
     }
@@ -28,23 +28,23 @@ export function retrieveUnitTypesMaintenance(player) {
 }
 
 /**
- * @param {UnitTypeInfo} unitType
- * @param {ResolvedModifier} modifier
+ * @param {Unit} unitType
+ * @param {ResolvedArguments} args
  */
-export function isUnitTypeInfoTargetOfModifier(unitType, modifier) {
-    if (modifier.Arguments.UnitTag?.Value) {
-        const tags = modifier.Arguments.UnitTag.Value.split(",").map(tag => tag.trim());
-        if (!unitType.Tags.some(tag => tags.includes(tag))) {
+export function isUnitTypeInfoTargetOfArguments(unitType, args) {
+    if (args.UnitTag?.Value) {
+        const tags = args.UnitTag.Value.split(",").map(tag => tag.trim());
+        if (!tags.some(tag => PolicyYieldsCache.hasTypeTag(unitType.UnitType, tag))) {
             return false;
         }
     }
-    if (modifier.Arguments.UnitClass?.Value) {
-        if (!unitType.Tags.includes(modifier.Arguments.UnitClass.Value)) {
+    if (args.UnitClass?.Value) {
+        if (!PolicyYieldsCache.hasTypeTag(unitType.UnitType, args.UnitClass.Value)) {
             return false;
         }
     }
-    if (modifier.Arguments.UnitDomain?.Value) {
-        if (unitType.UnitType.Domain !== modifier.Arguments.UnitDomain.Value) {
+    if (args.UnitDomain?.Value) {
+        if (unitType.Domain !== args.UnitDomain.Value) {
             return false;
         }
     }
@@ -63,6 +63,14 @@ export function getArmyCommanders(player) {
     return commanders;
 }
 
+/**
+ * 
+ * @param {UnitInstance} unit
+ * @param {string} tag 
+ */
+export function hasUnitTag(unit, tag) {
+    return Units.hasTag(unit.id, tag);
+}
 
 // TRADE (TODO Move to trade.js)
 /**

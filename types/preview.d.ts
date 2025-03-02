@@ -52,7 +52,6 @@ declare interface UnwrappedPlayerYields {
 
 declare interface UnitTypeInfo {
     UnitType: Unit;
-    Tags: string[];
     Count: number;
     MaintenanceCost: number;
 }

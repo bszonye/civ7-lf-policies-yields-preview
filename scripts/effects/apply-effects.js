@@ -2,7 +2,7 @@ import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier } from "./yields.js";
 import { computeConstructibleMaintenanceEfficiencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBuildingsCountForModifier, getPlayerBuildingsCountForModifier } from "../game/constructibles.js";
 import { getYieldsForAdjacency, getPlotsGrantingAdjacency, AdjancenciesCache } from "../game/adjacency.js";
-import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfModifier, getArmyCommanders } from "../game/units.js";
+import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfArguments, getArmyCommanders } from "../game/units.js";
 import { getCityAssignedResourcesCount, getCitySpecialistsCount } from "../game/city.js";
 import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
@@ -84,7 +84,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             const allies = allPlayers.filter(otherPlayer => 
                 otherPlayer.isMajor && 
                 otherPlayer.id != GameContext.localPlayerID && 
-                player.Diplomacy?.hasAllied(otherPlayer)
+                player.Diplomacy?.hasAllied(otherPlayer.id)
             ).length;
             const amount = Number(modifier.Arguments.Amount.Value) * attributePoints * allies;
             return addYieldsAmount(yieldsDelta, modifier, amount);
@@ -142,7 +142,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             let totalReduction = 0;
             let totalCost = 0;
             for (let unitType in unitTypes) {
-                if (!isUnitTypeInfoTargetOfModifier(unitTypes[unitType], modifier)) {
+                if (!isUnitTypeInfoTargetOfArguments(unitTypes[unitType].UnitType, modifier.Arguments)) {
                     continue;
                 }
 
