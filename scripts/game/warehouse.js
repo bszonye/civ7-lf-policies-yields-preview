@@ -6,7 +6,6 @@ import { PolicyYieldsCache } from "../cache.js";
  * @param {WarehouseYieldChange} yieldChange 
  */
 export function getYieldsForWarehouseChange(city, yieldChange) {
-    console.warn("getYieldsForWarehouseChange", city.getPurchasedPlots);
     const plots = city.getPurchasedPlots()
         .map(plot => ({
             plot,
@@ -17,7 +16,6 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
             return MapConstructibles.getHiddenFilteredConstructibles(location.x, location.y).length > 0
         });
     
-    console.warn("after getYieldsForWarehouseChange", JSON.stringify(plots));
     // yieldChange.Age ?
  
     if (yieldChange.LakeInCity) {
