@@ -1,4 +1,23 @@
+import { doesConstructibleGrantsWarehouseYields } from "./warehouse.js";
 
+
+const BuildingsByTagCache = new class {
+    _cache = new Map();
+
+    getBuildingTypesByTag(tag) {
+        if (this._cache.has(tag)) {
+            return this._cache.get(tag);
+        }
+
+        const buildingTypes = GameInfo.TypeTags
+            .filter(typeTag => typeTag.Tag === tag)
+            .map(typeTag => typeTag.Type)
+            .filter(type => GameInfo.Constructibles.find(c => c.ConstructibleType === type).ConstructibleClass == 'BUILDING');
+
+        this._cache.set(tag, buildingTypes);
+        return buildingTypes;
+    }
+}
 
 /**
  * Check if the city has a certain building.
@@ -14,11 +33,11 @@ export function hasCityBuilding(city, args) {
         return city.Constructibles?.hasConstructible(args.BuildingType.Value, false);
     }
     else if (args.Tag) {
-        const constructibleTypes = GameInfo.TypeTags
-            .filter(tag => tag.Tag === args.Tag.Value)
-            .map(tag => tag.Type);
-
-        return constructibleTypes.some(type => city.Constructibles?.hasConstructible(type, false));
+        const buildingTypes = BuildingsByTagCache.getBuildingTypesByTag(args.Tag.Value);
+        const activeWarehouseYieldsBuildingTypes = buildingTypes
+            .filter(type => doesConstructibleGrantsWarehouseYields(type));
+            
+        return activeWarehouseYieldsBuildingTypes.some(type => city.Constructibles?.hasConstructible(type, false));
     }
 
     console.warn(`Unhandled ModifierArgument: ${args}`);

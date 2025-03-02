@@ -1,4 +1,5 @@
 import { PolicyYieldsCache } from "../cache.js";
+import { isConstructibleAgeless } from "./helpers.js";
 
 /**
  * Get the warehouse yield change yields
@@ -6,6 +7,7 @@ import { PolicyYieldsCache } from "../cache.js";
  * @param {WarehouseYieldChange} yieldChange 
  */
 export function getYieldsForWarehouseChange(city, yieldChange) {
+    // console.warn("getYieldsForWarehouseChange", city.name, yieldChange.ID);
     const plots = city.getPurchasedPlots()
         .map(plot => ({
             plot,
@@ -101,6 +103,7 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
             const terrain = GameInfo.Terrains.lookup(terrainType);
             return terrain.TerrainType === yieldChange.TerrainInCity;
         });
+        // console.warn("TerrainInCity", yieldChange.TerrainInCity, terrainPlots.length, yieldChange.YieldChange);
 
         return terrainPlots.length * yieldChange.YieldChange;
     }
@@ -145,4 +148,15 @@ export function findCityConstructiblesMatchingWarehouse(city, yieldChange) {
             const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
             return validConstructiblesTypes.has(constructibleType.ConstructibleType);
         });
+}
+
+
+/**
+ * @param {Constructible} constructibleType 
+ */
+export function doesConstructibleGrantsWarehouseYields(constructibleType) {
+    const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
+    const currentAge = GameInfo.Ages.lookup(Game.age).AgeType;
+    if (!isAgeless && currentAge != constructibleType.Age) return false;
+    return true;
 }
