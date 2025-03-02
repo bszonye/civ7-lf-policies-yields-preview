@@ -100,3 +100,24 @@ export function getCitySpecialistsCount(city) {
 export function getCityAssignedResourcesCount(city) {
     return city.Resources.getTotalCountAssignedResources();
 }
+
+/**
+ * Get the number of great works in a city.
+ * @param {City} city
+ */
+export function getCityGreatWorksCount(city) {
+    const buildings = city.Constructibles.getGreatWorkBuildings();
+    if (!buildings || buildings.length === 0) return 0;
+
+    let count = 0;
+    buildings.forEach(greatWorkBuilding => {
+        // TODO Maybe we should skip damanged buildings? Not sure about this
+        const buildingInstance = Constructibles.getByComponentID(greatWorkBuilding.constructibleID);
+        // const building = GameInfo.Constructibles.lookup(buildingInstance.type);
+        
+        count += greatWorkBuilding.slots
+            .filter(slot => slot.greatWorkIndex != -1)
+            .length;
+    });
+    return count;
+}

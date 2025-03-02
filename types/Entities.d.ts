@@ -8,6 +8,16 @@ declare interface ID {
     id: number;
     type: number;
 }
+
+declare interface GreatWorkSlot {
+    greatWorkIndex: number;
+    slotType: number;
+  }
+  
+declare interface GreatWorkBuilding {
+    constructibleID: ConstructibleID;
+    slots: GreatWorkSlot[];
+}
   
 declare interface ConstructibleInstance {
     damaged: boolean;

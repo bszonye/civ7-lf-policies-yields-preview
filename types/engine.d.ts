@@ -51,6 +51,7 @@ interface City {
         getMaintenance: (type: string) => number[];
         getIdsOfType: (type: string) => ID[];
         hasConstructible: (type: string, unknownArg: boolean) => boolean;
+        getGreatWorkBuildings: () => GreatWorkBuilding[];
     };
 }
   
@@ -194,7 +195,9 @@ declare interface Game {
     DiplomacyDeals: Record<string, unknown>;
     DiplomacySessions: Record<string, unknown>;
     Diplomacy: Record<string, unknown>;
-    Culture: Record<string, unknown>;
+    Culture: {
+        getGreatWorkType: (index: number) => number;
+    }
     CrisisManager: Record<string, unknown>;
     Combat: Record<string, unknown>;
     CityStates: Record<string, unknown>;
