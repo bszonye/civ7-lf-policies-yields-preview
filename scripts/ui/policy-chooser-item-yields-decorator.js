@@ -1,13 +1,13 @@
 import { previewPolicyYields } from "../preview-policy-yields.js";
 
 const YieldsColorMap = {
-    "YIELD_GOLD": "rgba(255, 235, 75, 0.3)",
-    "YIELD_FOOD": "rgba(141, 255, 75, 0.3)",
-    "YIELD_PRODUCTION": "rgba(174, 79, 15, 0.3)",
-    "YIELD_DIPLOMACY": "rgba(88, 192, 231, 0.3)",
-    "YIELD_SCIENCE": "rgba(50, 151, 255, 0.3)",
-    "YIELD_CULTURE": "rgba(197, 75, 255, 0.3)",
-    "YIELD_HAPPINESS": "rgba(253, 175, 50, 0.3)",
+    "YIELD_GOLD": "rgba(255, 235, 75, 0.12)",
+    "YIELD_FOOD": "rgba(141, 255, 75, 0.12)",
+    "YIELD_PRODUCTION": "rgba(174, 79, 15, 0.12)",
+    "YIELD_DIPLOMACY": "rgba(88, 192, 231, 0.12)",
+    "YIELD_SCIENCE": "rgba(50, 151, 255, 0.12)",
+    "YIELD_CULTURE": "rgba(197, 75, 255, 0.12)",
+    "YIELD_HAPPINESS": "rgba(253, 175, 50, 0.12)",
 }
 
 const DarkYieldsColorMap = {
@@ -20,6 +20,8 @@ const DarkYieldsColorMap = {
     "YIELD_HAPPINESS": "rgba(51, 35, 10, 0.4)"
 }
 
+export const USE_COLORFUL_YIELDS = false;
+
 /**
  * @param {string} type
  * @param {number} value
@@ -27,7 +29,9 @@ const DarkYieldsColorMap = {
 function renderYieldTextSpan(type, value) {
     const element = document.createElement("div");
     element.classList.value = "policy-chooser-item__yield";
-    // element.style.backgroundColor = YieldsColorMap[type];
+    if (USE_COLORFUL_YIELDS) {
+        element.style.backgroundColor = YieldsColorMap[type];
+    }
     if (value < 0) {
         element.classList.add("text-negative");
     }
@@ -60,8 +64,10 @@ class PolicyChooserItemYieldsDecorator {
               font-weight: 700;
               line-height: 1.3333333333rem;
               border-radius: 0.38rem;
+              ${!USE_COLORFUL_YIELDS ? `
               padding: 0.3rem;
               background: linear-gradient(180deg, rgba(19, 20, 21, 0.45) 0%, rgba(27, 27, 30, 0.85) 100%);
+              ` : ''}
         }
 
         .policy-chooser-item--preview div.policy-chooser-item__yield {
@@ -69,19 +75,22 @@ class PolicyChooserItemYieldsDecorator {
             line-height: 1.3333333333rem;                    
             border-radius: 0.35rem;
             margin-left: 0.3rem;
+
             /*
             Colorful version:
+            */
+            ${USE_COLORFUL_YIELDS ? `                
             padding-top: 0.15rem;
             padding-bottom: 0.15rem;
             padding-right: 0.15rem;
             padding-left: 0.35rem;    
-            */
+            ` : ''}
         }
 
         .policy-chooser-item__yield:first-child {
             /*border-top-left-radius: 0.65rem;
             border-bottom-left-radius: 0.65rem;*/
-            padding-left: 0.23rem;
+            padding-left: 0.123rem;
             margin-left: 0 !important;
         }
 
