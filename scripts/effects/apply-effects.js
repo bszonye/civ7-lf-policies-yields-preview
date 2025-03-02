@@ -312,6 +312,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_POPULATION": {
             // TODO only QUIPU does this, and it's a bit more complex
+            return;
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_RESOURCE": {

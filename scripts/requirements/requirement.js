@@ -1,6 +1,6 @@
 import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
 import { hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
-import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots } from "../game/plot.js";
+import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast } from "../game/plot.js";
 import { isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 
 /**
@@ -109,11 +109,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         case "REQUIREMENT_PLOT_ADJACENT_TO_COAST": {
-            const loc = GameplayMap.getLocationFromIndex(subject.plot);
-            return GameplayMap.isCoastalLand(loc.x, loc.y) || getAdjacentPlots(subject.plot).some(plot => {
-                const adjacentLoc = GameplayMap.getLocationFromIndex(plot);
-                return GameplayMap.isCoastalLand(adjacentLoc.x, adjacentLoc.y);
-            });
+            return isPlotAdjacentToCoast(subject.plot);
         }
 
         case "REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE": {

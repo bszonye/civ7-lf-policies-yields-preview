@@ -88,3 +88,30 @@ export function hasPlotConstructibleByArguments(location, args) {
     });
 }
 
+/**
+ * The requirement is checked if:
+ * - The plot itself is in water, adjacent to land
+ * - The plot is land, adjacent to water
+ */
+export function isPlotAdjacentToCoast(plot) {
+    const location = GameplayMap.getLocationFromIndex(plot);
+    const isPlotWater = GameplayMap.isWater(location.x, location.y);
+
+    const adjacentPlots = getAdjacentPlots(plot);
+    for (const adjacentPlot of adjacentPlots) {
+        const adjacentLocation = GameplayMap.getLocationFromIndex(adjacentPlot);
+        const isAdjacentPlotWater = GameplayMap.isWater(adjacentLocation.x, adjacentLocation.y);
+        
+        // The plot is land, adjacent to water
+        if (!isPlotWater && isAdjacentPlotWater) {
+            // console.warn("isPlotAdjacentToCoast", location.x, location.y, "<-", adjacentLocation.x, adjacentLocation.y);
+            return true;
+        }
+        // The plot is water, adjacent to land
+        if (isPlotWater && !isAdjacentPlotWater) {
+            // console.warn("isPlotAdjacentToCoast", location.x, location.y, "->", adjacentLocation.x, adjacentLocation.y);
+            return true;
+        }
+    }
+    return false;
+}
