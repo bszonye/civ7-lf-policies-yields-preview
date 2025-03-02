@@ -6,7 +6,7 @@ import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfModifier, getArmyCo
 import { getCityAssignedResourcesCount, getCitySpecialistsCount } from "../game/city.js";
 import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
-import { getPlayerCityStatesSuzerain } from "../game/player.js";
+import { getPlayerCityStatesSuzerain, getPlayerRelationshipsCountForModifier } from "../game/player.js";
 import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
 
 /**
@@ -55,19 +55,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         }
 
         case "EFFECT_DIPLOMACY_ADJUST_YIELD_PER_PLAYER_RELATIONSHIP": {
-            const allPlayers = Players.getAlive();
-            let allies = 0;
-            allPlayers.forEach(otherPlayer => {
-                if (!otherPlayer.isMajor || otherPlayer.id == GameContext.localPlayerID) {
-                    return;
-                }
-
-                if (modifier.Arguments.UseAlliances.Value === 'true' &&
-                    player.Diplomacy?.hasAllied(otherPlayer)) {
-                    allies++;
-                }
-                // TODO We don't have examples without `UseAlliances` yet
-            });
+            const allies = getPlayerRelationshipsCountForModifier(player, modifier);
             const amount = Number(modifier.Arguments.Amount.Value) * allies;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
@@ -348,6 +336,12 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 
+        case "EFFECT_DIPLOMACY_ADJUST_CITY_YIELD_PER_PLAYER_RELATIONSHIP": {
+            const allies = getPlayerRelationshipsCountForModifier(player, modifier);
+            const amount = Number(modifier.Arguments.Amount.Value) * allies;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
         // ==============================
         // ========== Plot ==============
         // ==============================
@@ -360,6 +354,17 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         // ==============================
         // ========== Unit ==============
         // ==============================
+
+        case "EFFECT_DIPLOMACY_ADJUST_UNIT_MAINTENANCE_PER_PLAYER_RELATIONSHIP": {
+            const allies = getPlayerRelationshipsCountForModifier(player, modifier);
+            const bonus = Number(modifier.Arguments.Amount.Value) * allies;            
+            
+            // A way to limit the bonus to the maintenance cost of the unit.
+            // not sure if it's correct.
+            const unitType = GameInfo.Units.lookup(subject.type);
+            const amount = Math.max(bonus, unitType.Maintenance);
+            return addYieldTypeAmount(yieldsDelta, "YIELD_GOLD", amount);
+        }
         
 
         // Ignored effects
@@ -382,6 +387,19 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION_MOD_PER_SETTLEMENT":
         case "TRIGGER_PLAYER_GRANT_YIELD_ON_UNIT_CREATED":
         case "EFFECT_CITY_GRANT_UNIT":
+        case "TRIGGER_CITY_GRANT_YIELD_ON_CONSTRUCTIBLE_CREATED":
+        case "EFFECT_ADJUST_UNIT_POST_COMBAT_YIELD":
+        case "EFFECT_ADJUST_UNIT_STRENGTH_MODIFIER":
+        case "EFFECT_ADJUST_UNIT_CIV_UNIQUE_TRADITION_COMBAT_MODIFIER":
+        case "EFFECT_ADJUST_UNIT_IGNORE_ZOC":     
+        case "EFFECT_ADJUST_UNIT_SIGHT":
+        case "EFFECT_ADJUST_UNIT_SPREAD_CHARGES":
+        case "EFFECT_ARMY_ADJUST_EXPERIENCE_RATE":
+        case "EFFECT_ARMY_ADJUST_MOVEMENT_RATE": 
+        case "EFFECT_UNIT_ADJUST_ABILITY":
+        case "EFFECT_UNIT_ADJUST_COMMAND_AWARD":
+        case "EFFECT_UNIT_ADJUST_HEAL_PER_TURN":
+        case "EFFECT_UNIT_ADJUST_MOVEMENT":      
             return;
 
         default:

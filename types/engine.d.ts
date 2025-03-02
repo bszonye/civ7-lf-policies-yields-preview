@@ -289,3 +289,7 @@ declare var MapConstructibles: MapConstructibles;
 declare var ResourceTypes = {
     NO_RESOURCE: -1,
 }
+
+declare var DiplomacyManager: {
+    getRelationshipTypeString(type: number): string;
+}

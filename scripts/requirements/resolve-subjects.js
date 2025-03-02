@@ -124,13 +124,24 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
             return [];
 
         case "COLLECTION_PLAYER_UNITS":
-            console.warn("COLLECTION_PLAYER_UNITS not implemented");
+            return player.Units.getUnitIds().map(unitId => Units.get(unitId));
+
+        case "COLLECTION_UNIT_COMBAT": {
+            return player.Units.getUnitIds().map(unitId => {
+                const unit = Units.get(unitId);
+                if (!unit.isCombat) return null;
+                return unit; 
+            }).filter(Boolean);
+        }
+
+        // Nested (Unit)
+        case "COLLECTION_UNIT_OCCUPIED_CITY":
+            console.warn("COLLECTION_UNIT_OCCUPIED_CITY not implemented");
             return [];
 
         case "COLLECTION_CITIES_FOLLOWING_OWNER_RELIGION": // Technically easy to grab, but no interesting effects applied
         // Recognized, but we can't provide simple yields for these:
         case "COLLECTION_PLAYER_COMBAT":
-        case "COLLECTION_UNIT_COMBAT":
             return [];
 
         default:
