@@ -14,8 +14,8 @@ export function resolveModifierById(modifierId) {
  */
 export function resolveModifier(modifier) {
     const m = modifier;
-    const SubjectRequirements = getModifierRequirements(m.SubjectRequirementSetId);
-    const OwnerRequirements = getModifierRequirements(m.OwnerRequirementSetId);
+    const SubjectRequirementSet = getModifierRequirements(m.SubjectRequirementSetId);
+    const OwnerRequirementSet = getModifierRequirements(m.OwnerRequirementSetId);
     const DynamicModifier = GameInfo.DynamicModifiers.find(dm => dm.ModifierType === m.ModifierType);
     return {
         Modifier: m,
@@ -32,17 +32,17 @@ export function resolveModifier(modifier) {
             }, {}),
         CollectionType: DynamicModifier.CollectionType,
         EffectType: DynamicModifier.EffectType,                
-        SubjectRequirements,
-        OwnerRequirements,
+        SubjectRequirementSet,
+        OwnerRequirementSet,
     };
 }
 
 /**
  * @param {string} requirementSetId 
- * @returns {ResolvedRequirement[]}
+ * @returns {ResolvedRequirementSet}
  */
 function getModifierRequirements(requirementSetId) {
-    return GameInfo.RequirementSetRequirements
+    const Requirements = GameInfo.RequirementSetRequirements
         .filter(rs => rs.RequirementSetId === requirementSetId)
         .map(rs => {
             const requirement = GameInfo.Requirements.find(r => r.RequirementId === rs.RequirementId);
@@ -61,4 +61,11 @@ function getModifierRequirements(requirementSetId) {
                     }, {}),
             }
         });
+
+    const RequirementSet = GameInfo.RequirementSets.find(rs => rs.RequirementSetId === requirementSetId);
+
+    return {
+        ...RequirementSet,
+        Requirements
+    }
 }

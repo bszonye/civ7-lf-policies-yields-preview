@@ -8,12 +8,29 @@ import { isRequirementSatisfied } from "./requirement.js";
 export function resolveSubjectsWithRequirements(player, modifier, parentSubject = null) {
     const baseSubjects = resolveBaseSubjects(modifier, parentSubject);
 
+    const operator = getRequirementSetOperator(modifier.SubjectRequirementSet);
+
     return baseSubjects.filter(subject => {
-        return modifier.SubjectRequirements.every(requirement => {
+        return modifier.SubjectRequirementSet.Requirements[operator](requirement => {
             const isSatisfied = isRequirementSatisfied(player, subject, requirement);
             return requirement.Requirement.Inverse ? !isSatisfied : isSatisfied;
         });
     });
+}
+
+/**
+ * @param {ResolvedRequirementSet} requirementSet
+ */
+function getRequirementSetOperator(requirementSet) {
+    switch (requirementSet.RequirementSetType) {
+        case "REQUIREMENTSET_TEST_ALL":
+            return "every";
+        case "REQUIREMENTSET_TEST_ANY":
+            return "some";
+        default:
+            console.warn(`Unhandled RequirementSetType: ${requirementSet.RequirementSetType}`);
+            return "every";
+    }
 }
 
 /**

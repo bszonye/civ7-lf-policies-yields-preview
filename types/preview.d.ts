@@ -7,6 +7,10 @@ declare type ResolvedArguments = {
     }
 };
 
+declare interface ResolvedRequirementSet extends RequirementSet {
+    Requirements: ResolvedRequirement[];
+}
+
 declare interface ResolvedRequirement {
     Requirement: Requirement;
     Arguments: ResolvedArguments;
@@ -17,8 +21,8 @@ declare interface ResolvedModifier {
     Arguments: ResolvedArguments;
     CollectionType: string;
     EffectType: string;
-    SubjectRequirements: ResolvedRequirement[];
-    OwnerRequirements: ResolvedRequirement[];
+    SubjectRequirementSet: ResolvedRequirementSet;
+    OwnerRequirementSet: ResolvedRequirementSet;
 }
 
 declare interface YieldsDelta {

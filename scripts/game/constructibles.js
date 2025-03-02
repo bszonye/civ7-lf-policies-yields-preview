@@ -1,6 +1,6 @@
 import { calculateMaintenanceEfficiencyToReduction } from "./helpers.js";
 import { ConstructibleAdjacencies } from "./adjacency.js";
-import { PolicyYieldsCache } from "scripts/cache.js";
+import { PolicyYieldsCache } from "../cache.js";
 
 /**
  * @param {*} player
@@ -140,4 +140,28 @@ function isConstructibleAdjacencyValid(city, constructible, constructibleType, a
     return validAdjacencies.some(ayc => ayc.ID === adjacency);
 }
 
+/**
+ * Check if the constructible is ageless
+ * @param {string} constructibleType 
+ * @returns {boolean}
+ */
+export function isConstructibleAgeless(constructibleType) {
+    return !PolicyYieldsCache.hasConstructibleTypeTag(constructibleType, 'AGELESS');
+}
 
+/**
+ * @param {Constructible} constructibleType 
+ */
+export function isConstructibleValidForQuarter(constructibleType) {
+    const isIgnored = PolicyYieldsCache.hasConstructibleTypeTag(
+        constructibleType.ConstructibleType, 
+        'IGNORE_DISTRICT_PLACEMENT_CAP'
+    );
+    if (isIgnored) return false;
+
+    const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
+    const currentAge = GameInfo.Ages.lookup(Game.age).AgeType;
+    if (!isAgeless && currentAge != constructibleType.Age) return false;
+    
+    return true;
+}

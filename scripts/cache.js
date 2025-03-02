@@ -41,4 +41,13 @@ export const PolicyYieldsCache = new class {
 
         return this._constructibleTypeTags[constructibleType];
     }
+
+    /**
+     * Check if the constructible type has the tag assigned
+     * @param {string} constructibleType
+     * @param {string} tag
+     */
+    hasConstructibleTypeTag(constructibleType, tag) {
+        return this.getTagsForConstructibleType(constructibleType).has(tag);
+    }
 }

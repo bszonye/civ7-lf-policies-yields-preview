@@ -1,7 +1,7 @@
-import { PolicyYieldsCache } from "scripts/cache.js";
+import { PolicyYieldsCache } from "../cache.js";
 import { getAdjacentPlots } from "../game/adjacency.js";
 import { hasCityBuilding, hasCityTerrain } from "../game/city.js";
-import { getPlotConstructiblesByLocation, hasPlotDistrictOfClass } from "../game/plot.js";
+import { getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter } from "../game/plot.js";
 
 /**
  *
@@ -113,7 +113,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         case "REQUIREMENT_PLOT_IS_QUARTER": {
-            
+            return isPlotQuarter(subject.plot);
         }
 
         // Player (Owner)
