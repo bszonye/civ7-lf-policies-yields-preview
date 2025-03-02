@@ -44,6 +44,7 @@ interface City {
     getPurchasedPlots: () => number[];
     Resources: {
         getTotalCountAssignedResources: () => number;
+        getAssignedResourcesCap(): number;
     };
     Constructibles: {
         getIds: () => ID[];

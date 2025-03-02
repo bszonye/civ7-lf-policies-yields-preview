@@ -1,5 +1,5 @@
 import { PolicyYieldsCache } from "../cache.js";
-import { hasCityBuilding, hasCityTerrain } from "../game/city.js";
+import { hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
 import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots } from "../game/plot.js";
 
 /**
@@ -43,6 +43,16 @@ export function isRequirementSatisfied(player, subject, requirement) {
             }
             console.warn(`Unhandled RequirementType: ${requirement.Requirement.RequirementType} with Arguments: ${JSON.stringify(requirement.Arguments)}`);
             return false;
+        }
+
+        case "REQUIREMENT_CITY_HAS_X_OPEN_RESOURCE_SLOTS": {
+            const amount = Number(requirement.Arguments.Amount?.Value);
+            return hasCityOpenResourcesSlots(subject, amount);
+        }
+
+        case "REQUIREMENT_CITY_HAS_X_RESOURCES_ASSIGNED": {
+            const amount = Number(requirement.Arguments.Amount?.Value);
+            return hasCityResourcesAmountAssigned(subject, amount);
         }
 
         // City (Religion)

@@ -47,6 +47,25 @@ export function hasCityTerrain(city, args) {
 }
 
 /**
+ * Check if the city has a certain number of resources
+ * @param {City} city
+ * @param {number} amount
+ */
+export function hasCityResourcesAmountAssigned(city, amount) {
+    return city.Resources.getTotalCountAssignedResources() >= amount;
+}
+
+/**
+ * Check if the city has a certain number of open resource slots
+ * @param {City} city
+ * @param {number} amount
+ */
+export function hasCityOpenResourcesSlots(city, amount) {
+    const openSlots = city.Resources.getAssignedResourcesCap() - city.Resources.getTotalCountAssignedResources();
+    return openSlots >= amount;
+}
+
+/**
  * Get the number of specialists in a city.
  * @param {City} city
  */
