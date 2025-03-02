@@ -1,7 +1,6 @@
 import { PolicyYieldsCache } from "../cache.js";
-import { getAdjacentPlots } from "../game/adjacency.js";
 import { hasCityBuilding, hasCityTerrain } from "../game/city.js";
-import { getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter } from "../game/plot.js";
+import { getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, hasPlotConstructibleByArguments } from "../game/plot.js";
 
 /**
  *
@@ -93,16 +92,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE": {
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
-            const constructibles = getPlotConstructiblesByLocation(loc.x, loc.y);
-            return constructibles.some(c => {
-                if (requirement.Arguments.ConstructibleType?.Value) {
-                    return c.constructibleType.ConstructibleType === requirement.Arguments.ConstructibleType.Value;
-                }
-                if (requirement.Arguments.Tag?.Value) {
-                    const tags = PolicyYieldsCache.getTagsForConstructibleType(c.constructibleType.ConstructibleType);
-                    return tags.has(requirement.Arguments.Tag.Value);
-                }
-            });
+            return hasPlotConstructibleByArguments(loc, requirement.Arguments);
         }
 
         case "REQUIREMENT_PLOT_HAS_NUM_CONSTRUCTIBLES": {
@@ -114,6 +104,23 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_PLOT_IS_QUARTER": {
             return isPlotQuarter(subject.plot);
+        }
+
+        case "REQUIREMENT_PLOT_ADJACENT_TERRAIN_TYPE_MATCHES": {
+            return getAdjacentPlots(subject.plot).some(plot => {
+                const loc = GameplayMap.getLocationFromIndex(plot);
+                const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
+                const terrain = GameInfo.Terrains.lookup(terrainType);
+                return terrain.TerrainType == requirement.Arguments.TerrainType.Value;
+            });
+        }
+
+        case "REQUIREMENT_PLOT_ADJACENT_CONSTRUCTIBLE_TYPE_MATCHES": {
+            const range = Number(requirement.Arguments.MaxRange?.Value || 1);
+            return getAdjacentPlots(subject.plot, range).some(plot => {
+                const loc = GameplayMap.getLocationFromIndex(plot);
+                return hasPlotConstructibleByArguments(loc, requirement.Arguments);
+            });
         }
 
         // Player (Owner)

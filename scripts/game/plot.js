@@ -56,3 +56,32 @@ export function isPlotQuarter(plot) {
 
     return constructibles.length >= 2;
 }
+/**
+ * Get the adjacent plots to a location
+ * @param {number} plotIndex
+ * @param {number} radius
+ */
+
+export function getAdjacentPlots(plotIndex, radius = 1) {
+    const location = GameplayMap.getLocationFromIndex(plotIndex);
+    return GameplayMap
+        .getPlotIndicesInRadius(location.x, location.y, radius)
+        .filter(plot => plot !== plotIndex);
+}
+
+/**
+ * @param {Location} location 
+ * @param {ResolvedArguments} args 
+ */
+export function hasPlotConstructibleByArguments(location, args) {
+    const constructibles = getPlotConstructiblesByLocation(location.x, location.y);
+    return constructibles.some(c => {
+        if (args.ConstructibleType?.Value) {
+            return c.constructibleType.ConstructibleType === args.ConstructibleType.Value;
+        }
+        if (args.Tag?.Value) {
+            const tags = PolicyYieldsCache.getTagsForConstructibleType(c.constructibleType.ConstructibleType);
+            return tags.has(args.Tag.Value);
+        }
+    });
+}

@@ -1,3 +1,4 @@
+import { resolveRequirementSet } from "../modifiers.js";
 import { isRequirementSatisfied } from "./requirement.js";
 
 /**
@@ -8,13 +9,31 @@ import { isRequirementSatisfied } from "./requirement.js";
 export function resolveSubjectsWithRequirements(player, modifier, parentSubject = null) {
     const baseSubjects = resolveBaseSubjects(modifier, parentSubject);
 
-    const operator = getRequirementSetOperator(modifier.SubjectRequirementSet);
-
     return baseSubjects.filter(subject => {
-        return modifier.SubjectRequirementSet.Requirements[operator](requirement => {
-            const isSatisfied = isRequirementSatisfied(player, subject, requirement);
-            return requirement.Requirement.Inverse ? !isSatisfied : isSatisfied;
-        });
+        return filterSubjectByRequirementSet(player, subject, modifier.SubjectRequirementSet);
+    });
+}
+
+/**
+ * @param {Player} player
+ * @param {any} subject
+ * @param {ResolvedRequirementSet} requirementSet
+ */
+function filterSubjectByRequirementSet(player, subject, requirementSet) {
+    const operator = getRequirementSetOperator(requirementSet);
+
+    return requirementSet.Requirements[operator](requirement => {
+        let isSatisfied = false;
+        if (requirement.Requirement.RequirementType === 'REQUIREMENT_REQUIREMENTSET_IS_MET') {
+            // Nested requirement set
+            const nestedRequirementSet = resolveRequirementSet(requirement.Arguments.RequirementSetId.Value);
+            isSatisfied = filterSubjectByRequirementSet(player, subject, nestedRequirementSet);
+        }
+        else {
+            isSatisfied = isRequirementSatisfied(player, subject, requirement);
+        }
+
+        return requirement.Requirement.Inverse ? !isSatisfied : isSatisfied;
     });
 }
 
@@ -34,21 +53,36 @@ function getRequirementSetOperator(requirementSet) {
 }
 
 /**
+ * @param {City[]} cities 
+ */
+function wrapCitySubjects(cities) {
+    return cities.map(city => ({
+        ...city,
+        // Some requirements operate both on the city and the plot; in order
+        // to make the subject usable in those cases, we need to provide the plot index.
+        // TODO Technically in the plot we have the city too, so the good thing to do
+        // would be to refactor subject to always be { city, plot }, but it requires a
+        // lot of changes.
+        plot: GameplayMap.getIndexFromLocation(city.location),
+    }));
+}
+
+/**
  * @param {ResolvedModifier} modifier
  */
 function resolveBaseSubjects(modifier, parentSubject = null) {
     const player = Players.get(GameContext.localPlayerID);
     switch (modifier.CollectionType) {
         case "COLLECTION_PLAYER_CAPITAL_CITY":
-            return [player.Cities.getCapital()];
+            return wrapCitySubjects([player.Cities.getCapital()]);
         
         case "COLLECTION_PLAYER_CITIES":
-            return player.Cities.getCities();
+            return wrapCitySubjects(player.Cities.getCities());
         
-            // We don't care about other players cities, since we need anyway the effect
+        // We don't care about other players cities, since we need anyway the effect
         // applied to _our_ cities.
         case "COLLECTION_ALL_CITIES":
-            return player.Cities.getCities();
+            return wrapCitySubjects(player.Cities.getCities());
 
         case "COLLECTION_PLAYER_PLOT_YIELDS": {
             let plots = [];

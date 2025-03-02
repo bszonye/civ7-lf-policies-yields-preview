@@ -14,8 +14,8 @@ export function resolveModifierById(modifierId) {
  */
 export function resolveModifier(modifier) {
     const m = modifier;
-    const SubjectRequirementSet = getModifierRequirements(m.SubjectRequirementSetId);
-    const OwnerRequirementSet = getModifierRequirements(m.OwnerRequirementSetId);
+    const SubjectRequirementSet = resolveRequirementSet(m.SubjectRequirementSetId);
+    const OwnerRequirementSet = resolveRequirementSet(m.OwnerRequirementSetId);
     const DynamicModifier = GameInfo.DynamicModifiers.find(dm => dm.ModifierType === m.ModifierType);
     return {
         Modifier: m,
@@ -41,7 +41,7 @@ export function resolveModifier(modifier) {
  * @param {string} requirementSetId 
  * @returns {ResolvedRequirementSet}
  */
-function getModifierRequirements(requirementSetId) {
+export function resolveRequirementSet(requirementSetId) {
     const Requirements = GameInfo.RequirementSetRequirements
         .filter(rs => rs.RequirementSetId === requirementSetId)
         .map(rs => {
