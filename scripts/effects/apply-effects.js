@@ -6,7 +6,7 @@ import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfArguments, getArmyC
 import { getCityAssignedResourcesCount, getCityGreatWorksCount, getCitySpecialistsCount } from "../game/city.js";
 import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
-import { getPlayerCityStatesSuzerain, getPlayerRelationshipsCountForModifier } from "../game/player.js";
+import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getPlayerRelationshipsCountForModifier } from "../game/player.js";
 import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
 
 /**
@@ -40,16 +40,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         // ========== Player ============
         // ==============================
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
-            const activeTraditions = subject.Culture.getActiveTraditions();
-            let count = 0;
-            // TODO this is bugged for Regis, since the tradition itself is a CivUnique
-            for (const tradition of activeTraditions) {
-                const traditionType = GameInfo.Traditions.lookup(tradition);
-                if (!traditionType.TraitType && modifier.Arguments.CivUnique?.Value === 'true') {
-                    continue;
-                }
-                count++; 
-            }
+            const count = getPlayerActiveTraditionsForModifier(player, modifier);
             const amount = Number(modifier.Arguments.Amount.Value) * count;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
@@ -338,6 +329,12 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_DIPLOMACY_ADJUST_CITY_YIELD_PER_PLAYER_RELATIONSHIP": {
             const allies = getPlayerRelationshipsCountForModifier(player, modifier);
             const amount = Number(modifier.Arguments.Amount.Value) * allies;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_CITY_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
+            const count = getPlayerActiveTraditionsForModifier(player, modifier);
+            const amount = Number(modifier.Arguments.Amount.Value) * count;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 

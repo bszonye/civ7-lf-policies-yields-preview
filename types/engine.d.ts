@@ -73,6 +73,7 @@ interface PlayerCulture {
     getNumWorksInArchive: () => number;
     getArchivedGreatWork: (numInArchive: number) => number;
     getGreatWorkType: (index: number) => number;
+    getActiveTraditions: () => number[];
 }
 
 declare interface Player {

@@ -82,3 +82,21 @@ export function isPlayerAtPeaceWithMajors(player) {
 
     return true;
 }
+
+/**
+ * @param {Player} player
+ * @param {ResolvedModifier} modifier
+ */
+export function getPlayerActiveTraditionsForModifier(player, modifier) {
+    const activeTraditions = player.Culture.getActiveTraditions();
+    // TODO this is bugged for Regis, since the tradition itself is a CivUnique
+    let count = 0;
+    for (const tradition of activeTraditions) {
+        const traditionType = GameInfo.Traditions.lookup(tradition);
+        if (!traditionType.TraitType && modifier.Arguments.CivUnique?.Value === 'true') {
+            continue;
+        }
+        count++; 
+    }
+    return count;
+}
