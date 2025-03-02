@@ -64,3 +64,21 @@ export function isPlayerAtWarWithOpposingIdeology(player) {
 
     return false;
 }
+
+/**
+ * @param {Player} player
+ */
+export function isPlayerAtPeaceWithMajors(player) {
+    const allPlayers = Players.getAlive();
+    for (const otherPlayer of allPlayers) {
+        if (!otherPlayer.isMajor || otherPlayer.id == GameContext.localPlayerID) {
+            continue;
+        }
+
+        if (player.Diplomacy?.isAtWarWith(otherPlayer.id)) {
+            return false;
+        }
+    }
+
+    return true;
+}

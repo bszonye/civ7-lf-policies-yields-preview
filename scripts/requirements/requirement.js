@@ -1,12 +1,11 @@
-import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "scripts/game/units.js";
-import { PolicyYieldsCache } from "../cache.js";
+import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
 import { hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
 import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots } from "../game/plot.js";
-import { isPlayerAtWarWithOpposingIdeology } from "scripts/game/player.js";
+import { isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 
 /**
  *
- * @param {*} player
+ * @param {Player} player
  * @param {*} subject
  * @param {ResolvedRequirement} requirement
  * @returns
@@ -55,6 +54,21 @@ export function isRequirementSatisfied(player, subject, requirement) {
         case "REQUIREMENT_CITY_HAS_X_RESOURCES_ASSIGNED": {
             const amount = Number(requirement.Arguments.Amount?.Value);
             return hasCityResourcesAmountAssigned(subject, amount);
+        }
+
+        case "REQUIREMENT_CITY_IS_INFECTED": {
+            return subject.isInfected;
+        }
+
+        case "REQUIREMENT_CITY_HAS_BUILD_QUEUE": {
+            // TODO I'm not sure about the sense of this. Both Cities & Towns have a build queue. Maybe conquered cities or something like that?
+            return subject.BuildQueue != null;
+        }
+
+        case "REQUIREMENT_CITY_HAS_GARRISON_UNIT": {
+            const loc = subject.location;
+            const units = MapUnits.getUnits(loc.x, loc.y);
+            return units.some(unit => unit.owner == player.id);
         }
 
         // City (Religion)
@@ -196,6 +210,18 @@ export function isRequirementSatisfied(player, subject, requirement) {
         // Player (Owner)
         case "REQUIREMENT_PLAYER_IS_AT_WAR_WITH_OPPOSING_IDEOLOGY": {
             return isPlayerAtWarWithOpposingIdeology(subject);
+        }
+
+        case "REQUIREMENT_PLAYER_IS_AT_PEACE_WITH_ALL_MAJORS": {
+            return isPlayerAtPeaceWithMajors(subject);
+        }
+
+        // Ignored requirements. Usually because they relate to _combat_ bonuses, and we don't display those.
+        case "REQUIREMENT_COMMANDER_HAS_X_PROMOTIONS":
+        case "REQUIREMENT_PLOT_IS_SUZERAIN":
+        case "REQUIREMENT_ENGAGED_TARGET_OF_TARGET_MATCHES":
+        case "REQUIREMENT_PLAYER_IS_ATTACKING": {
+            return false;
         }
 
         default:

@@ -294,6 +294,10 @@ declare interface MapConstructibles {
 
 declare var MapConstructibles: MapConstructibles;
 
+declare var MapUnits: {
+    getUnits: (x: number, y: number) => UnitInstance[];
+}
+
 declare var ResourceTypes = {
     NO_RESOURCE: -1,
 }

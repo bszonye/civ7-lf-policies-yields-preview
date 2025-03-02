@@ -1,4 +1,4 @@
-import { PolicyYieldsCache } from "scripts/cache";
+import { PolicyYieldsCache } from "../cache.js";
 
 /**
  * @param {*} player 
