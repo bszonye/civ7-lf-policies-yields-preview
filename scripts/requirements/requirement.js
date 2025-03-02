@@ -123,6 +123,11 @@ export function isRequirementSatisfied(player, subject, requirement) {
             });
         }
 
+        case "REQUIREMENT_PLOT_IS_OWNER": {
+            const loc = GameplayMap.getLocationFromIndex(subject.plot);
+            return GameplayMap.getOwner(loc.x, loc.y) == player.id;
+        }
+
         // Player (Owner)
         default:
             console.warn(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
