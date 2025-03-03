@@ -37,6 +37,7 @@ export function getBuildingsCountForModifier(cities, modifier) {
 export function getBuildingsByTag(cities, tag) {
     return cities.flatMap(city => {
         const cityConstructibles = city.Constructibles.getIds();
+        const valids = [];
         for (let i = 0; i < cityConstructibles.length; i++) {
             const constructibleId = cityConstructibles[i];
             const constructible = Constructibles.getByComponentID(constructibleId);
@@ -44,9 +45,10 @@ export function getBuildingsByTag(cities, tag) {
             
             const tags = PolicyYieldsCache.getTypeTags(constructibleType.ConstructibleType);
             if (tags?.has(tag)) {
-                return [constructible];
+                valids.push(constructible);
             }
         }
+        return valids;
     });
 }
 
