@@ -3,7 +3,7 @@ import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, ad
 import { computeConstructibleMaintenanceEfficiencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBuildingsCountForModifier, getPlayerBuildingsCountForModifier } from "../game/constructibles.js";
 import { getYieldsForAdjacency, getPlotsGrantingAdjacency, AdjancenciesCache } from "../game/adjacency.js";
 import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfArguments, getArmyCommanders } from "../game/units.js";
-import { getCityAssignedResourcesCount, getCityGreatWorksCount, getCitySpecialistsCount } from "../game/city.js";
+import { getCityAssignedResourcesCount, getCityGreatWorksCount, getCitySpecialistsCount, getCityYieldHappiness } from "../game/city.js";
 import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getPlayerRelationshipsCountForModifier } from "../game/player.js";
@@ -324,6 +324,13 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         case "EFFECT_CITY_ADJUST_YIELD_PER_SUZERAIN": {
             const cityStates = getPlayerCityStatesSuzerain(player).length;
             const amount = Number(modifier.Arguments.Amount.Value) * cityStates;
+            return addYieldsAmount(yieldsDelta, modifier, amount);
+        }
+
+        case "EFFECT_CITY_ADJUST_YIELD_PER_SURPLUS_HAPPINESS": {
+            const happiness = getCityYieldHappiness(subject);
+            const surplusAmount = Math.round(happiness / Number(modifier.Arguments.Divisor?.Value || 1));
+            const amount = Number(modifier.Arguments.Amount.Value) * surplusAmount;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
 

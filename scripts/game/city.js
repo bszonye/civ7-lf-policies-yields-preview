@@ -121,3 +121,10 @@ export function getCityGreatWorksCount(city) {
     });
     return count;
 }
+
+/**
+ * @param {City} city 
+ */
+export function getCityYieldHappiness(city) {
+    return city.Yields.getNetYield("YIELD_HAPPINESS");
+}
