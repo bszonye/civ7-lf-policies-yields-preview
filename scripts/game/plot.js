@@ -1,5 +1,5 @@
 import { PolicyYieldsCache } from "../cache.js";
-import { isConstructibleValidForQuarter } from "./helpers.js";
+import { isConstructibleFullTile, isConstructibleValidForQuarter } from "./helpers.js";
 import { parseArgumentsArray } from "./helpers.js";
 
 export function getPlotDistrict(plot) {
@@ -54,7 +54,8 @@ export function isPlotQuarter(plot) {
     const constructibles = getPlotConstructiblesByLocation(location.x, location.y)
         .filter(c => isConstructibleValidForQuarter(c.constructibleType));
 
-    return constructibles.length >= 2;
+    return constructibles.length >= 2 || 
+           constructibles.some(c => isConstructibleFullTile(c.constructibleType.ConstructibleType));
 }
 
 /**

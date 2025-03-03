@@ -50,6 +50,15 @@ export function isConstructibleAgeless(constructibleType) {
 }
 
 /**
+ * Check if the constructible is a full tile
+ * @param {string} constructibleType
+ * @returns {boolean}
+ */
+export function isConstructibleFullTile(constructibleType) {
+    return PolicyYieldsCache.hasTypeTag(constructibleType, 'FULL_TILE');
+}
+
+/**
  * @param {Constructible} constructibleType 
  */
 export function isConstructibleValidForQuarter(constructibleType) {
