@@ -311,7 +311,15 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_POPULATION": {
-            // TODO only QUIPU does this, and it's a bit more complex
+            const amount = Number(modifier.Arguments.Amount.Value);
+            if (modifier.Arguments.Urban?.Value === 'true') {
+                const urbanFactor = subject.urbanPopulation / Number(modifier.Arguments.Divisor?.Value || 1);
+                addYieldsAmount(yieldsDelta, modifier, amount * urbanFactor);
+            }
+            if (modifier.Arguments.Rural?.Value === 'true') {
+                const ruralFactor = subject.ruralPopulation / Number(modifier.Arguments.Divisor?.Value || 1);
+                addYieldsAmount(yieldsDelta, modifier, amount * ruralFactor);
+            }
             return;
         }
 
