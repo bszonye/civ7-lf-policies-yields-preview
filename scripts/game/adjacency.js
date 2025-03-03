@@ -117,7 +117,7 @@ export function isPlotGrantingAdjacency(adjacency, plot) {
     }
     if (adjacency.AdjacentDistrict) {
         const district = getPlotDistrict(plot);
-        if (district.districtType.DistrictType !== adjacency.AdjacentDistrict) return false;
+        if (district.districtType?.DistrictType !== adjacency.AdjacentDistrict) return false;
     }
 
     if (adjacency.AdjacentResource) {
