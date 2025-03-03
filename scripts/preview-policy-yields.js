@@ -10,6 +10,8 @@ export function previewPolicyYields(policy) {
         return { yields: {}, modifiers: [] };
     }
 
+    // console.warn("previewPolicyYields for", policy.TraditionType);
+
     const modifiers = getModifiersForTradition(policy.TraditionType);
     
     try {
