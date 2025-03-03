@@ -329,7 +329,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_SURPLUS_HAPPINESS": {
             const happiness = getCityYieldHappiness(subject);
-            const surplusAmount = Math.round(happiness / Number(modifier.Arguments.Divisor?.Value || 1));
+            const surplusAmount = happiness / Number(modifier.Arguments.Divisor?.Value || 1);
             const amount = Number(modifier.Arguments.Amount.Value) * surplusAmount;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
