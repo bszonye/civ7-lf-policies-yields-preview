@@ -258,7 +258,7 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         }
 
         case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_YIELD": {
-            const buildingsCount = getBuildingsCountForModifier(subject, modifier);
+            const buildingsCount = getBuildingsCountForModifier([subject], modifier);
             const amount = Number(modifier.Arguments.Amount.Value) * buildingsCount;
             return addYieldsAmount(yieldsDelta, modifier, amount);
         }
