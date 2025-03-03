@@ -61,8 +61,9 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         case "REQUIREMENT_CITY_HAS_BUILD_QUEUE": {
-            // TODO I'm not sure about the sense of this. Both Cities & Towns have a build queue. Maybe conquered cities or something like that?
-            return subject.BuildQueue != null;
+            // Old comment: I'm not sure about the sense of this.
+            // Update: It can be seen in REQSET_ONLY_TOWNS, which is the Inverse of this requirement, so it's just towns
+            return !subject.isTown;
         }
 
         case "REQUIREMENT_CITY_HAS_GARRISON_UNIT": {
