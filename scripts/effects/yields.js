@@ -117,8 +117,8 @@ function unwrapYieldsOfType(yields) {
     // }
 
     return {
-        BaseAmount: rawStep.base.value,
-        Percent: rawStep.modifier.value,
+        BaseAmount: rawStep?.base?.value || 0,
+        Percent: rawStep?.modifier?.value || 0,
     }
 }
 
