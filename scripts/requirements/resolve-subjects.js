@@ -107,6 +107,19 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                         plot,
                     };
                 }));
+                plots.push(
+                    ...city.getPurchasedPlots()
+                        .filter(plot => {
+                            const location = GameplayMap.getLocationFromIndex(plot);
+                            return MapConstructibles.getHiddenFilteredConstructibles(location.x, location.y).length > 0
+                        })
+                        .map(plot => {
+                            return {
+                                city,
+                                plot,
+                            };
+                        })
+                );
             });
             return plots;
         }
@@ -127,6 +140,18 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                     plot,
                 };
             });
+            return parentSubject
+                .getPurchasedPlots()
+                .filter(plot => {
+                    const location = GameplayMap.getLocationFromIndex(plot);
+                    return MapConstructibles.getHiddenFilteredConstructibles(location.x, location.y).length > 0
+                })
+                .map(plot => {
+                    return {
+                        city: parentSubject,
+                        plot,
+                    };
+                });
         }
         
         // We are interested only in our units
