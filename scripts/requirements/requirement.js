@@ -133,7 +133,6 @@ export function isRequirementSatisfied(player, subject, requirement) {
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
             const terrain = GameInfo.Terrains.lookup(terrainType);
-            return terrain.TerrainType == requirement.Arguments.TerrainType.Value;
             return terrain?.TerrainType == requirement.Arguments.TerrainType.Value;
         }
 
