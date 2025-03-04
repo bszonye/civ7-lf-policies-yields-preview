@@ -30,7 +30,7 @@ export function hasPlotDistrictOfClass(plot, requirement) {
     const { districtType } = getPlotDistrict(plot);
 
     const requiredClasses = parseArgumentsArray(requirement.Arguments, 'DistrictClass');
-    return requiredClasses.includes(districtType?.DistrictClass);
+    return districtType != null && requiredClasses.includes(districtType?.DistrictClass);
 }
 
 /**

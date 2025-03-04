@@ -134,6 +134,21 @@ export function isRequirementSatisfied(player, subject, requirement) {
             const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
             const terrain = GameInfo.Terrains.lookup(terrainType);
             return terrain.TerrainType == requirement.Arguments.TerrainType.Value;
+            return terrain?.TerrainType == requirement.Arguments.TerrainType.Value;
+        }
+
+        case "REQUIREMENT_PLOT_FEATURE_TYPE_MATCHES": {
+            const loc = GameplayMap.getLocationFromIndex(subject.plot);
+            const featureType = GameplayMap.getFeatureType(loc.x, loc.y);
+            const feature = GameInfo.Features.lookup(featureType);
+            
+            if (requirement.Arguments.FeatureClassType?.Value) {
+                return feature?.FeatureClassType == requirement.Arguments.FeatureClassType.Value;
+            }
+            if (requirement.Arguments.FeatureType?.Value) {
+                return feature?.FeatureType == requirement.Arguments.FeatureType.Value;
+            }
+            return false;
         }
 
         case "REQUIREMENT_PLOT_ADJACENT_TERRAIN_TYPE_MATCHES": {
@@ -141,7 +156,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
                 const loc = GameplayMap.getLocationFromIndex(plot);
                 const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
                 const terrain = GameInfo.Terrains.lookup(terrainType);
-                return terrain.TerrainType == requirement.Arguments.TerrainType.Value;
+                return terrain?.TerrainType == requirement.Arguments.TerrainType.Value;
             });
         }
 
