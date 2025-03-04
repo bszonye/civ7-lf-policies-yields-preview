@@ -1,13 +1,13 @@
 import { previewPolicyYields } from "../preview-policy-yields.js";
 
 const YieldsColorMap = {
-    "YIELD_GOLD": "rgba(255, 235, 75, 0.12)",
-    "YIELD_FOOD": "rgba(141, 255, 75, 0.12)",
-    "YIELD_PRODUCTION": "rgba(174, 79, 15, 0.12)",
-    "YIELD_DIPLOMACY": "rgba(88, 192, 231, 0.12)",
-    "YIELD_SCIENCE": "rgba(50, 151, 255, 0.12)",
-    "YIELD_CULTURE": "rgba(197, 75, 255, 0.12)",
-    "YIELD_HAPPINESS": "rgba(253, 175, 50, 0.12)",
+    "YIELD_GOLD": "rgba(255, 235, 75, 0.18)",
+    "YIELD_FOOD": "rgba(141, 255, 75, 0.18)",
+    "YIELD_PRODUCTION": "rgba(174, 79, 15, 0.18)",
+    "YIELD_DIPLOMACY": "rgba(88, 192, 231, 0.18)",
+    "YIELD_SCIENCE": "rgba(50, 151, 255, 0.18)",
+    "YIELD_CULTURE": "rgba(197, 75, 255, 0.18)",
+    "YIELD_HAPPINESS": "rgba(253, 175, 50, 0.18)",
 }
 
 const DarkYieldsColorMap = {
