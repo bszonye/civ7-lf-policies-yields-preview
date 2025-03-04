@@ -42,6 +42,9 @@ export function getBuildingsByTag(cities, tag) {
             const constructibleId = cityConstructibles[i];
             const constructible = Constructibles.getByComponentID(constructibleId);
             const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
+            if (!constructibleType) {
+                continue;
+            }
             
             const tags = PolicyYieldsCache.getTypeTags(constructibleType.ConstructibleType);
             if (tags?.has(tag)) {
@@ -127,6 +130,9 @@ export function findCityConstructiblesMatchingAdjacency(city, adjacency) {
         .map(constructibleId => Constructibles.getByComponentID(constructibleId))
         .filter(constructible => {
             const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
+            if (!constructibleType) {
+                return false;
+            }
             return isConstructibleAdjacencyValid(city, constructible, constructibleType, adjacency);
         });
 }

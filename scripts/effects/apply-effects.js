@@ -8,11 +8,12 @@ import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getPlayerRelationshipsCountForModifier } from "../game/player.js";
 import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
-import { PolicyYieldsContext } from "scripts/core/execution-context.js";
+import { PolicyYieldsContext } from "../core/execution-context.js";
+import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "../requirements/assert-subject.js";
 
 /**
  * @param {PolicyYieldsContext} yieldsContext 
- * @param {any[]} subjects 
+ * @param {Subject[]} subjects 
  * @param {ResolvedModifier} modifier 
  * @returns 
  */
@@ -42,89 +43,101 @@ function applyYieldsForSubject(context, subject, modifier) {
         // ========== Player ============
         // ==============================
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
-            if (!context.assertPlayerSubject(subject)) return;
+            assertSubjectPlayer(subject);
             const count = subject.isEmpty ? 0 : getPlayerActiveTraditionsForModifier(subject.player, modifier);
-            return context.addYieldsTimes(modifier, count);
-            const amount = context.getModifierArgumentAmount(modifier) * count;
-            return context.addYieldsAmount(modifier, amount);
+            return context.addYieldsAmountTimes(modifier, count);
         }
 
         case "EFFECT_DIPLOMACY_ADJUST_YIELD_PER_PLAYER_RELATIONSHIP": {
-            const allies = getPlayerRelationshipsCountForModifier(player, modifier);
-            const amount = Number(modifier.Arguments.Amount.Value) * allies;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectPlayer(subject);
+            const allies = subject.isEmpty ? 0 : getPlayerRelationshipsCountForModifier(subject.player, modifier);
+            return context.addYieldsAmountTimes(modifier, allies);
         }
 
         // TODO Converts x% of yield from trade route into another yield
         case "EFFECT_MODIFY_PLAYER_TRADE_YIELD_CONVERSION": {
+            throw new Error("EFFECT_MODIFY_PLAYER_TRADE_YIELD_CONVERSION not implemented");
             return;
         }
 
         case "EFFECT_PLAYER_ADJUST_CONSTRUCTIBLE_YIELD": {
-            const buildingsCount = getPlayerBuildingsCountForModifier(player, modifier);
-            const amount = Number(modifier.Arguments.Amount.Value) * buildingsCount;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectPlayer(subject);
+            const buildingsCount = subject.isEmpty ? 0 : getPlayerBuildingsCountForModifier(subject.player, modifier);
+            return context.addYieldsAmountTimes(modifier, buildingsCount);
         }
 
         case "EFFECT_PLAYER_ADJUST_CONSTRUCTIBLE_YIELD_BY_ATTRIBUTE": {
-            const attributePoints = player.Identity?.getSpentAttributePoints(modifier.Arguments.AttributeType.Value) || 0;
-            const buildingsCount = getPlayerBuildingsCountForModifier(player, modifier);
-            const amount = Number(modifier.Arguments.Amount.Value) * attributePoints * buildingsCount;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            const attributePoints = subject.player.Identity?.getSpentAttributePoints(modifier.Arguments.getAsserted('AttributeType')) || 0;
+            const buildingsCount = getPlayerBuildingsCountForModifier(subject.player, modifier);
+            return context.addYieldsAmountTimes(modifier, attributePoints * buildingsCount);
         }
 
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ATTRIBUTE_AND_ALLIANCES": {
-            const attributePoints = player.Identity?.getSpentAttributePoints(modifier.Arguments.AttributeType.Value) || 0;
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            const attributePoints = subject.player.Identity?.getSpentAttributePoints(modifier.Arguments.getAsserted('AttributeType')) || 0;
             const allPlayers = Players.getAlive();
             const allies = allPlayers.filter(otherPlayer => 
                 otherPlayer.isMajor && 
                 otherPlayer.id != GameContext.localPlayerID && 
                 player.Diplomacy?.hasAllied(otherPlayer.id)
             ).length;
-            const amount = Number(modifier.Arguments.Amount.Value) * attributePoints * allies;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            return context.addYieldsAmountTimes(modifier, attributePoints * allies);
         }
 
         case "EFFECT_PLAYER_ADJUST_YIELD": {
-            return addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
+            assertSubjectPlayer(subject);
+            const amount = Number(modifier.Arguments.getAsserted('Amount'));
+            return context.addYieldsAmount(modifier, subject.isEmpty ? 0 : amount);
         }
 
         // TODO This is really complex, like "+1 for each time a disaster provided fertility".
         // We'd need to check disasters, not sure how right now.
         case "EFFECT_PLAYER_ADJUST_YIELD_FROM_DISTATERS": {
+            throw new Error("EFFECT_PLAYER_ADJUST_YIELD_FROM_DISTATERS not implemented");
             return;
         }
 
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_NUM_CITIES": {
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
             let numSettlements = 0;
             if (modifier.Arguments.Cities?.Value === 'true') numSettlements += player.Stats.numCities;            
             if (modifier.Arguments.Towns?.Value === 'true') numSettlements += player.Stats.numTowns;
-            const amount = Number(modifier.Arguments.Amount.Value) * numSettlements;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            return context.addYieldsAmountTimes(modifier, numSettlements);
         }
 
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_NUM_TRADE_ROUTES": {
-            const amount = Number(modifier.Arguments.Amount.Value) * player.Trade.countPlayerTradeRoutes();
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectPlayer(subject);
+            const numTradeRoutes = subject.isEmpty ? 0 : subject.player.Trade.countPlayerTradeRoutes();
+            return context.addYieldsAmountTimes(modifier, numTradeRoutes);
         }
 
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_RESOURCE": {
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
             const resourcesCount = modifier.Arguments.Imported?.Value === 'true'
                 ? player.Resources.getCountImportedResources()
                 : player.Resources.getResources().length;
-            const amount = Number(modifier.Arguments.Amount.Value) * resourcesCount;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            return context.addYieldsAmountTimes(modifier, resourcesCount);
         }
 
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_SUZERAIN": {
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
             const cityStates = getPlayerCityStatesSuzerain(player).length;
-            const amount = Number(modifier.Arguments.Amount.Value) * cityStates;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            return context.addYieldsAmountTimes(modifier, cityStates);
         }
 
         case "EFFECT_ATTACH_MODIFIERS": {
             // Nested modifiers; they are applied once for each subject from the parent modifier.
-            const nestedModifierId = context.modifierArgument(modifier, 'ModifierId');
+            const nestedModifierId = modifier.Arguments.getAsserted('ModifierId');
             const nestedModifier = resolveModifierById(nestedModifierId);
             const nestedSubjects = resolveSubjectsWithRequirements(player, nestedModifier, subject);
             return applyYieldsForSubjects(context, nestedSubjects, nestedModifier);
@@ -133,10 +146,15 @@ function applyYieldsForSubject(context, subject, modifier) {
 
         // Player (Units)
         case "EFFECT_PLAYER_ADJUST_UNIT_MAINTENANCE_EFFICIENCY": {
-            const unitTypes = retrieveUnitTypesMaintenance(player);
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return addYieldTypeAmountNoMultiplier(context.delta, "YIELD_GOLD", 0);
+
+            const unitTypes = retrieveUnitTypesMaintenance(subject.player);
             let totalReduction = 0;
             let totalCost = 0;
             for (let unitType in unitTypes) {
+                if (!unitTypes[unitType]) continue; // Just for TS
+                
                 if (!isUnitTypeInfoTargetOfArguments(unitTypes[unitType].UnitType, modifier.Arguments)) {
                     continue;
                 }
@@ -151,7 +169,7 @@ function applyYieldsForSubject(context, subject, modifier) {
                 totalCost += unitTypes[unitType].MaintenanceCost;
             }
             
-            return addYieldTypeAmountNoMultiplier(yieldsDelta, "YIELD_GOLD", totalReduction);
+            return addYieldTypeAmountNoMultiplier(context.delta, "YIELD_GOLD", totalReduction);
         }
 
 
@@ -159,48 +177,65 @@ function applyYieldsForSubject(context, subject, modifier) {
         // ========== City ==============
         // ==============================
         case "EFFECT_CITY_ADJUST_YIELD_PER_ATTRIBUTE": {
-            const attributePoints = player.Identity?.getSpentAttributePoints(modifier.Arguments.AttributeType.Value) || 0;
-            const amount = Number(modifier.Arguments.Amount.Value) * attributePoints;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            const attributePoints = player.Identity?.getSpentAttributePoints(modifier.Arguments.getAsserted('AttributeType')) || 0;
+            return context.addYieldsAmountTimes(modifier, attributePoints);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD": {
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
             // TODO Check `TRADITION_TIRAKUNA` for `Arguments.Apply` with `Rate` value.
             // TODO Implement `Arguments.PercentMultiplier` (check TRADITION_ASSEMBLY_LINE) 
             if (modifier.Arguments.Percent) {
-                return addYieldsPercentForCitySubject(yieldsDelta, modifier, subject, Number(modifier.Arguments.Percent.Value)); 
+                return addYieldsPercentForCitySubject(context.delta, modifier, subject.city, Number(modifier.Arguments.Percent.Value)); 
             }
             else if (modifier.Arguments.Amount) {
-                return addYieldsAmount(yieldsDelta, modifier, Number(modifier.Arguments.Amount.Value));
+                return context.addYieldsAmount(modifier, Number(modifier.Arguments.Amount.Value));
             }
             else {
-                console.warn(`Unhandled ModifierArguments: ${modifier.Arguments}`);
-                return;
+                throw new Error(`Unhandled EFFECT_CITY_ADJUST_YIELD (${modifier.Modifier.ModifierId}) ModifierArguments: ${JSON.stringify(modifier.Arguments)}`);
             }
         }
 
         case "EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_ADJACENCY": {
+            assertSubjectCity(subject);
             const adjancencies = parseArgumentsArray(modifier.Arguments, 'ConstructibleAdjacency'); 
             adjancencies.forEach(adjacencyId => {
                 const adjacencyType = AdjancenciesCache.get(adjacencyId);
                 if (!adjacencyType) {
-                    console.error(`AdjacencyType not found for ID: ${adjacencyId}`);
-                    return;
+                    throw new Error(`AdjacencyType not found for ID: ${adjacencyId}`);
                 }
-                const validConstructibles = findCityConstructiblesMatchingAdjacency(subject, adjacencyId);
+
+                if (subject.isEmpty) {
+                    return context.addYieldTypeAmount(adjacencyType.YieldType, 0);
+                }
+
+                const validConstructibles = findCityConstructiblesMatchingAdjacency(subject.city, adjacencyId);
                 validConstructibles.forEach(constructible => {
                     const amount = getYieldsForAdjacency(constructible.location, adjacencyType);
-                    addYieldTypeAmount(yieldsDelta, adjacencyType.YieldType, amount);
+                    context.addYieldTypeAmount(adjacencyType.YieldType, amount);
                 });
             });
             return;
         }
         
         case "EFFECT_CITY_ADJUST_ADJACENCY_FLAT_AMOUNT": {
+            assertSubjectCity(subject);
             const adjancencies = parseArgumentsArray(modifier.Arguments, 'Adjacency_YieldChange');
             adjancencies.forEach(adjacencyId => {
                 const adjacencyType = AdjancenciesCache.get(adjacencyId);
-                const constructibles = findCityConstructibles(subject);
+                if (!adjacencyType) {
+                    throw new Error(`AdjacencyType not found for ID: ${adjacencyId}`);
+                }
+
+                if (subject.isEmpty) {
+                    return context.addYieldTypeAmount(adjacencyType.YieldType, 0);
+                }
+
+                const constructibles = findCityConstructibles(subject.city);
                 constructibles.forEach(({ constructible }) => {
                     if (!adjacencyType) {
                         console.error(`AdjacencyType not found for ID: ${adjacencyId}`);
@@ -210,32 +245,45 @@ function applyYieldsForSubject(context, subject, modifier) {
                     const adjacentPlots = getPlotsGrantingAdjacency(constructible.location, adjacencyType).length; 
                     // TODO Are we sure about `Divisor`?
                     const amount = Number(modifier.Arguments.Amount?.Value) * adjacentPlots / Number(modifier.Arguments.Divisor?.Value || 1);
-                    addYieldTypeAmount(yieldsDelta, adjacencyType.YieldType, amount);
+                    context.addYieldTypeAmount(adjacencyType.YieldType, amount);
                 });
             });
             return;
         }
 
         case "EFFECT_CITY_GRANT_WAREHOUSE_YIELD": {
+            assertSubjectCity(subject);
             const warehousesYieldChanges = parseArgumentsArray(modifier.Arguments, 'WarehouseYieldChange');
             warehousesYieldChanges.forEach(warehouseYield => {
                 const warehouseYieldType = GameInfo.Warehouse_YieldChanges.find(wyc => wyc.ID === warehouseYield);
                 if (!warehouseYieldType) {
-                    console.error(`WarehouseYieldType not found for ID: ${warehouseYield}`);
-                    return;
+                    throw new Error(`WarehouseYieldType not found for ID: ${warehouseYield}`);
+                }
+
+                if (subject.isEmpty) {
+                    return context.addYieldTypeAmount(warehouseYieldType.YieldType, 0);
                 }
                 
-                const amount = getYieldsForWarehouseChange(subject, warehouseYieldType);
-                addYieldTypeAmount(yieldsDelta, warehouseYieldType.YieldType, amount);
+                const amount = getYieldsForWarehouseChange(subject.city, warehouseYieldType);
+                context.addYieldTypeAmount(warehouseYieldType.YieldType, amount);
             });
             return;
         }
 
         case "EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_WAREHOUSE_YIELD": {
+            assertSubjectCity(subject);
             const warehousesYields = parseArgumentsArray(modifier.Arguments, 'ConstructibleWarehouseYield');
             warehousesYields.forEach(warehouseYield => {
                 const warehouseYieldType = GameInfo.Warehouse_YieldChanges.find(wyc => wyc.ID === warehouseYield);
-                const constructibles = findCityConstructiblesMatchingWarehouse(subject, warehouseYieldType);
+                if (!warehouseYieldType) {
+                    throw new Error(`WarehouseYieldType not found for ID: ${warehouseYield}`);
+                }
+
+                if (subject.isEmpty) {
+                    return context.addYieldTypeAmount(warehouseYieldType.YieldType, 0);
+                }
+
+                const constructibles = findCityConstructiblesMatchingWarehouse(subject.city, warehouseYieldType);
                 if (!constructibles.length) {
                     return;
                 }
@@ -245,23 +293,29 @@ function applyYieldsForSubject(context, subject, modifier) {
                 // So we calculate it once and apply it to all the Constructibles.
                 // I personally suppose that there is only _one_ Constructible per city that can get this bonus,
                 // but I'm not sure.
-                const amount = getYieldsForWarehouseChange(subject, warehouseYieldType);
+                const amount = getYieldsForWarehouseChange(subject.city, warehouseYieldType);
                 constructibles.forEach(constructible => {
-                    addYieldTypeAmount(yieldsDelta, warehouseYieldType.YieldType, amount);
+                    context.addYieldTypeAmount(warehouseYieldType.YieldType, amount);
                 });
             });
             return;
         }
 
         case "EFFECT_CITY_ADJUST_BUILDING_MAINTENANCE_EFFICIENCY": {
-            /** @type {City}  */
-            const city = subject;
-            const constructibles = findCityConstructibles(subject);
+            assertSubjectCity(subject);
+            if (subject.isEmpty) {
+                addYieldTypeAmountNoMultiplier(context.delta, "YIELD_GOLD", 0);
+                addYieldTypeAmountNoMultiplier(context.delta, "YIELD_HAPPINESS", 0);
+                return;
+            }
+
+            const constructibles = findCityConstructibles(subject.city);
             let totalGoldReduction = 0;
             let totalHappinessReduction = 0;
             constructibles.forEach(({ constructible, constructibleType }) => {
+                if (!constructibleType) return;
                 const { gold, happiness } = computeConstructibleMaintenanceEfficiencyReduction(
-                    city, 
+                    subject.city, 
                     constructible, 
                     constructibleType, 
                     modifier
@@ -270,21 +324,22 @@ function applyYieldsForSubject(context, subject, modifier) {
                 totalHappinessReduction += happiness;
             });
 
-            addYieldTypeAmountNoMultiplier(yieldsDelta, "YIELD_GOLD", totalGoldReduction);
-            addYieldTypeAmountNoMultiplier(yieldsDelta, "YIELD_HAPPINESS", totalHappinessReduction);
+            addYieldTypeAmountNoMultiplier(context.delta, "YIELD_GOLD", totalGoldReduction);
+            addYieldTypeAmountNoMultiplier(context.delta, "YIELD_HAPPINESS", totalHappinessReduction);
             return;
         }
 
         case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_YIELD": {
-            const buildingsCount = getBuildingsCountForModifier([subject], modifier);
-            const amount = Number(modifier.Arguments.Amount.Value) * buildingsCount;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            const buildingsCount = getBuildingsCountForModifier([subject.city], modifier);
+            return context.addYieldsAmountTimes(modifier, buildingsCount);
         }
 
         // TODO Is it just food? Or just the growth rate, so no yield type?
         case "EFFECT_CITY_ADJUST_GROWTH": {
-            console.warn(`EFFECT_CITY_ADJUST_GROWTH not implemented`);
-            return;
+            throw new Error(`EFFECT_CITY_ADJUST_GROWTH not implemented`);
         }
 
         // +X% to Production to overbuild
@@ -299,86 +354,95 @@ function applyYieldsForSubject(context, subject, modifier) {
 
         // City (Workers)
         case "EFFECT_CITY_ADJUST_WORKER_YIELD": {
-            const specialists = getCitySpecialistsCount(subject);
-            const amount = Number(modifier.Arguments.Amount.Value) * specialists;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            const specialists = subject.isEmpty ? 0 : getCitySpecialistsCount(subject.city);
+            return context.addYieldsAmountTimes(modifier, specialists);
         }
 
         case "EFFECT_CITY_ADJUST_WORKER_MAINTENANCE_EFFICIENCY": {
-            const specialists = getCitySpecialistsCount(subject);
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            const specialists = getCitySpecialistsCount(subject.city);
             const maintenanceCost = 2 * specialists; // Total Maintenance Cost is 2 per specialist
             const value = calculateMaintenanceEfficiencyToReduction(
                 modifier,
                 specialists,
                 maintenanceCost
             );
-            return addYieldsAmount(yieldsDelta, modifier, value);
+            return context.addYieldsAmount(modifier, value);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_COMMANDER_LEVEL": {
-            const commanders = getArmyCommanders(subject);
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            const commanders = getArmyCommanders(player);
             const totalLevels = commanders.reduce((acc, commander) => acc + commander.Experience.getLevel, 0);
-            const amount = Number(modifier.Arguments.Amount.Value) * totalLevels;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            return context.addYieldsAmountTimes(modifier, totalLevels);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_GREAT_WORK": {
-            const greatWorks = getCityGreatWorksCount(subject);            
-            const amount = Number(modifier.Arguments.Amount.Value) * greatWorks;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            const greatWorks = subject.isEmpty ? 0 : getCityGreatWorksCount(subject.city);
+            return context.addYieldsAmountTimes(modifier, greatWorks);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_POPULATION": {
-            const amount = Number(modifier.Arguments.Amount.Value);
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
             if (modifier.Arguments.Urban?.Value === 'true') {
-                const urbanFactor = subject.urbanPopulation / Number(modifier.Arguments.Divisor?.Value || 1);
-                addYieldsAmount(yieldsDelta, modifier, amount * urbanFactor);
+                const urbanFactor = subject.city.urbanPopulation / Number(modifier.Arguments.Divisor?.Value || 1);
+                context.addYieldsAmountTimes(modifier, urbanFactor);
             }
             if (modifier.Arguments.Rural?.Value === 'true') {
-                const ruralFactor = subject.ruralPopulation / Number(modifier.Arguments.Divisor?.Value || 1);
-                addYieldsAmount(yieldsDelta, modifier, amount * ruralFactor);
+                const ruralFactor = subject.city.ruralPopulation / Number(modifier.Arguments.Divisor?.Value || 1);
+                context.addYieldsAmountTimes(modifier, ruralFactor);
             }
-            return;
+            
+            throw new Error(`${modifier.Modifier.ModifierId} missing arguments: ${JSON.stringify(modifier.Arguments)}`);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_RESOURCE": {
-            const assignedResources = getCityAssignedResourcesCount(subject);
-            const amount = Number(modifier.Arguments.Amount.Value) * assignedResources;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            const assignedResources = subject.isEmpty ? 0 : getCityAssignedResourcesCount(subject.city);
+            return context.addYieldsAmountTimes(modifier, assignedResources);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_SUZERAIN": {
-            const cityStates = getPlayerCityStatesSuzerain(player).length;
-            const amount = Number(modifier.Arguments.Amount.Value) * cityStates;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            const cityStates = subject.isEmpty ? 0 : getPlayerCityStatesSuzerain(player).length;
+            return context.addYieldsAmountTimes(modifier, cityStates);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_SURPLUS_HAPPINESS": {
-            const happiness = getCityYieldHappiness(subject);
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            const happiness = getCityYieldHappiness(subject.city);
             const surplusAmount = happiness / Number(modifier.Arguments.Divisor?.Value || 1);
-            const amount = Number(modifier.Arguments.Amount.Value) * surplusAmount;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            return context.addYieldsAmountTimes(modifier, surplusAmount);
         }
 
         case "EFFECT_DIPLOMACY_ADJUST_CITY_YIELD_PER_PLAYER_RELATIONSHIP": {
-            const allies = getPlayerRelationshipsCountForModifier(player, modifier);
-            const amount = Number(modifier.Arguments.Amount.Value) * allies;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            const allies = subject.isEmpty ? 0 : getPlayerRelationshipsCountForModifier(player, modifier);
+            return context.addYieldsAmountTimes(modifier, allies);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
-            const count = getPlayerActiveTraditionsForModifier(player, modifier);
-            const amount = Number(modifier.Arguments.Amount.Value) * count;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            assertSubjectCity(subject);
+            const count = subject.isEmpty ? 0 : getPlayerActiveTraditionsForModifier(player, modifier);
+            return context.addYieldsAmountTimes(modifier, count);
         }
 
         // ==============================
         // ========== Plot ==============
         // ==============================
         case "EFFECT_PLOT_ADJUST_YIELD": {
+            assertSubjectPlot(subject);
             // TODO Percent?
-            const amount = Number(modifier.Arguments.Amount.Value);
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            const amount = Number(modifier.Arguments.getAsserted('Amount'));
+            return context.addYieldsAmount(modifier, amount);
         }
 
         // ==============================
@@ -386,14 +450,17 @@ function applyYieldsForSubject(context, subject, modifier) {
         // ==============================
 
         case "EFFECT_DIPLOMACY_ADJUST_UNIT_MAINTENANCE_PER_PLAYER_RELATIONSHIP": {
+            assertSubjectUnit(subject);
+            if (subject.isEmpty) return context.addYieldTypeAmount("YIELD_GOLD", 0);
+
             const allies = getPlayerRelationshipsCountForModifier(player, modifier);
-            const bonus = Number(modifier.Arguments.Amount.Value) * allies;            
+            const bonus = Number(modifier.Arguments.getAsserted('Amount')) * allies;            
             
             // A way to limit the bonus to the maintenance cost of the unit.
             // not sure if it's correct.
-            const unitType = GameInfo.Units.lookup(subject.type);
-            const amount = Math.max(bonus, unitType.Maintenance);
-            return addYieldTypeAmount(yieldsDelta, "YIELD_GOLD", amount);
+            const unitType = GameInfo.Units.lookup(subject.unit.type);
+            const amount = Math.max(bonus, unitType?.Maintenance || 0);
+            return context.addYieldTypeAmount("YIELD_GOLD", amount);
         }
         
 
@@ -433,7 +500,6 @@ function applyYieldsForSubject(context, subject, modifier) {
             return;
 
         default:
-            console.warn(`Unhandled EffectType: ${modifier.EffectType}`);
-            return;
+            throw new Error(`${modifier.Modifier.ModifierId}: Unhandled EffectType: ${modifier.EffectType}`);
     }
 }

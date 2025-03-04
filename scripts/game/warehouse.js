@@ -45,7 +45,7 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
         const biomePlots = plots.filter(({ plot, location }) => {
             const biomeType = GameplayMap.getBiomeType(location.x, location.y);
             const biome = GameInfo.Biomes.lookup(biomeType);
-            return biome.BiomeType === yieldChange.BiomeInCity;
+            return biome?.BiomeType === yieldChange.BiomeInCity;
         });
 
         return biomePlots.length * yieldChange.YieldChange;
@@ -59,7 +59,7 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
         const featurePlots = plots.filter(({ plot, location }) => {
             const featureType = GameplayMap.getFeatureType(location.x, location.y);
             const feature = GameInfo.Features.lookup(featureType);
-            return feature.FeatureType === yieldChange.FeatureInCity;
+            return feature?.FeatureType === yieldChange.FeatureInCity;
         });
 
         return featurePlots.length * yieldChange.YieldChange;
@@ -68,7 +68,7 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
         const featurePlots = plots.filter(({ plot, location }) => {
             const featureType = GameplayMap.getFeatureType(location.x, location.y);
             const feature = GameInfo.Features.lookup(featureType);
-            return feature.FeatureClassType === yieldChange.FeatureClassInCity;
+            return feature?.FeatureClassType === yieldChange.FeatureClassInCity;
         });
 
         return featurePlots.length * yieldChange.YieldChange;
@@ -101,7 +101,7 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
         const terrainPlots = plots.filter(({ plot, location }) => {
             const terrainType = GameplayMap.getTerrainType(location.x, location.y);
             const terrain = GameInfo.Terrains.lookup(terrainType);
-            return terrain.TerrainType === yieldChange.TerrainInCity;
+            return terrain?.TerrainType === yieldChange.TerrainInCity;
         });
         // console.warn("TerrainInCity", yieldChange.TerrainInCity, terrainPlots.length, yieldChange.YieldChange);
 
@@ -110,10 +110,12 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
 
     // TODO Not really sure about this one. Need to check in antiquity and exploration db
     if (yieldChange.TerrainTagInCity) {
+        const terrainRequiredTag = yieldChange.TerrainTagInCity;
         const terrainPlots = plots.filter(({ plot, location }) => {
             const terrainType = GameplayMap.getTerrainType(location.x, location.y);
             const terrain = GameInfo.Terrains.lookup(terrainType);
-            return PolicyYieldsCache.hasTypeTag(terrain.TerrainType, yieldChange.TerrainTagInCity);
+            if (!terrain) return false;
+            return PolicyYieldsCache.hasTypeTag(terrain.TerrainType, terrainRequiredTag);
         });
 
         return terrainPlots.length * yieldChange.YieldChange;
@@ -127,8 +129,7 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
         
     }
 
-    console.warn("WarehouseYieldChange not implemented", JSON.stringify(yieldChange));
-    return 0;
+    throw new Error("WarehouseYieldChange not implemented: " + yieldChange.ID + ": " + JSON.stringify(yieldChange));
 }
 
 /**
@@ -146,7 +147,7 @@ export function findCityConstructiblesMatchingWarehouse(city, yieldChange) {
         .map(constructibleId => Constructibles.getByComponentID(constructibleId))
         .filter(constructible => {
             const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
-            return validConstructiblesTypes.has(constructibleType.ConstructibleType);
+            return validConstructiblesTypes.has(constructibleType?.ConstructibleType || 'NA');
         });
 }
 
@@ -156,7 +157,7 @@ export function findCityConstructiblesMatchingWarehouse(city, yieldChange) {
  */
 export function doesConstructibleGrantsWarehouseYields(constructibleType) {
     const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
-    const currentAge = GameInfo.Ages.lookup(Game.age).AgeType;
+    const currentAge = GameInfo.Ages.lookup(Game.age)?.AgeType;
     if (!isAgeless && currentAge != constructibleType.Age) return false;
     return true;
 }

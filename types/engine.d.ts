@@ -52,6 +52,7 @@ interface City {
     };
     Yields: {
         getNetYield: (yieldType: string) => number;
+        getYieldsForType: (yieldType: string) => any;
     };
     Resources: {
         getTotalCountAssignedResources: () => number;

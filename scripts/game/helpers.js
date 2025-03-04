@@ -33,11 +33,7 @@ export function calculateMaintenanceEfficiencyToReduction(modifier, count, maint
  * @returns {string[]}
  */
 export function parseArgumentsArray(args, name) {
-    if (!args[name]) {
-        console.error(`Argument ${name} is missing.`, args);
-        return [];
-    }
-    return args[name].Value.split(",").map(type => type.trim());
+    return args.getAsserted(name).split(",").map(type => type.trim());
 }
 
 /**
