@@ -20,7 +20,7 @@ const DarkYieldsColorMap = {
     "YIELD_HAPPINESS": "rgba(51, 35, 10, 0.4)"
 }
 
-export const USE_COLORFUL_YIELDS = false;
+export const DEBUG_POLICY = false;
 
 /**
  * @param {string} type
@@ -130,10 +130,8 @@ class PolicyChooserItemYieldsDecorator {
                 .filter(([type, value]) => value != 0 && value != null);
 
             if (validYields.length === 0) return;
-            
-            // const yieldsPreviewText = yieldsPreviewItems.map(i => i.text).join(" ");
                     
-            const container = document.createElement("fxs-activatable");
+            const container = document.createElement(DEBUG_POLICY ? "fxs-activatable": "div");
             container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";
 
             const colorClass = Configuration.getUser().getValue("LFPolicyYields_Colorful") === "true" ? "color" : "no-color";
@@ -147,11 +145,13 @@ class PolicyChooserItemYieldsDecorator {
                 yieldsContainer.appendChild(renderYieldTextSpan(type, value, colorClass === "color"));
             });
         
-            container.addEventListener('action-activate', () => {
-                console.warn("LFAddon: PolicyChooserItem action-activate", node.TraditionType);
-                const result = previewPolicyYields(node);
-                console.warn("LFAddon: PolicyChooserItem", JSON.stringify(result));
-            });
+            if (DEBUG_POLICY) {
+                container.addEventListener('action-activate', () => {
+                    console.warn("LFAddon: PolicyChooserItem action-activate", node.TraditionType);
+                    const result = previewPolicyYields(node);
+                    console.warn("LFAddon: PolicyChooserItem", JSON.stringify(result));
+                });
+            }
     
             this.Root.querySelector(`div[data-l10n-id="${node.name}"]`).parentNode.appendChild(container);
         };
