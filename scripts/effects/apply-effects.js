@@ -346,6 +346,8 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_CITY_ADJUST_OVERBUILD_PRODUCTION_MOD": return;
         // +X% to Production to adjust project production
         case "EFFECT_CITY_ADJUST_PROJECT_PRODUCTION": return;
+        // +X% to Production to adjust constructible production
+        case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_PRODUCTION": return;
 
         case "EFFECT_CITY_ADJUST_TRADE_YIELD": {
             // TODO Hard to find trade yields. Seems a bug in `city.Yields.getTradeYields()`

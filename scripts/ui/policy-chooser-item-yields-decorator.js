@@ -127,6 +127,9 @@ class PolicyChooserItemYieldsDecorator {
             const { yields, modifiers, isValid, error } = previewPolicyYields(node);
             // console.warn("LFAddon: PolicyChooserItem", JSON.stringify(node), JSON.stringify(yields));
             const validYields = Object.entries(yields);
+            if (validYields.length == 0 && !error && !DEBUG_POLICY) {
+                return;
+            }
                     
             const container = document.createElement(DEBUG_POLICY ? "fxs-activatable": "div");
             container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";
@@ -142,14 +145,16 @@ class PolicyChooserItemYieldsDecorator {
                 yieldsContainer.appendChild(renderYieldTextSpan(type, value, colorClass === "color"));
             });
 
-            if (error) {
-                const errorElement = document.createElement("div");
-                errorElement.classList.value = "text-negative mt-2";
-                errorElement.textContent = error;
-                yieldsContainer.appendChild(errorElement);
-            }
-        
+            
             if (DEBUG_POLICY) {
+                if (error) {
+                    const errorElement = document.createElement("div");
+                    errorElement.classList.value = "text-negative mt-2";
+                    errorElement.style.wordBreak = "break-all";
+                    errorElement.textContent = error;
+                    yieldsContainer.appendChild(errorElement);
+                }
+
                 container.addEventListener('action-activate', () => {
                     console.warn("LFAddon: PolicyChooserItem action-activate", node.TraditionType);
                     const result = previewPolicyYields(node);
