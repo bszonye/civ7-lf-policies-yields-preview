@@ -1,10 +1,13 @@
-declare type ResolvedArguments = {
-    [key: string]: {
+declare interface BaseResolvedArguments {
+    [argName: string]: {
         Value: string;
         Extra?: string;
         SecondExtra?: string;
         Type?: string;
-    }
+    };
+}
+declare interface ResolvedArguments extends BaseResolvedArguments {
+    getAsserted(argName: string): string;
 };
 
 declare interface ResolvedRequirementSet extends RequirementSet {
@@ -19,11 +22,49 @@ declare interface ResolvedRequirement {
 declare interface ResolvedModifier {
     Modifier: Modifier;
     Arguments: ResolvedArguments;
-    CollectionType: string;
-    EffectType: string;
+    CollectionType: string | null | undefined;
+    EffectType: string | null | undefined;
     SubjectRequirementSet: ResolvedRequirementSet | null;
     OwnerRequirementSet: ResolvedRequirementSet | null;
 }
+
+declare type SubjectType = 'City' | 'Plot' | 'Unit' | 'Player';
+
+declare type CreateSubject<T extends SubjectType = SubjectType, Data> = {
+    type: T;
+    /**
+     * An Empty subject is used when the subject is not available, in order
+     * to calculate a "0" yield. This is useful to show in the UI that
+     * the yields have been calculated, even if the subject is not available.
+     */
+    isEmpty: true;
+} | ({
+    isEmpty: false;
+    type: T;
+} & Data);
+
+declare type PlotSubject = CreateSubject<'Plot', {
+    city: City;
+    plot: number;    
+}>;
+
+declare type CitySubject = CreateSubject<'City', {
+    city: City;
+    /** City hex plot index */
+    plot: number;
+}>;
+
+declare type UnitSubject = CreateSubject<'Unit', {
+    unit: UnitInstance;
+    /** Unit location plot index */
+    plot: number;
+}>;
+
+declare type PlayerSubject = CreateSubject<'Player', {
+    player: Player;
+}>;
+
+declare type Subject = CitySubject | PlotSubject | UnitSubject | PlayerSubject;
 
 declare interface YieldsDelta {
     Amount: {
@@ -59,3 +100,5 @@ declare interface UnitTypeInfo {
 declare interface UnitTypesInfo {
     [unitType: string]: UnitTypeInfo;
 }
+
+// Execution context

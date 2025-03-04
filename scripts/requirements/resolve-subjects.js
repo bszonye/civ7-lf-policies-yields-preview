@@ -1,22 +1,32 @@
+import { isNotNull } from "../game/helpers.js";
 import { resolveRequirementSet } from "../modifiers.js";
 import { isRequirementSatisfied } from "./requirement.js";
 
 /**
+ * @param {Player} player
  * @param {ResolvedModifier} modifier 
- * @param {any} parentSubject May be a city, a plot, a player, etc. Usually a city for nested modifiers (EFFECT_ATTACH_MODIFIER_TO_CITY)
- * @returns 
+ * @param {Subject | null} parentSubject May be a city, a plot, a player, etc. Usually a city for nested modifiers (EFFECT_ATTACH_MODIFIER_TO_CITY)
+ * @returns {Subject[]}
  */
 export function resolveSubjectsWithRequirements(player, modifier, parentSubject = null) {
     const baseSubjects = resolveBaseSubjects(modifier, parentSubject);
 
-    return baseSubjects.filter(subject => {
+    const filtered = baseSubjects.filter(subject => {
         return filterSubjectByRequirementSet(player, subject, modifier.SubjectRequirementSet);
     });
+
+    // If the filtered list is empty, but the base list is not, we need to return
+    // a single empty subject to make the effects to return a "0" yield
+    if (filtered.length === 0 && baseSubjects.length > 0 && baseSubjects[0]) {
+        return [ { isEmpty: true, type: baseSubjects[0].type } ];
+    }
+
+    return filtered;
 }
 
 /**
  * @param {Player} player
- * @param {any} subject
+ * @param {Subject} subject
  * @param {ResolvedRequirementSet | null} requirementSet
  */
 function filterSubjectByRequirementSet(player, subject, requirementSet) {
@@ -30,7 +40,8 @@ function filterSubjectByRequirementSet(player, subject, requirementSet) {
         let isSatisfied = false;
         if (requirement.Requirement.RequirementType === 'REQUIREMENT_REQUIREMENTSET_IS_MET') {
             // Nested requirement set
-            const nestedRequirementSet = resolveRequirementSet(requirement.Arguments.RequirementSetId.Value);
+            const requirementSetId = requirement.Arguments.getAsserted('RequirementSetId');
+            const nestedRequirementSet = resolveRequirementSet(requirementSetId);
             isSatisfied = filterSubjectByRequirementSet(player, subject, nestedRequirementSet);
         }
         else {
@@ -58,31 +69,40 @@ function getRequirementSetOperator(requirementSet) {
 
 /**
  * @param {City[]} cities 
+ * @returns {CitySubject[]}
  */
 function wrapCitySubjects(cities) {
-    cities.forEach(city => {
-        // Some requirements operate both on the city and the plot; in order
-        // to make the subject usable in those cases, we need to provide the plot index.
-        // TODO Technically in the plot we have the city too, so the good thing to do
-        // would be to refactor subject to always be { city, plot }, but it requires a
-        // lot of changes.
-        city["plot"] = GameplayMap.getIndexFromLocation(city.location);
+    return cities.map(city => {
+        return {
+            type: "City",
+            isEmpty: false,
+            city,
+            // Some requirements operate both on the city and the plot; in order
+            // to make the subject usable in those cases, we need to provide the plot index.
+            plot: GameplayMap.getIndexFromLocation(city.location),
+        };
     });
-    return cities;
 }
 
 /** 
  * @param {UnitInstance[]} units 
+ * @returns {UnitSubject[]}
  */
 function wrapUnitSubjects(units) {
-    units.forEach(unit => {
-        unit["plot"] = GameplayMap.getIndexFromLocation(unit.location);
+    return units.map(unit => {
+        return {
+            type: "Unit",
+            isEmpty: false,
+            unit,
+            plot: GameplayMap.getIndexFromLocation(unit.location),
+        };
     });
-    return units;
 }
 
 /**
  * @param {ResolvedModifier} modifier
+ * @param {Subject | null} parentSubject
+ * @returns {Subject[]}
  */
 function resolveBaseSubjects(modifier, parentSubject = null) {
     const player = Players.get(GameContext.localPlayerID);
@@ -101,12 +121,6 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
         case "COLLECTION_PLAYER_PLOT_YIELDS": {
             let plots = [];
             player.Cities.getCities().forEach(city => {
-                plots.push(...city.getPurchasedPlots().map(plot => {
-                    return {
-                        city,
-                        plot,
-                    };
-                }));
                 plots.push(
                     ...city.getPurchasedPlots()
                         .filter(plot => {
@@ -125,22 +139,24 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
         }
 
         case "COLLECTION_OWNER":
-            return [player];
+            return [{
+                type: "Player",
+                isEmpty: false,
+                player,
+            }];
 
         // Nested (City)
         case "COLLECTION_CITY_PLOT_YIELDS": {
-            if (!parentSubject) {
-                console.error("COLLECTION_CITY_PLOT_YIELDS requires a parentSubject (City)");
-                return [];
+            if (parentSubject?.type !== "City") {
+                throw new Error("COLLECTION_CITY_PLOT_YIELDS requires a parentSubject (City)");
             }
 
-            return parentSubject.getPurchasedPlots().map(plot => {
-                return {
-                    city: parentSubject,
-                    plot,
-                };
-            });
+            if (parentSubject.isEmpty === true) {
+                return [ { isEmpty: true, type: "Plot" } ];
+            }
+
             return parentSubject
+                .city
                 .getPurchasedPlots()
                 .filter(plot => {
                     const location = GameplayMap.getLocationFromIndex(plot);
@@ -148,7 +164,9 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                 })
                 .map(plot => {
                     return {
-                        city: parentSubject,
+                        type: "Plot",
+                        isEmpty: false,
+                        city: parentSubject.city,
                         plot,
                     };
                 });
@@ -170,7 +188,7 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                 const unit = Units.get(unitId);
                 if (!unit.isCombat) return null;
                 return unit; 
-            }).filter(Boolean);
+            }).filter(isNotNull);
             return wrapUnitSubjects(combatUnits);
         }
 

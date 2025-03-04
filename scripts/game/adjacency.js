@@ -5,12 +5,12 @@ import { getPlotConstructiblesByLocation, getPlotDistrict } from "./plot.js";
 // ====================================================================================================
 
 export const AdjancenciesCache = new class {
-    /** @type {Record<string, AdjacencyYieldChange>} */
+    /** @type {Record<string, AdjacencyYieldChange | undefined>} */
     _adjacencies = {};
 
     /**
      * @param {string} adjacencyId
-     * @returns {AdjacencyYieldChange}
+     * @returns {AdjacencyYieldChange | undefined}
      */
     get(adjacencyId) {
         if (!this._adjacencies[adjacencyId]) {
@@ -79,8 +79,7 @@ export const ConstructibleAdjacencies = new class {
 export function getPlotsGrantingAdjacency(location, adjacency) {
     const adjacentPlots = GameplayMap.getPlotIndicesInRadius(location.x, location.y, 1);
     let plots = [];
-    for (let i = 0; i < adjacentPlots.length; i++) {
-        const plot = adjacentPlots[i];
+    for (const plot of adjacentPlots) {
         const loc = GameplayMap.getLocationFromIndex(plot);
         if (loc.x === location.x && loc.y === location.y) continue;
         if (!isPlotGrantingAdjacency(adjacency, plot)) continue;
@@ -108,12 +107,12 @@ export function isPlotGrantingAdjacency(adjacency, plot) {
     if (adjacency.AdjacentTerrain) {
         const terrain = GameplayMap.getTerrainType(loc.x, loc.y);
         const terrainType = GameInfo.Terrains.lookup(terrain);
-        if (terrainType.TerrainType !== adjacency.AdjacentTerrain) return false;
+        if (terrainType?.TerrainType !== adjacency.AdjacentTerrain) return false;
     }
 
     if (adjacency.AdjacentConstructible) {
         const constructibles = getPlotConstructiblesByLocation(loc.x, loc.y);
-        if (!constructibles.some(c => c.constructibleType.ConstructibleType === adjacency.AdjacentConstructible)) return false;
+        if (!constructibles.some(c => c.constructibleType?.ConstructibleType === adjacency.AdjacentConstructible)) return false;
     }
     if (adjacency.AdjacentDistrict) {
         const district = getPlotDistrict(plot);

@@ -69,8 +69,21 @@ export function isConstructibleValidForQuarter(constructibleType) {
     if (isIgnored) return false;
 
     const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
-    const currentAge = GameInfo.Ages.lookup(Game.age).AgeType;
+    const currentAge = GameInfo.Ages.lookup(Game.age)?.AgeType;
+    if (currentAge == null) {
+        console.error(`Cannot find age ${Game.age}`);
+        return false;
+    }
     if (!isAgeless && currentAge != constructibleType.Age) return false;
     
     return true;
+}
+
+/**
+ * @template T
+ * @param {T | null | undefined} value 
+ * @returns {value is T}
+ */
+export function isNotNull(value) {
+    return value !== null;
 }

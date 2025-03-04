@@ -3,6 +3,7 @@ import { PolicyYieldsCache } from "./cache.js";
 import { resolveModifier } from "./modifiers.js";
 import { resolveSubjectsWithRequirements } from "./requirements/resolve-subjects.js";
 import { createEmptyYieldsDelta } from "./effects/yields.js";
+import { PolicyYieldsContext } from "./core/execution-context.js";
 
 
 export function previewPolicyYields(policy) {
@@ -15,7 +16,8 @@ export function previewPolicyYields(policy) {
     const modifiers = getModifiersForTradition(policy.TraditionType);
     
     try {
-        const yieldsDelta = createEmptyYieldsDelta();
+        // const yieldsDelta = createEmptyYieldsDelta();
+        const yieldsDelta = new PolicyYieldsContext();
     
         // Context
         const player = Players.get(GameContext.localPlayerID);

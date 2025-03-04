@@ -36,14 +36,31 @@ export function hasPlotDistrictOfClass(plot, requirement) {
 /**
  * @param {number} x
  * @param {number} y
+ * @returns {{ constructible: ConstructibleInstance, constructibleType: Constructible }[]}
  */
 export function getPlotConstructiblesByLocation(x, y) {
     const constructibleIDs = MapConstructibles.getHiddenFilteredConstructibles(x, y);
     const constructibles = constructibleIDs.map(id => Constructibles.getByComponentID(id));
-    return constructibles.map(constructible => ({
-        constructible,
-        constructibleType: GameInfo.Constructibles.lookup(constructible.type),
-    }));
+    return constructibles
+        .map(constructible => {
+            const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
+            if (!constructibleType) {
+                console.warn("getPlotConstructiblesByLocation: Missing constructibleType", constructible.type);
+            }
+            return {
+                constructible,
+                constructibleType,
+            };
+        })
+        .filter(isValidConstructibleType);
+}
+
+/**
+ * @param {{ constructible: ConstructibleInstance, constructibleType: Constructible | undefined }} item
+ * @returns {item is { constructible: ConstructibleInstance, constructibleType: Constructible }}
+ */
+function isValidConstructibleType(item) {
+    return item.constructibleType != null;
 }
 
 /**
@@ -79,13 +96,17 @@ export function getAdjacentPlots(plotIndex, radius = 1) {
 export function hasPlotConstructibleByArguments(location, args) {
     const constructibles = getPlotConstructiblesByLocation(location.x, location.y);
     return constructibles.some(c => {
+        if (!c.constructibleType) return false;
+
         if (args.ConstructibleType?.Value) {
-            return c.constructibleType.ConstructibleType === args.ConstructibleType.Value;
+            return c.constructibleType?.ConstructibleType === args.ConstructibleType.Value;
         }
         if (args.Tag?.Value) {
             const tags = PolicyYieldsCache.getTypeTags(c.constructibleType.ConstructibleType);
             return tags.has(args.Tag.Value);
         }
+
+        throw new Error(`Unhandled hasPlotConstructibleByArguments: ${JSON.stringify(args)}`);
     });
 }
 

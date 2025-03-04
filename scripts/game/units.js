@@ -12,10 +12,14 @@ export function retrieveUnitTypesMaintenance(player) {
     for (const unit of units) {
         if (unitTypes[unit.type]) continue;
 
+        const unitTypeInfo = GameInfo.Units.lookup(unit.type);
+        if (!unitTypeInfo) {
+            console.warn(`Unit type not found: ${unit.type}`);
+            continue;
+        }
+
         const count = player?.Units.getNumUnitsOfType(unit.type);
         const maintenance = player?.Treasury.getMaintenanceForAllUnitsOfType(unit.type) * -1;
-
-        const unitTypeInfo = GameInfo.Units.lookup(unit.type);
 
         unitTypes[unit.type] = {
             UnitType: unitTypeInfo,
@@ -32,8 +36,9 @@ export function retrieveUnitTypesMaintenance(player) {
  * @param {ResolvedArguments} args
  */
 export function isUnitTypeInfoTargetOfArguments(unitType, args) {
-    if (args.UnitTag?.Value) {
-        const tags = args.UnitTag.Value.split(",").map(tag => tag.trim());
+    if (args.UnitTag?.Value || args.Tag?.Value) {
+        const tagStr = args.UnitTag?.Value || args.Tag?.Value || "";
+        const tags = tagStr.split(",").map(tag => tag.trim());
         if (!tags.some(tag => PolicyYieldsCache.hasTypeTag(unitType.UnitType, tag))) {
             return false;
         }

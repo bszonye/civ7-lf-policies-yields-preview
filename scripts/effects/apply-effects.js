@@ -8,24 +8,26 @@ import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
 import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getPlayerRelationshipsCountForModifier } from "../game/player.js";
 import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
+import { PolicyYieldsContext } from "scripts/core/execution-context.js";
 
 /**
- * @param {YieldsDelta} yieldsDelta 
+ * @param {PolicyYieldsContext} yieldsContext 
  * @param {any[]} subjects 
  * @param {ResolvedModifier} modifier 
  * @returns 
  */
-export function applyYieldsForSubjects(yieldsDelta, subjects, modifier) {
+export function applyYieldsForSubjects(yieldsContext, subjects, modifier) {
     subjects.forEach(subject => {
-        applyYieldsForSubject(yieldsDelta, subject, modifier);
+        applyYieldsForSubject(yieldsContext, subject, modifier);
     });
 }
 
 /**
- * @param {YieldsDelta} yieldsDelta 
+ * @param {PolicyYieldsContext} context 
+ * @param {Subject} subject
  * @param {ResolvedModifier} modifier
  */
-function applyYieldsForSubject(yieldsDelta, subject, modifier) {
+function applyYieldsForSubject(context, subject, modifier) {
     const player = Players.get(GameContext.localPlayerID);
 
     // We can't apply new-only modifiers here. These are modifiers applied
@@ -40,9 +42,11 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
         // ========== Player ============
         // ==============================
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
-            const count = getPlayerActiveTraditionsForModifier(player, modifier);
-            const amount = Number(modifier.Arguments.Amount.Value) * count;
-            return addYieldsAmount(yieldsDelta, modifier, amount);
+            if (!context.assertPlayerSubject(subject)) return;
+            const count = subject.isEmpty ? 0 : getPlayerActiveTraditionsForModifier(subject.player, modifier);
+            return context.addYieldsTimes(modifier, count);
+            const amount = context.getModifierArgumentAmount(modifier) * count;
+            return context.addYieldsAmount(modifier, amount);
         }
 
         case "EFFECT_DIPLOMACY_ADJUST_YIELD_PER_PLAYER_RELATIONSHIP": {
@@ -120,10 +124,10 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
 
         case "EFFECT_ATTACH_MODIFIERS": {
             // Nested modifiers; they are applied once for each subject from the parent modifier.
-            const nestedModifierId = modifier.Arguments.ModifierId.Value;
+            const nestedModifierId = context.modifierArgument(modifier, 'ModifierId');
             const nestedModifier = resolveModifierById(nestedModifierId);
             const nestedSubjects = resolveSubjectsWithRequirements(player, nestedModifier, subject);
-            return applyYieldsForSubjects(yieldsDelta, nestedSubjects, nestedModifier);
+            return applyYieldsForSubjects(context, nestedSubjects, nestedModifier);
         }
 
 
@@ -179,6 +183,10 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             const adjancencies = parseArgumentsArray(modifier.Arguments, 'ConstructibleAdjacency'); 
             adjancencies.forEach(adjacencyId => {
                 const adjacencyType = AdjancenciesCache.get(adjacencyId);
+                if (!adjacencyType) {
+                    console.error(`AdjacencyType not found for ID: ${adjacencyId}`);
+                    return;
+                }
                 const validConstructibles = findCityConstructiblesMatchingAdjacency(subject, adjacencyId);
                 validConstructibles.forEach(constructible => {
                     const amount = getYieldsForAdjacency(constructible.location, adjacencyType);
@@ -194,9 +202,14 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
                 const adjacencyType = AdjancenciesCache.get(adjacencyId);
                 const constructibles = findCityConstructibles(subject);
                 constructibles.forEach(({ constructible }) => {
+                    if (!adjacencyType) {
+                        console.error(`AdjacencyType not found for ID: ${adjacencyId}`);
+                        return;
+                    }
+
                     const adjacentPlots = getPlotsGrantingAdjacency(constructible.location, adjacencyType).length; 
-                    // TODO Are we sure about `Divisor`?                      
-                    const amount = Number(modifier.Arguments.Amount.Value) * adjacentPlots / Number(modifier.Arguments.Divisor?.Value || 1);
+                    // TODO Are we sure about `Divisor`?
+                    const amount = Number(modifier.Arguments.Amount?.Value) * adjacentPlots / Number(modifier.Arguments.Divisor?.Value || 1);
                     addYieldTypeAmount(yieldsDelta, adjacencyType.YieldType, amount);
                 });
             });
@@ -207,6 +220,11 @@ function applyYieldsForSubject(yieldsDelta, subject, modifier) {
             const warehousesYieldChanges = parseArgumentsArray(modifier.Arguments, 'WarehouseYieldChange');
             warehousesYieldChanges.forEach(warehouseYield => {
                 const warehouseYieldType = GameInfo.Warehouse_YieldChanges.find(wyc => wyc.ID === warehouseYield);
+                if (!warehouseYieldType) {
+                    console.error(`WarehouseYieldType not found for ID: ${warehouseYield}`);
+                    return;
+                }
+                
                 const amount = getYieldsForWarehouseChange(subject, warehouseYieldType);
                 addYieldTypeAmount(yieldsDelta, warehouseYieldType.YieldType, amount);
             });
