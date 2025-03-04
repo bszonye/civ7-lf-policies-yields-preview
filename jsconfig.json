@@ -4,6 +4,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "lib": ["ESNext", "DOM"],
+    "strictNullChecks": false,
     "paths": {
       "/*": [
         "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Sid Meier's Civilization VII\\Base\\modules\\*"

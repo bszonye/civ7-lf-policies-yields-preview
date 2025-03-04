@@ -4,6 +4,7 @@
  */
 export function resolveModifierById(modifierId) {
     const modifier = GameInfo.Modifiers.find(m => m.ModifierId === modifierId);
+    // @ts-ignore
     return resolveModifier(modifier);
 }
 
@@ -17,6 +18,10 @@ export function resolveModifier(modifier) {
     const SubjectRequirementSet = resolveRequirementSet(m.SubjectRequirementSetId);
     const OwnerRequirementSet = resolveRequirementSet(m.OwnerRequirementSetId);
     const DynamicModifier = GameInfo.DynamicModifiers.find(dm => dm.ModifierType === m.ModifierType);
+    if (!DynamicModifier) {
+        console.error(`DynamicModifier not found for Modifier: ${m.ModifierId}`);
+    }
+    
     return {
         Modifier: m,
         Arguments: GameInfo.ModifierArguments
@@ -30,16 +35,16 @@ export function resolveModifier(modifier) {
                 acc[Name] = argument;
                 return acc;
             }, {}),
-        CollectionType: DynamicModifier.CollectionType,
-        EffectType: DynamicModifier.EffectType,                
+        CollectionType: DynamicModifier?.CollectionType,
+        EffectType: DynamicModifier?.EffectType,                
         SubjectRequirementSet,
         OwnerRequirementSet,
     };
 }
 
 /**
- * @param {string} requirementSetId 
- * @returns {ResolvedRequirementSet}
+ * @param {string | null | undefined} requirementSetId 
+ * @returns {ResolvedRequirementSet | null}
  */
 export function resolveRequirementSet(requirementSetId) {
     if (!requirementSetId) {
@@ -50,10 +55,15 @@ export function resolveRequirementSet(requirementSetId) {
         .filter(rs => rs.RequirementSetId === requirementSetId)
         .map(rs => {
             const requirement = GameInfo.Requirements.find(r => r.RequirementId === rs.RequirementId);
+            if (!requirement) {
+                console.error(`Requirement not found for RequirementSetRequirement: ${rs.RequirementId}`);
+                return null;
+            }
+            
             return {
                 Requirement: requirement,
                 Arguments: GameInfo.RequirementArguments
-                    .filter(ra => ra.RequirementId === requirement.RequirementId)
+                    .filter(ra => ra.RequirementId === requirement?.RequirementId)
                     .reduce((acc, ra) => {
                         const {
                             Name,
@@ -64,9 +74,14 @@ export function resolveRequirementSet(requirementSetId) {
                         return acc;
                     }, {}),
             }
-        });
+        })
+        .filter(r => r != null);
 
     const RequirementSet = GameInfo.RequirementSets.find(rs => rs.RequirementSetId == requirementSetId);
+    if (!RequirementSet) {
+        console.error(`RequirementSet not found: ${requirementSetId}`);
+        return null;
+    }
 
     return {
         ...RequirementSet,
