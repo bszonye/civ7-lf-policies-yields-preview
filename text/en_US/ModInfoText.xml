@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <EnglishText>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_NAME">
+            <Text>Leonardfactory's Policy Yield Previews</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_DESC">
+            <Text>Adds yield previews for Social Policy (and Crisis Policy) cards on the Government screen, allowing you to see the current impact of each policy card.</Text>
+        </Row>
+    </EnglishText>
+</Database>

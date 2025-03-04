@@ -25,11 +25,12 @@ export const USE_COLORFUL_YIELDS = false;
 /**
  * @param {string} type
  * @param {number} value
+ * @param {boolean} isColorful
  */
-function renderYieldTextSpan(type, value) {
+function renderYieldTextSpan(type, value, isColorful) {
     const element = document.createElement("div");
     element.classList.value = "policy-chooser-item__yield";
-    if (USE_COLORFUL_YIELDS) {
+    if (isColorful) {
         element.style.backgroundColor = YieldsColorMap[type];
     }
     if (value < 0) {
@@ -64,10 +65,11 @@ class PolicyChooserItemYieldsDecorator {
               font-weight: 700;
               line-height: 1.3333333333rem;
               border-radius: 0.38rem;
-              ${!USE_COLORFUL_YIELDS ? `
-              padding: 0.3rem;
-              background: linear-gradient(180deg, rgba(19, 20, 21, 0.45) 0%, rgba(27, 27, 30, 0.85) 100%);
-              ` : ''}
+        }
+
+        .policy-chooser-item--preview.no-color div.policy-chooser-item__yields {
+            padding: 0.3rem;
+            background: linear-gradient(180deg, rgba(19, 20, 21, 0.45) 0%, rgba(27, 27, 30, 0.85) 100%);
         }
 
         .policy-chooser-item--preview div.policy-chooser-item__yield {
@@ -75,17 +77,16 @@ class PolicyChooserItemYieldsDecorator {
             line-height: 1.3333333333rem;                    
             border-radius: 0.35rem;
             margin-left: 0.3rem;
+        }
 
-            /*
-            Colorful version:
-            */
-            ${USE_COLORFUL_YIELDS ? `                
+        /** Colorful version */
+        .policy-chooser-item--preview.color div.policy-chooser-item__yield {
             padding-top: 0.15rem;
             padding-bottom: 0.15rem;
             padding-right: 0.15rem;
-            padding-left: 0.35rem;    
-            ` : ''}
+            padding-left: 0.35rem;  
         }
+
 
         .policy-chooser-item__yield:first-child {
             /*border-top-left-radius: 0.65rem;
@@ -134,13 +135,16 @@ class PolicyChooserItemYieldsDecorator {
                     
             const container = document.createElement("fxs-activatable");
             container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";
+
+            const colorClass = Configuration.getUser().getValue("LFPolicyYields_Colorful") === "true" ? "color" : "no-color";
+            container.classList.add(colorClass);
             
             const yieldsContainer = document.createElement("div");
             yieldsContainer.classList.value = "policy-chooser-item__yields font-body-sm text-center text-accent-3 flex items-center";
             container.appendChild(yieldsContainer);
 
             validYields.forEach(([type, value]) => {
-                yieldsContainer.appendChild(renderYieldTextSpan(type, value));
+                yieldsContainer.appendChild(renderYieldTextSpan(type, value, colorClass === "color"));
             });
         
             container.addEventListener('action-activate', () => {

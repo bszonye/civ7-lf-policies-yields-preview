@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_NAME" Language="it_IT">
+            <Text>Leonardfactory: Anteprima Rese delle Politiche</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_DESC" Language="it_IT">
+            <Text>Colora le anteprime delle Rese delle politiche sociali in base al loro tipo, per renderle più facili da distinguere.</Text>
+        </Row>
+    </LocalizedText>
+</Database>

@@ -312,3 +312,10 @@ declare var ResourceTypes = {
 declare var DiplomacyManager: {
     getRelationshipTypeString(type: number): string;
 }
+
+declare var Configuration: {
+    getUser(): {
+        setValue(key: string, value: any): void;
+        getValue(key: string): any;
+    }
+}

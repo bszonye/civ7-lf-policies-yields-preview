@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <EnglishText>
+        <Row Tag="LOC_OPTIONS_GROUP_LF_YIELDS">
+            <Text>Leonardfactory's Policy Yield Previews</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL">
+            <Text>Color the yield previews of social policies</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL_DESC">
+             <Text>Colors the yield previews of social policies based on their type, making them easier to distinguish.</Text>
+        </Row>
+    </EnglishText>
+</Database>

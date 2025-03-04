@@ -21,12 +21,14 @@
 				<LoadOrder>500</LoadOrder>
 			</Properties>			
 			<Actions>
-				<!-- <UpdateText>
-					<Item>text/ItalianFixes.xml</Item>
-				</UpdateText> -->
+				<UpdateText>
+					<Item>text/en_US/InGameText.xml</Item>
+					<Item>text/it_IT/InGameText.xml</Item>
+				</UpdateText>
 				<UIScripts>
 					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>					
 					<Item>scripts/ui/screen-policies-yields-decorator.js</Item>					
+					<Item>scripts/ui/settings.js</Item>
 					<Item>scripts/effects/apply-effects.js</Item>
 					<Item>scripts/effects/yields.js</Item>
 					<Item>scripts/game/adjacency.js</Item>
@@ -46,4 +48,8 @@
 			</Actions>
 		</ActionGroup>
 	</ActionGroups>
+	<LocalizedText>
+        <File>text/it_IT/ModInfoText.xml</File>
+        <File>text/en_US/ModInfoText.xml</File>
+    </LocalizedText>
 </Mod>
