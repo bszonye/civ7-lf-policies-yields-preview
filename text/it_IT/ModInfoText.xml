@@ -5,7 +5,7 @@
             <Text>Leonardfactory: Anteprima Rese delle Politiche</Text>
         </Row>
         <Row Tag="LOC_MOD_LF_YIELDS_MOD_DESC" Language="it_IT">
-            <Text>Colora le anteprime delle Rese delle politiche sociali in base al loro tipo, per renderle più facili da distinguere.</Text>
+            <Text>Aggiunge anteprime delle rese per le carte Politica Sociale (e Politica di Crisi) nella schermata del Governo, permettendoti di vedere l'impatto attuale di ogni carta politica.</Text>
         </Row>
     </LocalizedText>
 </Database>

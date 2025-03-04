@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Mod id="lf-policies-yields-preview" version="1" xmlns="ModInfo">
 	<Properties>
-		<Name>Leonardfactory Policy Yield Previews</Name>
-		<Description>Adds yield previews for Social Policy (and Crisis Policy) cards on the Government screen, allowing you to see the current impact of each policy card.</Description>
+		<Name>LOC_MOD_LF_YIELDS_MOD_NAME</Name>
+		<Description>LOC_MOD_LF_YIELDS_MOD_DESC</Description>
 		<Authors>leonardfactory</Authors>
 		<Package>Mod</Package>
 		<AffectsSavedGames>0</AffectsSavedGames>
