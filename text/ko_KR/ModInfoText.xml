@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_NAME" Language="ko_KR">
+            <Text>Leonardfactory의 정책 수익 미리보기</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_DESC" Language="ko_KR">
+            <Text>정부 화면에 사회 정책(및 위기 정책) 카드에 대한 수익 미리보기를 추가하여 각 정책 카드의 현재 영향을 확인할 수 있습니다.</Text>
+        </Row>
+    </LocalizedText>
+</Database>
