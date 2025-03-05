@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Row Tag="LOC_OPTIONS_GROUP_LF_YIELDS" Language="de_DE">
+            <Text>Leonardfactorys Ertragsvorschau für Sozialpolitiken</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL" Language="de_DE">
+            <Text>Ertragsvorschau für Sozialpolitiken einfärben</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL_DESC" Language="de_DE">
+            <Text>Ertragsvorschau für Sozialpolitiken entsprechend des Typs einfärben, um sie besser unterscheidbar zu machen.</Text>
+        </Row>
+    </LocalizedText>
+</Database>

@@ -17,9 +17,9 @@
 	</ActionCriteria>
 	<ActionGroups>
 		<ActionGroup id="game-lf-policies-ui" scope="game" criteria="always">
-            <Properties>
+			<Properties>
 				<LoadOrder>500</LoadOrder>
-			</Properties>			
+			</Properties>
 			<Actions>
 				<UpdateText>
 					<Item>text/en_US/InGameText.xml</Item>
@@ -28,8 +28,8 @@
 					<File>text/ru_RU/InGameText.xml</File>
 				</UpdateText>
 				<UIScripts>
-					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>					
-					<Item>scripts/ui/screen-policies-yields-decorator.js</Item>					
+					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>
+					<Item>scripts/ui/screen-policies-yields-decorator.js</Item>
 					<Item>scripts/ui/settings.js</Item>
 					<Item>scripts/core/execution-context.js</Item>
 					<Item>scripts/effects/apply-effects.js</Item>
@@ -53,8 +53,9 @@
 		</ActionGroup>
 	</ActionGroups>
 	<LocalizedText>
-		<File>text/it_IT/ModInfoText.xml</File>
+		<File>text/de_DE/ModInfoText.xml</File>
 		<File>text/en_US/ModInfoText.xml</File>
+		<File>text/it_IT/ModInfoText.xml</File>
 		<File>text/ko_KR/ModInfoText.xml</File>
 		<File>text/ru_RU/ModInfoText.xml</File>
 	</LocalizedText>
