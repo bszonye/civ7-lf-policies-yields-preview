@@ -12,7 +12,7 @@ const BuildingsByTagCache = new class {
         const buildingTypes = GameInfo.TypeTags
             .filter(typeTag => typeTag.Tag === tag)
             .map(typeTag => typeTag.Type)
-            .filter(type => GameInfo.Constructibles.find(c => c.ConstructibleType === type).ConstructibleClass == 'BUILDING');
+            .filter(type => GameInfo.Constructibles.find(c => c.ConstructibleType === type)?.ConstructibleClass == 'BUILDING');
 
         this._cache.set(tag, buildingTypes);
         return buildingTypes;
@@ -49,19 +49,21 @@ export function hasCityBuilding(city, args) {
  * Supported arguments:
  * - TerrainType: TerrainType
  * - Amount: minimum number of tiles with the terrain type
+ * @param {City} city
+ * @param {ResolvedArguments} args
  */
 export function hasCityTerrain(city, args) {
     if (args.TerrainType) {
-        const amount = args.Amount?.Value || 1; // TODO Not sure about this
+        const amount = Number(args.Amount?.Value || 1); // TODO Not sure about this
         return city.getPurchasedPlots().filter(plot => {
             const location = GameplayMap.getLocationFromIndex(plot);
             const terrainType = GameplayMap.getTerrainType(location.x, location.y);
 		    const terrain = GameInfo.Terrains.lookup(terrainType);
-            return terrain.TerrainType === args.TerrainType.Value;
+            return terrain?.TerrainType === args.TerrainType?.Value;
         }).length >= amount;
     }
 
-    console.warn(`Unhandled ModifierArgument: ${args}`);
+    console.warn(`Unhandled ModifierArgument in hasCityTerrain: ${JSON.stringify(args)}`);
     return false;
 }
 

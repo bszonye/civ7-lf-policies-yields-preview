@@ -22,7 +22,7 @@ export function getPlayerRelationshipsCountForModifier(player, modifier) {
             return;
         }
 
-        if (modifier.Arguments.UseAlliances.Value === 'true' &&
+        if (modifier.Arguments.UseAlliances?.Value === 'true' &&
             player.Diplomacy?.hasAllied(otherPlayer.id)) {
             allies++;
         }
@@ -93,7 +93,7 @@ export function getPlayerActiveTraditionsForModifier(player, modifier) {
     let count = 0;
     for (const tradition of activeTraditions) {
         const traditionType = GameInfo.Traditions.lookup(tradition);
-        if (!traditionType.TraitType && modifier.Arguments.CivUnique?.Value === 'true') {
+        if (!traditionType?.TraitType && modifier.Arguments.CivUnique?.Value === 'true') {
             continue;
         }
         count++; 

@@ -42,8 +42,17 @@ interface City {
     id: CityID;
     getConnectedCities: () => ID[]; // ??
     getPurchasedPlots: () => number[];
+    Religion?: {
+        majorityReligion: number;
+        urbanReligion: number;
+        ruralReligion: number;
+    };
+    Growth: {
+        projectType: number;
+    };
     Yields: {
         getNetYield: (yieldType: string) => number;
+        getYieldsForType: (yieldType: string) => any;
     };
     Resources: {
         getTotalCountAssignedResources: () => number;

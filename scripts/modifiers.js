@@ -9,6 +9,34 @@ export function resolveModifierById(modifierId) {
 }
 
 /**
+ * @param {string} description
+ * @param {(ModifierArgument | RequirementArgument)[]} args
+ * @returns {ResolvedArguments}
+ */
+function createResolvedArguments(description, args) {
+    /** @type {BaseResolvedArguments} */
+    const resolvedArgs = args.reduce((acc, ma) => {
+        const {
+            Name,
+            ...argument
+        } = ma;
+        acc[Name] = argument;
+        return acc;
+    }, {});
+
+    // @ts-ignore
+    return {
+        ...resolvedArgs,
+        getAsserted(key) {
+            if (!resolvedArgs[key]?.Value) {
+                throw new Error(`Missing argument ${key} in ${description}`);
+            }
+            return resolvedArgs[key].Value;
+        }
+    }
+}
+
+/**
  * Resolve a modifier
  * @param {Modifier} modifier
  * @returns {ResolvedModifier}
@@ -24,17 +52,11 @@ export function resolveModifier(modifier) {
     
     return {
         Modifier: m,
-        Arguments: GameInfo.ModifierArguments
-            .filter(ma => ma.ModifierId === m.ModifierId)
-            .reduce((acc, ma) => {
-                const {
-                    Name,
-                    ModifierId,
-                    ...argument
-                } = ma;
-                acc[Name] = argument;
-                return acc;
-            }, {}),
+        // @ts-ignore
+        Arguments: createResolvedArguments(
+            `modifier ${m.ModifierId}`, 
+            GameInfo.ModifierArguments.filter(ma => ma.ModifierId === m.ModifierId)
+        ),
         CollectionType: DynamicModifier?.CollectionType,
         EffectType: DynamicModifier?.EffectType,                
         SubjectRequirementSet,
@@ -62,17 +84,10 @@ export function resolveRequirementSet(requirementSetId) {
             
             return {
                 Requirement: requirement,
-                Arguments: GameInfo.RequirementArguments
-                    .filter(ra => ra.RequirementId === requirement?.RequirementId)
-                    .reduce((acc, ra) => {
-                        const {
-                            Name,
-                            RequirementId,
-                            ...argument
-                        } = ra;
-                        acc[Name] = argument;
-                        return acc;
-                    }, {}),
+                Arguments: createResolvedArguments(
+                    `requirement ${requirement.RequirementId}`, 
+                    GameInfo.RequirementArguments.filter(ra => ra.RequirementId === requirement?.RequirementId)
+                ),
             }
         })
         .filter(r => r != null);

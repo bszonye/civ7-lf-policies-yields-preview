@@ -2,85 +2,109 @@ import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
 import { hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
 import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast } from "../game/plot.js";
 import { isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
+import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "./assert-subject.js";
+import { PolicyExecutionContext } from "../core/execution-context.js";
 
 /**
- *
  * @param {Player} player
- * @param {*} subject
+ * @param {Subject} subject
  * @param {ResolvedRequirement} requirement
  * @returns
  */
 export function isRequirementSatisfied(player, subject, requirement) {
+    // This should never happen at this level, but just in case.
+    // Empty subjects are for effects, and they're generated _after_ requirements are resolved.
+    if (subject.isEmpty === true) return false;
+
     switch (requirement.Requirement.RequirementType) {
-        case "REQUIREMENT_CITY_IS_CAPITAL":
-            return subject.isCapital;
-        case "REQUIREMENT_CITY_IS_CITY":
-            return !subject.isTown;
-        case "REQUIREMENT_CITY_IS_TOWN":
-            return subject.isTown;
-        case "REQUIREMENT_CITY_IS_ORIGINAL_OWNER":
-            return subject.originalOwner === player.id;
-        case "REQUIREMENT_CITY_HAS_BUILDING":
-            return hasCityBuilding(subject, requirement.Arguments);
-        case "REQUIREMENT_CITY_HAS_PROJECT": {
-            if (requirement.Arguments.HasAnyProject?.Value === "true") {
-                return subject.Growth.projectType !== -1;
-            }
-
-            if (subject.Growth.projectType === -1) return false;
-
-            const projectTypeName = GameInfo.Projects.lookup(subject.projectType)?.ProjectType;
-            return projectTypeName === requirement.Arguments.ProjectType?.Value;
+        case "REQUIREMENT_CITY_IS_CAPITAL": {
+            assertSubjectCity(subject);        
+            return subject.city.isCapital;
         }
-        case "REQUIREMENT_CITY_HAS_TERRAIN":
-            return hasCityTerrain(subject, requirement.Arguments);
-
-        case "REQUIREMENT_CITY_IS_DISTANT_LANDS":
-            return subject.isDistantLands;
-
-        case "REQUIREMENT_CITY_POPULATION": {
-            if (requirement.Arguments.MinUrbanPopulation?.Value) {
-                return subject.urbanPopulation >= Number(requirement.Arguments.MinUrbanPopulation.Value);
+        case "REQUIREMENT_CITY_IS_CITY": {
+            assertSubjectCity(subject);
+            return !subject.city.isTown;
+        }
+        case "REQUIREMENT_CITY_IS_TOWN": {
+            assertSubjectCity(subject);
+            return subject.city.isTown;
+        }
+        case "REQUIREMENT_CITY_IS_ORIGINAL_OWNER": {
+            assertSubjectCity(subject); 
+            return subject.city.originalOwner === player.id;
+        }
+        case "REQUIREMENT_CITY_HAS_BUILDING": {
+            assertSubjectCity(subject); 
+            return hasCityBuilding(subject.city, requirement.Arguments);
+        }
+        case "REQUIREMENT_CITY_HAS_PROJECT": {
+            assertSubjectCity(subject); 
+            if (requirement.Arguments.HasAnyProject?.Value === "true") {
+                return subject.city.Growth.projectType !== -1;
             }
-            console.warn(`Unhandled RequirementType: ${requirement.Requirement.RequirementType} with Arguments: ${JSON.stringify(requirement.Arguments)}`);
-            return false;
+
+            if (subject.city.Growth.projectType === -1) return false;
+
+            const projectTypeName = GameInfo.Projects.lookup(subject.city.Growth.projectType)?.ProjectType;
+            return projectTypeName === requirement.Arguments.getAsserted('ProjectType');
+        }
+        case "REQUIREMENT_CITY_HAS_TERRAIN": {
+            assertSubjectCity(subject);
+            return hasCityTerrain(subject.city, requirement.Arguments);
+        }
+        case "REQUIREMENT_CITY_IS_DISTANT_LANDS": {
+            assertSubjectCity(subject);
+            return subject.city.isDistantLands;
+        }
+        case "REQUIREMENT_CITY_POPULATION": {
+            assertSubjectCity(subject);
+            if (requirement.Arguments.MinUrbanPopulation?.Value) {
+                return subject.city.urbanPopulation >= Number(requirement.Arguments.MinUrbanPopulation.Value);
+            }
+            throw new Error(`Unhandled RequirementType: ${requirement.Requirement.RequirementType} with Arguments: ${JSON.stringify(requirement.Arguments)}`);            
         }
 
         case "REQUIREMENT_CITY_HAS_X_OPEN_RESOURCE_SLOTS": {
-            const amount = Number(requirement.Arguments.Amount?.Value);
-            return hasCityOpenResourcesSlots(subject, amount);
+            assertSubjectCity(subject);
+            const amount = Number(requirement.Arguments.getAsserted('Amount'));
+            return hasCityOpenResourcesSlots(subject.city, amount);
         }
 
         case "REQUIREMENT_CITY_HAS_X_RESOURCES_ASSIGNED": {
-            const amount = Number(requirement.Arguments.Amount?.Value);
-            return hasCityResourcesAmountAssigned(subject, amount);
+            assertSubjectCity(subject);
+            const amount = Number(requirement.Arguments.getAsserted('Amount'));
+            return hasCityResourcesAmountAssigned(subject.city, amount);
         }
 
         case "REQUIREMENT_CITY_IS_INFECTED": {
-            return subject.isInfected;
+            assertSubjectCity(subject);
+            return subject.city.isInfected;
         }
 
         case "REQUIREMENT_CITY_HAS_BUILD_QUEUE": {
+            assertSubjectCity(subject);
             // Old comment: I'm not sure about the sense of this.
             // Update: It can be seen in REQSET_ONLY_TOWNS, which is the Inverse of this requirement, so it's just towns
-            return !subject.isTown;
+            return !subject.city.isTown;
         }
 
         case "REQUIREMENT_CITY_HAS_GARRISON_UNIT": {
-            const loc = subject.location;
+            assertSubjectCity(subject);
+            const loc = subject.city.location;
             const units = MapUnits.getUnits(loc.x, loc.y);
             return units.some(unit => unit.owner == player.id);
         }
 
         // City (Religion)
         case "REQUIREMENT_CITY_FOLLOWS_RELIGION": {
+            assertSubjectCity(subject);
             const playerReligion = Players.Religion?.get(player.id);
             const hasPlayerReligion = playerReligion != null && playerReligion.getReligionType() != -1; 
             if (!hasPlayerReligion && requirement.Arguments.hasReligion?.Value === 'true') {
                 return false;
             }
             
-            const cityReligion = subject.Religion?.majorityReligion;
+            const cityReligion = subject.city.Religion?.majorityReligion;
             if (cityReligion == -1 && requirement.Arguments.cityReligion?.Value === 'true') {
                 return false;
             }
@@ -90,10 +114,12 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         // Plot
         case "REQUIREMENT_PLOT_DISTRICT_CLASS": {
+            assertSubjectPlot(subject);
             return hasPlotDistrictOfClass(subject.plot, requirement);
         }
 
         case "REQUIREMENT_PLOT_RESOURCE_VISIBLE": {
+            assertSubjectPlot(subject);            
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             const resource = GameplayMap.getResourceType(loc.x, loc.y);
 			if (resource == ResourceTypes.NO_RESOURCE) return false;
@@ -105,61 +131,71 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         case "REQUIREMENT_PLOT_IS_COASTAL_LAND": {
+            assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             return GameplayMap.isCoastalLand(loc.x, loc.y);
         }
 
         case "REQUIREMENT_PLOT_ADJACENT_TO_COAST": {
+            assertSubjectPlot(subject);
             return isPlotAdjacentToCoast(subject.plot);
         }
 
         case "REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE": {
+            assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             return hasPlotConstructibleByArguments(loc, requirement.Arguments);
         }
 
         case "REQUIREMENT_PLOT_HAS_NUM_CONSTRUCTIBLES": {
-            const amount = Number(requirement.Arguments.Amount?.Value);
+            assertSubjectPlot(subject);
+            const amount = Number(requirement.Arguments.getAsserted('Amount'));
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             const constructibles = getPlotConstructiblesByLocation(loc.x, loc.y);
             return constructibles.length >= amount;
         }
 
         case "REQUIREMENT_PLOT_IS_QUARTER": {
+            assertSubjectPlot(subject);
             return isPlotQuarter(subject.plot);
         }
 
         case "REQUIREMENT_PLOT_TERRAIN_TYPE_MATCHES": {
+            assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
             const terrain = GameInfo.Terrains.lookup(terrainType);
-            return terrain?.TerrainType == requirement.Arguments.TerrainType.Value;
+            return terrain?.TerrainType == requirement.Arguments.getAsserted('TerrainType');
         }
 
         case "REQUIREMENT_PLOT_FEATURE_TYPE_MATCHES": {
+            assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             const featureType = GameplayMap.getFeatureType(loc.x, loc.y);
             const feature = GameInfo.Features.lookup(featureType);
-            
+
             if (requirement.Arguments.FeatureClassType?.Value) {
-                return feature?.FeatureClassType == requirement.Arguments.FeatureClassType.Value;
+                return feature?.FeatureClassType == requirement.Arguments.getAsserted('FeatureClassType');
             }
             if (requirement.Arguments.FeatureType?.Value) {
-                return feature?.FeatureType == requirement.Arguments.FeatureType.Value;
+                return feature?.FeatureType == requirement.Arguments.getAsserted('FeatureType');
             }
-            return false;
+
+            throw new Error(`Unhandled REQUIREMENT_PLOT_FEATURE_TYPE_MATCHES: ${requirement.Requirement.RequirementId} with Arguments: ${JSON.stringify(requirement.Arguments)}`);
         }
 
         case "REQUIREMENT_PLOT_ADJACENT_TERRAIN_TYPE_MATCHES": {
+            assertSubjectPlot(subject);
             return getAdjacentPlots(subject.plot).some(plot => {
                 const loc = GameplayMap.getLocationFromIndex(plot);
                 const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
                 const terrain = GameInfo.Terrains.lookup(terrainType);
-                return terrain?.TerrainType == requirement.Arguments.TerrainType.Value;
+                return terrain?.TerrainType == requirement.Arguments.getAsserted('TerrainType');
             });
         }
 
         case "REQUIREMENT_PLOT_ADJACENT_CONSTRUCTIBLE_TYPE_MATCHES": {
+            assertSubjectPlot(subject);
             const range = Number(requirement.Arguments.MaxRange?.Value || 1);
             return getAdjacentPlots(subject.plot, range).some(plot => {
                 const loc = GameplayMap.getLocationFromIndex(plot);
@@ -168,63 +204,63 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         case "REQUIREMENT_PLOT_IS_OWNER": {
+            assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             return GameplayMap.getOwner(loc.x, loc.y) == player.id;
         }
 
         // Units
         case "REQUIREMENT_UNIT_TAG_MATCHES": {
-            return hasUnitTag(subject, requirement.Arguments.Tag?.Value);
+            assertSubjectUnit(subject);
+            return hasUnitTag(subject.unit, requirement.Arguments.getAsserted('Tag'));
         }
 
         case "REQUIREMENT_UNIT_IS_IN_HOMELANDS": {
-            /** @type {UnitInstance} */
-            const unit = subject;
-            return !player.isDistantLands(unit.location);
+            assertSubjectUnit(subject);
+            return !player.isDistantLands(subject.unit.location);
         }
 
         case "REQUIREMENT_UNIT_DOMAIN_MATCHES": {
-            /** @type {UnitInstance} */
-            const unit = subject;
-            const unitType = GameInfo.Units.lookup(unit.type);
-            return unitType.Domain == requirement.Arguments.UnitDomain.Value;
+            assertSubjectUnit(subject);
+            const unitType = GameInfo.Units.lookup(subject.unit.type);
+            return unitType?.Domain == requirement.Arguments.getAsserted('UnitDomain');
         }
 
         case "REQUIREMENT_UNIT_CLASS_MATCHES": {
-            /** @type {UnitInstance} */
-            const unit = subject;
-            const unitTypeInfo = GameInfo.Units.lookup(unit.type);
+            assertSubjectUnit(subject);
+            const unitTypeInfo = GameInfo.Units.lookup(subject.unit.type);
+            if (!unitTypeInfo) return false;
             return isUnitTypeInfoTargetOfArguments(unitTypeInfo, requirement.Arguments);
-            // return unitTypeInfo.Class == requirement.Arguments.UnitClassType.Value;
         }
 
         case "REQUIREMENT_UNIT_CORE_CLASS_MATCHES": {
-            /** @type {UnitInstance} */
-            const unit = subject;
-            const unitTypeInfo = GameInfo.Units.lookup(unit.type);
-            return unitTypeInfo.CoreClass == requirement.Arguments.UnitCoreClass.Value;
+            assertSubjectUnit(subject);
+            const unitTypeInfo = GameInfo.Units.lookup(subject.unit.type);
+            if (!unitTypeInfo) return false;
+            return unitTypeInfo.CoreClass == requirement.Arguments.getAsserted('UnitCoreClass');
         }
 
         case "REQUIREMENT_UNIT_DOMAIN_MATCHES": {
-            /** @type {UnitInstance} */
-            const unit = subject;
-            const unitTypeInfo = GameInfo.Units.lookup(unit.type);
-            return unitTypeInfo.Domain == requirement.Arguments.UnitDomain.Value;
+            assertSubjectUnit(subject);
+            const unitTypeInfo = GameInfo.Units.lookup(subject.unit.type);
+            if (!unitTypeInfo) return false;
+            return unitTypeInfo.Domain == requirement.Arguments.getAsserted('UnitDomain');
         }
 
         case "REQUIREMENT_UNIT_IN_OWNER_TERRITORY": {
-            /** @type {UnitInstance} */
-            const unit = subject;
-            return GameplayMap.getOwner(unit.location.x, unit.location.y) == player.id;
+            assertSubjectUnit(subject);
+            return GameplayMap.getOwner(subject.unit.location.x, subject.unit.location.y) == player.id;
         }
 
         // Player (Owner)
         case "REQUIREMENT_PLAYER_IS_AT_WAR_WITH_OPPOSING_IDEOLOGY": {
-            return isPlayerAtWarWithOpposingIdeology(subject);
+            assertSubjectPlayer(subject);
+            return isPlayerAtWarWithOpposingIdeology(subject.player);
         }
 
         case "REQUIREMENT_PLAYER_IS_AT_PEACE_WITH_ALL_MAJORS": {
-            return isPlayerAtPeaceWithMajors(subject);
+            assertSubjectPlayer(subject);
+            return isPlayerAtPeaceWithMajors(subject.player);
         }
 
         // Ignored requirements. Usually because they relate to _combat_ bonuses, and we don't display those.
@@ -236,7 +272,6 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         default:
-            console.warn(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
-            return false;
+            throw new Error(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
     }
 }

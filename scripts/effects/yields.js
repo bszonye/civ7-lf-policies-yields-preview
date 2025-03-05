@@ -20,7 +20,7 @@ export function createEmptyYieldsDelta() {
  * 
  * @param {YieldsDelta} yieldsDelta
  * @param {ResolvedModifier} modifier
- * @param {any} subject
+ * @param {City} subject
  * @param {number} percent 
  * @returns 
  */
@@ -135,7 +135,12 @@ export function unwrapCurrentPlayerYields() {
     const allYields = player.Stats.getYields();
     for (let index = 0; index < allYields.length; index++) {
         const yields = allYields[index];
-        const type = GameInfo.Yields[index].YieldType;
+        const type = GameInfo.Yields[index]?.YieldType;
+        if (!type) {
+            console.error("Missing yield type for index", index);
+            continue;
+        }
+        
         unwrappedYields[type] = unwrapYieldsOfType(yields);
     }
     return unwrappedYields;

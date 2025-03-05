@@ -33,11 +33,7 @@ export function calculateMaintenanceEfficiencyToReduction(modifier, count, maint
  * @returns {string[]}
  */
 export function parseArgumentsArray(args, name) {
-    if (!args[name]) {
-        console.error(`Argument ${name} is missing.`, args);
-        return [];
-    }
-    return args[name].Value.split(",").map(type => type.trim());
+    return args.getAsserted(name).split(",").map(type => type.trim());
 }
 
 /**
@@ -69,8 +65,21 @@ export function isConstructibleValidForQuarter(constructibleType) {
     if (isIgnored) return false;
 
     const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
-    const currentAge = GameInfo.Ages.lookup(Game.age).AgeType;
+    const currentAge = GameInfo.Ages.lookup(Game.age)?.AgeType;
+    if (currentAge == null) {
+        console.error(`Cannot find age ${Game.age}`);
+        return false;
+    }
     if (!isAgeless && currentAge != constructibleType.Age) return false;
     
     return true;
+}
+
+/**
+ * @template T
+ * @param {T | null | undefined} value 
+ * @returns {value is T}
+ */
+export function isNotNull(value) {
+    return value !== null;
 }

@@ -3,11 +3,12 @@ import { PolicyYieldsCache } from "./cache.js";
 import { resolveModifier } from "./modifiers.js";
 import { resolveSubjectsWithRequirements } from "./requirements/resolve-subjects.js";
 import { createEmptyYieldsDelta } from "./effects/yields.js";
+import { PolicyYieldsContext } from "./core/execution-context.js";
 
 
 export function previewPolicyYields(policy) {
     if (!policy) {
-        return { yields: {}, modifiers: [] };
+        return { yields: {}, modifiers: [], isValid: false };
     }
 
     // console.warn("previewPolicyYields for", policy.TraditionType);
@@ -15,22 +16,28 @@ export function previewPolicyYields(policy) {
     const modifiers = getModifiersForTradition(policy.TraditionType);
     
     try {
-        const yieldsDelta = createEmptyYieldsDelta();
+        // const yieldsDelta = createEmptyYieldsDelta();
+        const yieldsContext = new PolicyYieldsContext();
     
         // Context
         const player = Players.get(GameContext.localPlayerID);
         
         modifiers.forEach(modifier => {
             const subjects = resolveSubjectsWithRequirements(player, modifier);
-            applyYieldsForSubjects(yieldsDelta, subjects, modifier);
+            applyYieldsForSubjects(yieldsContext, subjects, modifier);
         });
-    
-        return { yields: resolveYields(player, yieldsDelta), modifiers };
+        
+        const resolvedYields = resolveYields(player, yieldsContext.delta);
+        return { 
+            yields: resolvedYields, 
+            modifiers, 
+            isValid: Object.keys(resolvedYields).length > 0 
+        };
     }
     catch (error) {
         console.error("Error in previewPolicyYields for policy ", policy.TraditionType);
         console.error(error);
-        return { yields: {}, modifiers };
+        return { yields: {}, modifiers, error: error.message, isValid: false };
     }
 }
 
@@ -64,6 +71,9 @@ export function resolveYields(player, yieldsDelta) {
     const CachedPlayerYields = PolicyYieldsCache.getYields();
 
     for (const type in YieldTypes) {
+        if (yieldsDelta.Amount[type] == null && yieldsDelta.Percent[type] == null && yieldsDelta.AmountNoMultiplier[type] == null) {
+            continue;
+        }
         yields[type] = yieldsDelta.Amount[type] || 0;
         // yields[type] *= 1 + ((CachedPlayerYields[type]?.Percent || 0) / 100);
     }
