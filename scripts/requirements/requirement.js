@@ -1,5 +1,5 @@
 import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
-import { hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
+import { getCityGreatWorksCount, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
 import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast } from "../game/plot.js";
 import { isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "./assert-subject.js";
@@ -93,6 +93,11 @@ export function isRequirementSatisfied(player, subject, requirement) {
             const loc = subject.city.location;
             const units = MapUnits.getUnits(loc.x, loc.y);
             return units.some(unit => unit.owner == player.id);
+        }
+
+        case "REQUIREMENT_CITY_HAS_GREAT_WORK": {
+            assertSubjectCity(subject);
+            return getCityGreatWorksCount(subject.city) > 0;
         }
 
         // City (Religion)

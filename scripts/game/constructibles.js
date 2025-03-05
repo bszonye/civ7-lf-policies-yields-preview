@@ -23,9 +23,11 @@ export function getBuildingsCountForModifier(cities, modifier) {
     else if (modifier.Arguments.ConstructibleType?.Value) {
         return getBuildingsCountByType(cities, modifier.Arguments.ConstructibleType.Value);
     }
+    else if (modifier.Arguments.ConstructibleClass?.Value) {
+        return getBuildingsByClass(cities, modifier.Arguments.ConstructibleClass.Value).length;
+    }
     
-    console.warn(`Unhandled ModifierArgument: ${JSON.stringify(modifier.Arguments)}`);
-    return 0;
+    throw new Error(`${modifier.Modifier.ModifierId}: getBuildingsCountForModifier Unhandled ModifierArgument: ${JSON.stringify(modifier.Arguments)}`);    
 }
 
 /**
@@ -52,6 +54,19 @@ export function getBuildingsByTag(cities, tag) {
             }
         }
         return valids;
+    });
+}
+
+/**
+ * @param {City[]} cities
+ * @param {string} className
+ */
+export function getBuildingsByClass(cities, className) {
+    return cities.flatMap(city => {
+        return findCityConstructibles(city).filter(({ constructibleType }) => {
+            const classes = className.split(",").map(c => c.trim());
+            return classes.includes(constructibleType?.ConstructibleClass || '');
+        });
     });
 }
 

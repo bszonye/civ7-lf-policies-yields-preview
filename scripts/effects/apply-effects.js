@@ -434,7 +434,7 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_DIPLOMACY_ADJUST_CITY_YIELD_PER_PLAYER_RELATIONSHIP": {
             assertSubjectCity(subject);
             const allies = subject.isEmpty ? 0 : getPlayerRelationshipsCountForModifier(player, modifier);
-            return context.addYieldsAmountTimes(modifier, allies);
+            return context.addSubjectYieldsTimes(subject, modifier, allies);
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_ACTIVE_TRADITION": {

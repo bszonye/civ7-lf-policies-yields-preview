@@ -117,7 +117,16 @@ declare interface Player {
         hasAllied: (otherPlayerId: number) => boolean;
         isAtWarWith: (otherPlayerId: number) => boolean;
     };
-    Stats: any;
+    Stats: {
+        getYields(): YieldEntry[]; // index is the yield type,e.g. 0 = food/gold
+        getNetYield: (yieldType: string) => number;
+        numCities: number;
+        numTowns: number;
+        numSettlements: number;
+        numImprovedTiles: number;
+        settlementCap: number;
+        totalPopulation: number;
+    };
     Trade: any;
     Influence: any;
     Resources: any;
@@ -289,7 +298,7 @@ declare interface GameplayMap {
     getRevealedStates: (playerId: number) => number[];
     getRiverType: (x: number, y: number) => string;
     getTerrainType: (x: number, y: number) => number;
-    getYield: (x: number, y: number, yieldType: string) => number;
+    getYield: (x: number, y: number, yieldType: string, playerId: number) => number;
     getYields: (x: number, y: number) => Record<string, number>;
     getYieldWithCity: (x: number, y: number, cityId: number, yieldType: string) => number;
     getYieldsWithCity: (x: number, y: number, cityId: number) => Record<string, number>;
