@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_NAME" Language="de_DE">
+            <Text>Leonardfactorys Ertragsvorschau für Sozialpolitiken</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_DESC" Language="de_DE">
+            <Text>Fügt Ertragsvorschauen für Sozialpolitik- (und Krisenpolitik-) Karten auf dem Regierungsbildschirm hinzu, sodass die aktuelle Auswirkung jeder Politikkarte angezeigt wird.</Text>
+        </Row>
+    </LocalizedText>
+</Database>
