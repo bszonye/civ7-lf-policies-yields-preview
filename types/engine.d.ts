@@ -39,7 +39,7 @@ interface City {
     owner: number;
     originalOwner: number;
     localId: number;
-    id: CityID;
+    id: ID;
     getConnectedCities: () => ID[]; // ??
     getPurchasedPlots: () => number[];
     Religion?: {
@@ -52,7 +52,7 @@ interface City {
     };
     Yields: {
         getNetYield: (yieldType: string) => number;
-        getYieldsForType: (yieldType: string) => any;
+        getYieldsForType: (yieldType: string) => YieldEntry;
     };
     Resources: {
         getTotalCountAssignedResources: () => number;
@@ -66,7 +66,25 @@ interface City {
         getGreatWorkBuildings: () => GreatWorkBuilding[];
     };
 }
+
+declare type YieldStep = {
+    value: number;
+    type: number;
+    id: number;
+    description?: string;
+    base?: YieldStep;
+    steps?: YieldStep[];
+    modifier?: YieldStep;
+};
   
+declare type YieldEntry = {
+    value: number;
+    type: number;
+    id: number;
+    description: string;
+    base: YieldStep;
+    modifier?: YieldStep;
+};
 
 interface PlayerCities {
     numCities: number;

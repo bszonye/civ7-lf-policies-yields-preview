@@ -10,6 +10,7 @@ import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getP
 import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
 import { PolicyYieldsContext } from "../core/execution-context.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "../requirements/assert-subject.js";
+import { PolicyYieldsCache } from "../cache.js";
 
 /**
  * @param {PolicyYieldsContext} yieldsContext 
@@ -346,8 +347,17 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_PRODUCTION": return;
 
         case "EFFECT_CITY_ADJUST_TRADE_YIELD": {
-            // TODO Hard to find trade yields. Seems a bug in `city.Yields.getTradeYields()`
-            return;
+            // Hard to find trade yields. Seems a bug in `city.Yields.getTradeYields()`
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            let tradeYield = PolicyYieldsCache.getCityTradeYields(subject.city);
+            if (tradeYield == null) {
+                console.error(`TradeYield not found for city ${subject.city.name}`);
+                tradeYield = 0;
+            }
+
+            const percent = Number(modifier.Arguments.getAsserted('Percent'));
+            return context.addYieldsAmount(modifier, tradeYield * percent / 100);
         }
 
         // City (Workers)
