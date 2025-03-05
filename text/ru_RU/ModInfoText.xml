@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_NAME" Language="ru_RU">
+            <Text>Leonardfactory's Policy Yield Previews</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_DESC" Language="ru_RU">
+            <Text>Добавляет прогноз дохода для карточек социальных и кризисных политик на экран правительства, позволяя вам оценить их влияние.</Text>
+        </Row>
+    </LocalizedText>
+</Database>

@@ -25,6 +25,7 @@
 					<Item>text/en_US/InGameText.xml</Item>
 					<Item>text/it_IT/InGameText.xml</Item>
 					<Item>text/ko_KR/InGameText.xml</Item>
+					<File>text/ru_RU/InGameText.xml</File>
 				</UpdateText>
 				<UIScripts>
 					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>					
@@ -52,8 +53,9 @@
 		</ActionGroup>
 	</ActionGroups>
 	<LocalizedText>
-        <File>text/it_IT/ModInfoText.xml</File>
-        <File>text/en_US/ModInfoText.xml</File>
-        <File>text/ko_KR/ModInfoText.xml</File>
-    </LocalizedText>
+		<File>text/it_IT/ModInfoText.xml</File>
+		<File>text/en_US/ModInfoText.xml</File>
+		<File>text/ko_KR/ModInfoText.xml</File>
+		<File>text/ru_RU/ModInfoText.xml</File>
+	</LocalizedText>
 </Mod>
