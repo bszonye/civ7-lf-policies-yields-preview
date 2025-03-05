@@ -80,6 +80,8 @@ function wrapCitySubjects(cities) {
             // Some requirements operate both on the city and the plot; in order
             // to make the subject usable in those cases, we need to provide the plot index.
             plot: GameplayMap.getIndexFromLocation(city.location),
+            // Some city requirements need to know the city's owner (player)
+            player: Players.get(city.owner)            
         };
     });
 }
@@ -95,6 +97,7 @@ function wrapUnitSubjects(units) {
             isEmpty: false,
             unit,
             plot: GameplayMap.getIndexFromLocation(unit.location),
+            player: Players.get(unit.owner)
         };
     });
 }
@@ -131,6 +134,7 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                             return {
                                 city,
                                 plot,
+                                player,
                             };
                         })
                 );
@@ -168,6 +172,7 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                         isEmpty: false,
                         city: parentSubject.city,
                         plot,
+                        player
                     };
                 });
         }
@@ -203,7 +208,7 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
             return [];
 
         default:
-            console.warn(`Unhandled CollectionType: ${modifier.CollectionType}`);
+            throw new Error(`Unhandled CollectionType: ${modifier.CollectionType}`);
             return [];
     }
 }

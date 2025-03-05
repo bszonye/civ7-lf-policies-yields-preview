@@ -44,20 +44,26 @@ declare type CreateSubject<T extends SubjectType = SubjectType, Data> = {
 } & Data);
 
 declare type PlotSubject = CreateSubject<'Plot', {
-    city: City;
     plot: number;    
+    city: City;
+    /** Player owning the plot city */
+    player: Player;
 }>;
 
 declare type CitySubject = CreateSubject<'City', {
     city: City;
     /** City hex plot index */
     plot: number;
+    /** Player owning the city */
+    player: Player;
 }>;
 
 declare type UnitSubject = CreateSubject<'Unit', {
     unit: UnitInstance;
     /** Unit location plot index */
     plot: number;
+    /** Player owning the unit */
+    player: Player;
 }>;
 
 declare type PlayerSubject = CreateSubject<'Player', {
