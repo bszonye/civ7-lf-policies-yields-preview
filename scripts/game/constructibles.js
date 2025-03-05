@@ -121,10 +121,14 @@ export function computeConstructibleMaintenanceEfficiencyReduction(city, constru
  * Once the constructibles are filtered, the caller should check if the adjacency
  * is actually valid for the constructible.
  * 
- * @param {City} city
+ * @param {City | null} city
  * @param {string} adjacency
  */
 export function findCityConstructiblesMatchingAdjacency(city, adjacency) {
+    if (!city) {
+        return [];
+    }
+
     const constructibles = city.Constructibles.getIds();
     return constructibles
         .map(constructibleId => Constructibles.getByComponentID(constructibleId))

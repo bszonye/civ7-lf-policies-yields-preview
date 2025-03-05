@@ -133,10 +133,12 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
 }
 
 /**
- * @param {City} city
+ * @param {City | null} city
  * @param {WarehouseYieldChange} yieldChange 
  */
 export function findCityConstructiblesMatchingWarehouse(city, yieldChange) {
+    if (!city) return [];
+
     const validConstructiblesTypes = new Set(
         GameInfo.Constructible_WarehouseYields
             .filter(cwy => cwy.YieldChangeId === yieldChange.ID)

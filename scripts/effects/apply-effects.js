@@ -209,11 +209,11 @@ function applyYieldsForSubject(context, subject, modifier) {
                     throw new Error(`AdjacencyType not found for ID: ${adjacencyId}`);
                 }
 
-                if (subject.isEmpty) {
+                const validConstructibles = findCityConstructiblesMatchingAdjacency(subject.isEmpty ? null : subject.city, adjacencyId);
+                if (validConstructibles.length === 0) {
                     return context.addYieldTypeAmount(adjacencyType.YieldType, 0);
                 }
 
-                const validConstructibles = findCityConstructiblesMatchingAdjacency(subject.city, adjacencyId);
                 validConstructibles.forEach(constructible => {
                     const amount = getYieldsForAdjacency(constructible.location, adjacencyType);
                     context.addYieldTypeAmount(adjacencyType.YieldType, amount);
@@ -230,13 +230,13 @@ function applyYieldsForSubject(context, subject, modifier) {
                 if (!adjacencyType) {
                     throw new Error(`AdjacencyType not found for ID: ${adjacencyId}`);
                 }
-
-                if (subject.isEmpty) {
+                
+                const validConstructibles = findCityConstructiblesMatchingAdjacency(subject.isEmpty ? null : subject.city, adjacencyId);
+                if (validConstructibles.length === 0) {
                     return context.addYieldTypeAmount(adjacencyType.YieldType, 0);
                 }
 
-                const constructibles = findCityConstructibles(subject.city);
-                constructibles.forEach(({ constructible }) => {
+                validConstructibles.forEach((constructible) => {
                     if (!adjacencyType) {
                         console.error(`AdjacencyType not found for ID: ${adjacencyId}`);
                         return;
@@ -279,13 +279,9 @@ function applyYieldsForSubject(context, subject, modifier) {
                     throw new Error(`WarehouseYieldType not found for ID: ${warehouseYield}`);
                 }
 
-                if (subject.isEmpty) {
+                const constructibles = findCityConstructiblesMatchingWarehouse(subject.isEmpty ? null : subject.city, warehouseYieldType);
+                if (!constructibles.length || subject.isEmpty) {
                     return context.addYieldTypeAmount(warehouseYieldType.YieldType, 0);
-                }
-
-                const constructibles = findCityConstructiblesMatchingWarehouse(subject.city, warehouseYieldType);
-                if (!constructibles.length) {
-                    return;
                 }
 
                 // The amount is the same for each Constructible, since it's a bonus based on all the plots
