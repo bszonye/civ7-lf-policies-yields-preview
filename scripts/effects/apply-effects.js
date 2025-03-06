@@ -431,8 +431,12 @@ function applyYieldsForSubject(context, subject, modifier) {
                 const ruralFactor = subject.city.ruralPopulation / Number(modifier.Arguments.Divisor?.Value || 1);
                 context.addYieldsAmountTimes(modifier, ruralFactor);
             }
-            
-            throw new Error(`${modifier.Modifier.ModifierId} missing arguments: ${JSON.stringify(modifier.Arguments)}`);
+
+            // Should have at least one of the two
+            if (!modifier.Arguments.Urban?.Value && !modifier.Arguments.Rural?.Value) {
+                throw new Error(`${modifier.Modifier.ModifierId} - EFFECT_CITY_ADJUST_YIELD_PER_POPULATION, missing arguments: ${JSON.stringify(modifier.Arguments)}`);
+            }
+            return
         }
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_RESOURCE": {
