@@ -1,7 +1,7 @@
 import { PolicyYieldsCache } from "../cache.js";
 
 /**
- * @param {*} player 
+ * @param {Player} player 
  * @returns {UnitTypesInfo}
  */
 export function retrieveUnitTypesMaintenance(player) {
@@ -19,7 +19,7 @@ export function retrieveUnitTypesMaintenance(player) {
         }
 
         const count = player?.Units.getNumUnitsOfType(unit.type);
-        const maintenance = player?.Treasury.getMaintenanceForAllUnitsOfType(unit.type) * -1;
+        const maintenance = player?.Treasury.getMaintenanceForAllUnitsOfType(unit.type);
 
         unitTypes[unit.type] = {
             UnitType: unitTypeInfo,

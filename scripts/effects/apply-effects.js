@@ -395,7 +395,7 @@ function applyYieldsForSubject(context, subject, modifier) {
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
 
             const specialists = getCitySpecialistsCount(subject.city);
-            const maintenanceCost = 2 * specialists; // Total Maintenance Cost is 2 per specialist
+            const maintenanceCost = 2 * specialists; // Total Maintenance Cost is 2 per specialist. We could read from `WorkerYields` table where < 0
             const value = calculateMaintenanceEfficiencyToReduction(
                 modifier,
                 specialists,
