@@ -46,6 +46,23 @@ export function isConstructibleAgeless(constructibleType) {
 }
 
 /**
+ * Check if the constructible could receive adjacency bonuses
+ * @param {Constructible} constructibleType
+ */
+export function isConstructibleValidForCurrentAge(constructibleType) {
+    const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
+    const currentAge = GameInfo.Ages.lookup(Game.age)?.AgeType;
+    if (currentAge == null) {
+        console.error(`Cannot find age ${Game.age}`);
+        return false;
+    }
+    if (!isAgeless && currentAge != constructibleType.Age) return false;
+    
+    return true;
+}
+
+
+/**
  * Check if the constructible is a full tile
  * @param {string} constructibleType
  * @returns {boolean}
@@ -64,15 +81,7 @@ export function isConstructibleValidForQuarter(constructibleType) {
     );
     if (isIgnored) return false;
 
-    const isAgeless = isConstructibleAgeless(constructibleType.ConstructibleType);
-    const currentAge = GameInfo.Ages.lookup(Game.age)?.AgeType;
-    if (currentAge == null) {
-        console.error(`Cannot find age ${Game.age}`);
-        return false;
-    }
-    if (!isAgeless && currentAge != constructibleType.Age) return false;
-    
-    return true;
+    return isConstructibleValidForCurrentAge(constructibleType);
 }
 
 /**

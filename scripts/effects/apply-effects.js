@@ -209,15 +209,22 @@ function applyYieldsForSubject(context, subject, modifier) {
                 if (!adjacencyType) {
                     throw new Error(`AdjacencyType not found for ID: ${adjacencyId}`);
                 }
-
+                // console.warn("EFFECT_CITY_ACTIVATE_CONSTRUCTIBLE_ADJACENCY AdjacencyType", adjacencyType.ID, subject.city?.name);
+                
                 const validConstructibles = findCityConstructiblesMatchingAdjacency(subject.isEmpty ? null : subject.city, adjacencyId);
-                if (validConstructibles.length === 0) {
+                if (validConstructibles.length === 0 || subject.isEmpty) {
                     return context.addYieldTypeAmount(adjacencyType.YieldType, 0);
                 }
 
                 validConstructibles.forEach(constructible => {
-                    const amount = getYieldsForAdjacency(constructible.location, adjacencyType);
-                    context.addYieldTypeAmount(adjacencyType.YieldType, amount);
+                    const plotIndex = GameplayMap.getIndexFromLocation(constructible.location);
+                    const specialists = subject.city.Workers.getNumWorkersAtPlot(plotIndex) || 0;
+                    const amount = getYieldsForAdjacency(constructible.location, adjacencyType);                    
+                    
+                    // if (amount > 0)
+                    //     console.warn("Valid constructible at", `(amount ${amount})`, constructibleType?.ConstructibleType, constructible.location.x, ",", constructible.location.y, "with specialists", specialists);
+                    
+                    context.addYieldTypeAmount(adjacencyType.YieldType, amount + (amount / 2) * specialists);
                 });
             });
             return;
@@ -233,9 +240,11 @@ function applyYieldsForSubject(context, subject, modifier) {
                 }
                 
                 const validConstructibles = findCityConstructiblesMatchingAdjacency(subject.isEmpty ? null : subject.city, adjacencyId);
-                if (validConstructibles.length === 0) {
+                if (validConstructibles.length === 0 || subject.isEmpty) {
                     return context.addYieldTypeAmount(adjacencyType.YieldType, 0);
                 }
+
+                // console.warn("EFFECT_CITY_ADJUST_ADJACENCY_FLAT_AMOUNT AdjacencyType", adjacencyType.ID);
 
                 validConstructibles.forEach((constructible) => {
                     if (!adjacencyType) {
@@ -243,9 +252,16 @@ function applyYieldsForSubject(context, subject, modifier) {
                         return;
                     }
 
-                    const adjacentPlots = getPlotsGrantingAdjacency(constructible.location, adjacencyType).length; 
+                    const plotIndex = GameplayMap.getIndexFromLocation(constructible.location);
+                    const specialists = subject.city.Workers.getNumWorkersAtPlot(plotIndex) || 0;
+
+                    const adjacentPlots = getPlotsGrantingAdjacency(constructible.location, adjacencyType).length;
+                    const multiplier = adjacentPlots + (adjacentPlots / 2) * specialists;
+
+                    // console.warn("Valid constructible at", constructible.location.x, ",", constructible.location.y, "with specialists", specialists);
+                    
                     // TODO Are we sure about `Divisor`?
-                    const amount = Number(modifier.Arguments.Amount?.Value) * adjacentPlots / Number(modifier.Arguments.Divisor?.Value || 1);
+                    const amount = Number(modifier.Arguments.Amount?.Value) * multiplier / Number(modifier.Arguments.Divisor?.Value || 1);
                     context.addYieldTypeAmount(adjacencyType.YieldType, amount);
                 });
             });

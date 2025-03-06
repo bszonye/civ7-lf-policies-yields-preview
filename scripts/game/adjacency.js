@@ -1,3 +1,4 @@
+import { isConstructibleValidForCurrentAge } from "./helpers.js";
 import { getPlotConstructiblesByLocation, getPlotDistrict } from "./plot.js";
 
 // ====================================================================================================
@@ -35,9 +36,14 @@ export const ConstructibleAdjacencies = new class {
         if (!this._adjacencies[type]) {
             const currentAge = GameInfo.Ages.lookup(Game.age)?.AgeType;
 
-            const adjacencies = GameInfo.Constructible_Adjacencies
-                .filter(ca => ca.ConstructibleType === type)
-                .map(ca => ca.YieldChangeId);
+            // If the constructible is not valid for the current age, all the adjacencies are
+            // invalid. This is _not_ true for WildcardAdjacencies, which are always valid and
+            // have a flag to check if they are only valid for the current age.
+            const adjacencies = isConstructibleValidForCurrentAge(constructibleType)
+                ? GameInfo.Constructible_Adjacencies
+                    .filter(ca => ca.ConstructibleType === type)
+                    .map(ca => ca.YieldChangeId)
+                : [];
 
             const tags = GameInfo.TypeTags
                 .filter(tag => tag.Type === type)
@@ -45,6 +51,15 @@ export const ConstructibleAdjacencies = new class {
 
             const wildcardAdjacencies = GameInfo.Constructible_WildcardAdjacencies
                 .filter(ca => {
+                    // I'm not sure why, but all wildcard adjacencies applies to buildings only.
+                    // E.g. tried with City of Peace. Improvements near the city center are not
+                    // affected by the adjacency.
+                    // if this is true, what's the point of having `ConstructibleClass` in the
+                    // Constructible_WildcardAdjacencies table?
+                    if (constructibleType.ConstructibleClass !== "BUILDING") {
+                        return false;
+                    }
+
                     if (ca.ConstructibleClass && constructibleType.ConstructibleClass !== ca.ConstructibleClass) {
                         return false;
                     }

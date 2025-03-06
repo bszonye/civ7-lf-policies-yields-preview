@@ -65,6 +65,12 @@ interface City {
         hasConstructible: (type: string, unknownArg: boolean) => boolean;
         getGreatWorkBuildings: () => GreatWorkBuilding[];
     };
+    Workers: {
+        getNumWorkersAtPlot: (plotIndex: number) => number;
+        hasMaxWorkersAtPlot: (plotIndex: number) => boolean;
+        getNumWorkers: () => number;
+        getCityWorkerCap: () => number;
+    }
 }
 
 declare type YieldStep = {
@@ -97,6 +103,8 @@ interface PlayerCities {
 
 interface PlayerUnits {
     getUnitIds: () => ID[];
+    getNumUnitsOfType: (unitType: number) => number;
+    getUnits: () => UnitInstance[];
 }
 
 interface PlayerCulture {
@@ -126,6 +134,10 @@ declare interface Player {
         numImprovedTiles: number;
         settlementCap: number;
         totalPopulation: number;
+    };
+    Treasury: {
+        /** Returns a **positive** amount (e.g. 20) */
+        getMaintenanceForAllUnitsOfType: (unitType: number) => number;
     };
     Trade: any;
     Influence: any;
