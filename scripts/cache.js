@@ -1,5 +1,3 @@
-import { unwrapCurrentPlayerYields } from "./effects/yields.js";
-
 export const PolicyYieldsCache = new class {
     /** @type {UnwrappedPlayerYields} */
     _yields = {};
@@ -88,7 +86,7 @@ function iterateYieldSteps(entry, callback) {
     while (queue.length) {
         const current = queue.shift();
         if (!current) continue;
- 
+
         callback(current);
         if (current.base) queue.push(current.base);
         if (current.modifier) queue.push(current.modifier);
@@ -96,4 +94,67 @@ function iterateYieldSteps(entry, callback) {
             queue.push(...current.steps || []);
         }
     }
- }
+}
+
+function unwrapYieldsOfType(yields) {
+    try {
+        const rawStep = yields.base.steps[0];
+        // if (rawStep.description !== "LOC_ATTR_YIELD_INCOMES") {
+        //     console.error("Unexpected yields description", rawStep.description);
+        //     return {
+        //         BaseAmount: 0,
+        //         Percent: 0,
+        //     }
+        // }
+    
+        return {
+            BaseAmount: rawStep?.base?.value || 0,
+            Percent: rawStep?.modifier?.value || 0,
+        };
+    }
+    catch (error) {
+        console.error("Error unwrapping yields", yields);
+        console.error(error);
+        return {
+            BaseAmount: 0,
+            Percent: 0,
+        }
+    }
+}
+
+/**
+ * Returns the unwrapped yields for the current player.
+ * This value is useful for previewing the yields of a policy, since
+ * we need to calculate _active_ bonuses, like percent modifiers, even
+ * to bonuses.
+ */
+export function unwrapCurrentPlayerYields() {
+    /**  @type {UnwrappedPlayerYields} */
+    const unwrappedYields = {};
+    const player = Players.get(GameContext.localPlayerID);
+    const allYields = player.Stats.getYields();
+    for (let index = 0; index < allYields.length; index++) {
+        const yields = allYields[index];
+        if (!yields) {
+            console.warn("Missing player yields for index", index);
+            unwrappedYields[index] = {
+                BaseAmount: 0,
+                Percent: 0,
+            };
+            continue;
+        }
+
+        const type = GameInfo.Yields[index]?.YieldType;
+        if (!type) {
+            console.error("Missing player yield type for index", index);
+            unwrappedYields[index] = {
+                BaseAmount: 0,
+                Percent: 0,
+            };
+            continue;
+        }
+        
+        unwrappedYields[type] = unwrapYieldsOfType(yields);
+    }
+    return unwrappedYields;
+}
