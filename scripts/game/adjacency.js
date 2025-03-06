@@ -1,3 +1,4 @@
+import { PolicyYieldsCache } from "../cache.js";
 import { isConstructibleValidForCurrentAge } from "./helpers.js";
 import { getPlotConstructiblesByLocation, getPlotDistrict } from "./plot.js";
 
@@ -45,9 +46,9 @@ export const ConstructibleAdjacencies = new class {
                     .map(ca => ca.YieldChangeId)
                 : [];
 
-            const tags = GameInfo.TypeTags
-                .filter(tag => tag.Type === type)
-                .map(tag => tag.Tag);
+            
+
+            const tags = PolicyYieldsCache.getTypeTags(constructibleType.ConstructibleType);
 
             const wildcardAdjacencies = GameInfo.Constructible_WildcardAdjacencies
                 .filter(ca => {
@@ -60,10 +61,15 @@ export const ConstructibleAdjacencies = new class {
                         return false;
                     }
 
+                    // Walls are not affected by wildcard adjacencies
+                    if (tags.has("IGNORE_DISTRICT_PLACEMENT_CAP")) {
+                        return false;
+                    }
+
                     if (ca.ConstructibleClass && constructibleType.ConstructibleClass !== ca.ConstructibleClass) {
                         return false;
                     }
-                    if (ca.ConstructibleTag && !tags.includes(ca.ConstructibleTag)) {
+                    if (ca.ConstructibleTag && !tags.has(ca.ConstructibleTag)) {
                         return false;
                     }
                     if (ca.CurrentAgeConstructiblesOnly && constructibleType.Age !== currentAge) {

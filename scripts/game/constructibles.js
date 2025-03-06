@@ -112,7 +112,7 @@ export function computeConstructibleMaintenanceEfficiencyReduction(city, constru
     let gold = 0;
     let happiness = 0;
     for (const index in maintenances) {
-        const cost = (maintenances[index] || 0) * -1;
+        const cost = (maintenances[index] || 0);
         if (cost == 0) {
             continue;
         }

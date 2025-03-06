@@ -3,7 +3,7 @@ import { PolicyYieldsCache } from "../cache.js";
 /**
  * @param {ResolvedModifier} modifier
  * @param {number} count
- * @param {number} maintenanceCost Total maintenance cost
+ * @param {number} maintenanceCost Total maintenance cost (expected a _positive_ value)
  */
 export function calculateMaintenanceEfficiencyToReduction(modifier, count, maintenanceCost) {
     if (modifier.Arguments.Amount?.Value) {
@@ -11,19 +11,23 @@ export function calculateMaintenanceEfficiencyToReduction(modifier, count, maint
         return reduction;
     }
     if (modifier.Arguments.Percent?.Value) {
+        if (maintenanceCost < 0) {
+            console.warn(`Maintenance cost is negative: ${maintenanceCost}. Cannot calculate maintenance reduction.`);
+            return 0;
+        }
+
         const percent = Number(modifier.Arguments.Percent.Value) / 100;
         // Can be negative / positive.
         const value = percent > 0 ?
             // Positive percent is applied to yields, not to cost; this means that 2 golds
-            // provide X% more gold, not X% less gold.
+            // provide X% more gold, not X% less gold to actual cost.
             maintenanceCost - maintenanceCost / (1 + percent) :
             // Negative percent instead is applied directly to the maintenance cost.
-            maintenanceCost * percent;
+            maintenanceCost * percent; // Since percent < 0 and maintenanceCost > 0, the result is negative (reduction).
 
         return value;
     }
-    console.warn(`Unhandled ModifierArguments: ${JSON.stringify(modifier.Arguments)}. Cannot calculate maintenance reduction.`);
-    return 0;
+    throw new Error(`Unhandled ModifierArguments: ${JSON.stringify(modifier.Arguments)}. Cannot calculate maintenance reduction.`);
 }
 
 /**

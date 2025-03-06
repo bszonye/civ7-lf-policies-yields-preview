@@ -221,9 +221,12 @@ function applyYieldsForSubject(context, subject, modifier) {
                     const specialists = subject.city.Workers.getNumWorkersAtPlot(plotIndex) || 0;
                     const amount = getYieldsForAdjacency(constructible.location, adjacencyType);                    
                     
-                    // if (amount > 0)
+                    // Debugging
+                    // if (amount > 0) {
+                    //     const constructibleType = GameInfo.Constructibles.lookup(constructible.type);
                     //     console.warn("Valid constructible at", `(amount ${amount})`, constructibleType?.ConstructibleType, constructible.location.x, ",", constructible.location.y, "with specialists", specialists);
-                    
+                    // }
+
                     context.addYieldTypeAmount(adjacencyType.YieldType, amount + (amount / 2) * specialists);
                 });
             });
@@ -258,8 +261,12 @@ function applyYieldsForSubject(context, subject, modifier) {
                     const adjacentPlots = getPlotsGrantingAdjacency(constructible.location, adjacencyType).length;
                     const multiplier = adjacentPlots + (adjacentPlots / 2) * specialists;
 
-                    // console.warn("Valid constructible at", constructible.location.x, ",", constructible.location.y, "with specialists", specialists);
-                    
+                    // Debugging
+                    // if (adjacentPlots > 0) {
+                    //     const ctype = GameInfo.Constructibles.lookup(constructible.type);
+                    //     console.warn("Valid constructible at", `(amount ${adjacentPlots})`, ctype?.ConstructibleType, constructible.location.x, ",", constructible.location.y, "with specialists", specialists);
+                    // }
+
                     // TODO Are we sure about `Divisor`?
                     const amount = Number(modifier.Arguments.Amount?.Value) * multiplier / Number(modifier.Arguments.Divisor?.Value || 1);
                     context.addYieldTypeAmount(adjacencyType.YieldType, amount);
@@ -388,7 +395,7 @@ function applyYieldsForSubject(context, subject, modifier) {
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
 
             const specialists = getCitySpecialistsCount(subject.city);
-            const maintenanceCost = 2 * specialists; // Total Maintenance Cost is 2 per specialist
+            const maintenanceCost = 2 * specialists; // Total Maintenance Cost is 2 per specialist. We could read from `WorkerYields` table where < 0
             const value = calculateMaintenanceEfficiencyToReduction(
                 modifier,
                 specialists,

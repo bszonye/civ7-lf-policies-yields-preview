@@ -60,6 +60,7 @@ interface City {
     };
     Constructibles: {
         getIds: () => ID[];
+        /** Returns an array of **positive** amounts, mainteneance cost for each yield type */
         getMaintenance: (type: string) => number[];
         getIdsOfType: (type: string) => ID[];
         hasConstructible: (type: string, unknownArg: boolean) => boolean;
