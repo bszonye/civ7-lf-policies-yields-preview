@@ -127,7 +127,10 @@ class PolicyChooserItemYieldsDecorator {
             const { yields, modifiers, isValid, error } = previewPolicyYields(node);
             // console.warn("LFAddon: PolicyChooserItem", JSON.stringify(node), JSON.stringify(yields));
             const validYields = Object.entries(yields);
-            if (validYields.length == 0 && !error && !DEBUG_POLICY) {
+            if (validYields.length == 0 && !error) {
+                return;
+            }
+            if (error && !DEBUG_POLICY) {
                 return;
             }
                     
