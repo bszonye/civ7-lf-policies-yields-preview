@@ -122,24 +122,22 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
             return wrapCitySubjects(player.Cities.getCities());
 
         case "COLLECTION_PLAYER_PLOT_YIELDS": {
-            let plots = [];
-            player.Cities.getCities().forEach(city => {
-                plots.push(
-                    ...city.getPurchasedPlots()
+            return player.Cities.getCities().flatMap(city => {
+                return city.getPurchasedPlots()
                         .filter(plot => {
                             const location = GameplayMap.getLocationFromIndex(plot);
                             return MapConstructibles.getHiddenFilteredConstructibles(location.x, location.y).length > 0
                         })
                         .map(plot => {
                             return {
+                                type: "Plot",
+                                isEmpty: false,
                                 city,
                                 plot,
                                 player,
                             };
-                        })
-                );
+                        });
             });
-            return plots;
         }
 
         case "COLLECTION_OWNER":
@@ -209,6 +207,5 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
 
         default:
             throw new Error(`Unhandled CollectionType: ${modifier.CollectionType}`);
-            return [];
     }
 }

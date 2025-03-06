@@ -214,6 +214,11 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return GameplayMap.getOwner(loc.x, loc.y) == player.id;
         }
 
+        case "REQUIREMENT_PLOT_IN_COMMAND_RADIUS": {
+            assertSubjectPlot(subject);
+            throw new Error(`REQUIREMENT_PLOT_IN_COMMAND_RADIUS is not implemented yet.`); // IRON_CROSS
+        }   
+
         // Units
         case "REQUIREMENT_UNIT_TAG_MATCHES": {
             assertSubjectUnit(subject);
