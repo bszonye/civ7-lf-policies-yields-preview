@@ -37,6 +37,7 @@ export function previewPolicyYields(policy) {
     catch (error) {
         console.error("Error in previewPolicyYields for policy ", policy.TraditionType);
         console.error(error);
+        console.error(error.stack);
         return { yields: {}, modifiers, error: error.message, isValid: false };
     }
 }
