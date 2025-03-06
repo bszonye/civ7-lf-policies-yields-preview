@@ -357,9 +357,10 @@ function applyYieldsForSubject(context, subject, modifier) {
             return context.addYieldsAmountTimes(modifier, buildingsCount);
         }
 
-        // TODO Is it just food? Or just the growth rate, so no yield type?
+        // It's just the growth rate, so no food yield
         case "EFFECT_CITY_ADJUST_GROWTH": {
-            throw new Error(`EFFECT_CITY_ADJUST_GROWTH not implemented`);
+            // throw new Error(`EFFECT_CITY_ADJUST_GROWTH not implemented`);
+            return;
         }
 
         // +X% to Production to overbuild
