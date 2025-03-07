@@ -100,6 +100,13 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return getCityGreatWorksCount(subject.city) > 0;
         }
 
+        case "REQUIREMENT_CITY_IS_PRODUCING_PROJECT": {
+            assertSubjectCity(subject);
+            if (subject.city.Growth.projectType === -1) return false;
+            const projectTypeName = GameInfo.Projects.lookup(subject.city.Growth.projectType)?.ProjectType;
+            return projectTypeName === requirement.Arguments.getAsserted('ProjectType');
+        }
+
         // City (Religion)
         case "REQUIREMENT_CITY_FOLLOWS_RELIGION": {
             assertSubjectCity(subject);
