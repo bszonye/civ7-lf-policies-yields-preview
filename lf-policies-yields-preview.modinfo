@@ -11,12 +11,32 @@
 	<Dependencies>
 		<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME" />
 	</Dependencies>
+	<References>
+		<Mod id="core" title="LOC_MODULE_CORE_NAME"/>
+	</References>
 	<ActionCriteria>
 		<Criteria id="always">
 			<AlwaysMet></AlwaysMet>
 		</Criteria>
 	</ActionCriteria>
 	<ActionGroups>
+		<ActionGroup id="shell-lf-policies-ui" scope="shell" criteria="always">
+			<Properties>
+				<LoadOrder>500</LoadOrder>
+			</Properties>
+			<Actions>
+				<UpdateText>
+					<Item>text/de_DE/ShellText.xml</Item>
+					<Item>text/en_US/InGameText.xml</Item>
+					<Item>text/it_IT/InGameText.xml</Item>
+					<Item>text/ko_KR/InGameText.xml</Item>
+					<File>text/ru_RU/InGameText.xml</File>
+				</UpdateText>
+				<UIScripts>
+					<Item>scripts/ui/settings.js</Item>
+				</UIScripts>
+			</Actions>
+		</ActionGroup>
 		<ActionGroup id="game-lf-policies-ui" scope="game" criteria="always">
 			<Properties>
 				<LoadOrder>500</LoadOrder>

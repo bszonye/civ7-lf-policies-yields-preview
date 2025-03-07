@@ -8,10 +8,18 @@ export const PolicyYieldsCache = new class {
 
     _localeTradeYieldDescription = Locale.compose("LOC_ATTR_YIELD_FROM_TRADE");
 
+    // Settings
+    SettingColorful = false;
+
     update() {
         this._yields = unwrapCurrentPlayerYields();
-        // TODO Remove log
-        // console.warn("UnwrappedPlayerYieldsCache updated", JSON.stringify(this._yields));
+        
+        try {
+            this.SettingColorful = Configuration.getUser().getValue("LFPolicyYields_Colorful") === "true";
+        }
+        catch (error) {
+            console.error("Error reading settings", error);
+        }
     }
 
     cleanup() {
