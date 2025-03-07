@@ -1,5 +1,5 @@
 import { PolicyYieldsCache } from "../cache.js";
-import { isConstructibleAgeless } from "./helpers.js";
+import { isConstructibleAgeless, isConstructibleValidForQuarter } from "./helpers.js";
 
 /**
  * Get the warehouse yield change yields
@@ -13,9 +13,15 @@ export function getYieldsForWarehouseChange(city, yieldChange) {
             plot,
             location: GameplayMap.getLocationFromIndex(plot)
         }))
-        // Warehouse can only affect plots with constructibles (improvements, districts, etc)
+        // Warehouse can only affect plots with constructibles (only Improvements! not buildings or wonders)
+        // Tested with "Hale o Kawe" wonder + Ho'okupu tradition, it doesn't give any yield
         .filter(({ location }) => {
-            return MapConstructibles.getHiddenFilteredConstructibles(location.x, location.y).length > 0
+            const constructibleIDs = MapConstructibles.getHiddenFilteredConstructibles(location.x, location.y);
+            const constructibles = constructibleIDs.map(id => Constructibles.getByComponentID(id));
+            return constructibles.length > 0 && constructibles.every(c => {
+                const constructibleType = GameInfo.Constructibles.lookup(c.type);
+                return constructibleType?.ConstructibleClass === 'IMPROVEMENT';
+            });
         });
     
     // yieldChange.Age ?
