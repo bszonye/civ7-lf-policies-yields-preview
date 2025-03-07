@@ -96,7 +96,7 @@ function iterateYieldSteps(entry, callback) {
     }
 }
 
-function unwrapYieldsOfType(yields) {
+export function unwrapYieldsOfType(yields) {
     try {
         const rawStep = yields.base.steps[0];
         // if (rawStep.description !== "LOC_ATTR_YIELD_INCOMES") {

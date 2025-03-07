@@ -212,12 +212,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
             assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             return GameplayMap.getOwner(loc.x, loc.y) == player.id;
-        }
-
-        case "REQUIREMENT_PLOT_IN_COMMAND_RADIUS": {
-            assertSubjectPlot(subject);
-            throw new Error(`REQUIREMENT_PLOT_IN_COMMAND_RADIUS is not implemented yet.`); // IRON_CROSS
-        }   
+        }  
 
         // Units
         case "REQUIREMENT_UNIT_TAG_MATCHES": {
@@ -277,6 +272,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
         case "REQUIREMENT_COMMANDER_HAS_X_PROMOTIONS":
         case "REQUIREMENT_PLOT_IS_SUZERAIN":
         case "REQUIREMENT_ENGAGED_TARGET_OF_TARGET_MATCHES":
+        case "REQUIREMENT_PLOT_IN_COMMAND_RADIUS": // IRON_CROSS
         case "REQUIREMENT_PLAYER_IS_ATTACKING": {
             return false;
         }
