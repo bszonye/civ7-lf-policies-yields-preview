@@ -46,8 +46,6 @@ export const ConstructibleAdjacencies = new class {
                     .map(ca => ca.YieldChangeId)
                 : [];
 
-            
-
             const tags = PolicyYieldsCache.getTypeTags(constructibleType.ConstructibleType);
 
             const wildcardAdjacencies = GameInfo.Constructible_WildcardAdjacencies
@@ -86,6 +84,8 @@ export const ConstructibleAdjacencies = new class {
 
             this._adjacencies[type] = GameInfo.Adjacency_YieldChanges
                 .filter(ayc => availableAdjacenciesIds.has(ayc.ID));
+           
+            // console.warn("ConstructibleAdjacencies", constructibleType.ConstructibleType, JSON.stringify(this._adjacencies[type].map(a => a.ID)));
         }
 
         return this._adjacencies[type];

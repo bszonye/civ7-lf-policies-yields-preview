@@ -89,6 +89,12 @@ export function isPlayerAtPeaceWithMajors(player) {
  */
 export function getPlayerActiveTraditionsForModifier(player, modifier) {
     const activeTraditions = player.Culture.getActiveTraditions();
+    
+    // If you get weird values with `lf-policies-yields-debug`, it's normal:
+    // All traditions are unlocked at the start of the game, but they don't count toward `civ` traditions
+    // since we **reset to null the `TraitType**`.
+    // console.warn("ActiveTraditions", JSON.stringify(activeTraditions.map(at => GameInfo.Traditions.lookup(at)?.Name)));
+
     // TODO this is bugged for Regis, since the tradition itself is a CivUnique
     let count = 0;
     for (const tradition of activeTraditions) {

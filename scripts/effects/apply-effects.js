@@ -247,7 +247,7 @@ function applyYieldsForSubject(context, subject, modifier) {
                     return context.addYieldTypeAmount(adjacencyType.YieldType, 0);
                 }
 
-                // console.warn("EFFECT_CITY_ADJUST_ADJACENCY_FLAT_AMOUNT AdjacencyType", adjacencyType.ID);
+                // console.warn("EFFECT_CITY_ADJUST_ADJACENCY_FLAT_AMOUNT AdjacencyType", adjacencyType.ID, subject.city.name);
 
                 validConstructibles.forEach((constructible) => {
                     if (!adjacencyType) {
@@ -258,7 +258,11 @@ function applyYieldsForSubject(context, subject, modifier) {
                     const plotIndex = GameplayMap.getIndexFromLocation(constructible.location);
                     const specialists = subject.city.Workers.getNumWorkersAtPlot(plotIndex) || 0;
 
-                    const adjacentPlots = getPlotsGrantingAdjacency(constructible.location, adjacencyType).length;
+                    // The granted bonus is fixed (maybe this is the `Flat` in the name). 
+                    // It does not depend on the number of adjacent plots, it just requires that
+                    // the constructible _may_ receive the bonus (e.g. `RiverFood` is used to indicate
+                    // all buildings that can get a Food bonus from being near a river). 
+                    const adjacentPlots = 1; // getPlotsGrantingAdjacency(constructible.location, adjacencyType).length;
                     const multiplier = adjacentPlots + (adjacentPlots / 2) * specialists;
 
                     // Debugging
