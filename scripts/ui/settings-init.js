@@ -1,14 +1,15 @@
 import { Options, OptionType } from '/core/ui/options/model-options.js';
 import { CategoryType } from '/core/ui/options/options-helpers.js';
+import { PolicyYieldsSettings } from '../core/settings.js';
 
 // We add a dependency on the Options module to ensure default options are loaded before we add our own
 import '/core/ui/options/options.js';
 
 const onOptionColorfulInit = (optionInfo) => {
-    optionInfo.currentValue = Configuration.getUser().getValue("LFPolicyYields_Colorful") === "true";
+    optionInfo.currentValue = PolicyYieldsSettings.IsColorful;
 };
 const onOptionColorfulUpdate = (optionInfo, value) => {
-    Configuration.getUser().setValue("LFPolicyYields_Colorful", value ? "true" : "false");
+    PolicyYieldsSettings.IsColorful = value;
 }
 
 Options.addInitCallback(() => {

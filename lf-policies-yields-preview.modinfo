@@ -6,7 +6,7 @@
 		<Authors>leonardfactory</Authors>
 		<Package>Mod</Package>
 		<AffectsSavedGames>0</AffectsSavedGames>
-		<Version>0.6.0</Version>
+		<Version>0.7.0</Version>
 	</Properties>
 	<Dependencies>
 		<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME" />
@@ -33,7 +33,8 @@
 					<File>text/ru_RU/InGameText.xml</File>
 				</UpdateText>
 				<UIScripts>
-					<Item>scripts/ui/settings.js</Item>
+					<Item>scripts/core/settings.js</Item>
+					<Item>scripts/ui/settings-init.js</Item>
 				</UIScripts>
 			</Actions>
 		</ActionGroup>
@@ -50,10 +51,11 @@
 					<File>text/ru_RU/InGameText.xml</File>
 				</UpdateText>
 				<UIScripts>
+					<Item>scripts/core/settings.js</Item>
+					<Item>scripts/core/execution-context.js</Item>
 					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>
 					<Item>scripts/ui/screen-policies-yields-decorator.js</Item>
-					<Item>scripts/ui/settings.js</Item>
-					<Item>scripts/core/execution-context.js</Item>
+					<Item>scripts/ui/settings-init.js</Item>
 					<Item>scripts/effects/apply-effects.js</Item>
 					<Item>scripts/effects/yields.js</Item>
 					<Item>scripts/game/adjacency.js</Item>
@@ -66,7 +68,7 @@
 					<Item>scripts/game/warehouse.js</Item>
 					<Item>scripts/requirements/requirement.js</Item>
 					<Item>scripts/requirements/resolve-subjects.js</Item>
-					<Item>scripts/requirements/assert-subjects.js</Item>
+					<Item>scripts/requirements/assert-subject.js</Item>
 					<Item>scripts/preview-policy-yields.js</Item>
 					<Item>scripts/modifiers.js</Item>
 					<Item>scripts/cache.js</Item>

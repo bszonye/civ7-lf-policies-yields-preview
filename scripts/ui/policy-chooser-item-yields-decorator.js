@@ -1,4 +1,4 @@
-import { PolicyYieldsCache } from "../cache.js";
+import { PolicyYieldsSettings } from "../core/settings.js";
 import { previewPolicyYields } from "../preview-policy-yields.js";
 
 const YieldsColorMap = {
@@ -138,7 +138,7 @@ class PolicyChooserItemYieldsDecorator {
             const container = document.createElement(DEBUG_POLICY ? "fxs-activatable": "div");
             container.classList.value = "policy-chooser-item--preview pl-2 pr-2 pt-1 pb-2 z-1";
 
-            const colorClass = PolicyYieldsCache.SettingColorful ? "color" : "no-color";
+            const colorClass = PolicyYieldsSettings.IsColorful ? "color" : "no-color";
             container.classList.add(colorClass);
             
             const yieldsContainer = document.createElement("div");
