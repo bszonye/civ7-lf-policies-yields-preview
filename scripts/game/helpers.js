@@ -55,7 +55,7 @@ export function parseArgumentsArray(args, name) {
  * @returns {boolean}
  */
 export function isConstructibleAgeless(constructibleType) {
-    return !PolicyYieldsCache.hasTypeTag(constructibleType, 'AGELESS');
+    return PolicyYieldsCache.hasTypeTag(constructibleType, 'AGELESS');
 }
 
 /**
