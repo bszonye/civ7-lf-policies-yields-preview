@@ -1,27 +1,52 @@
+/**
+ * Please, always use ModSettingsManager to save and read settings in your mod.
+ * Right now if you try to use **multiple** keys in localStorage, it will break reading
+ * from localStorage for **every mod**. This is a workaround to avoid this issue, while
+ * keeing a namespace to give each mod its own settings.
+ */
+const ModSettingsManager = {
+    save(key, data) {
+        if (localStorage.length > 1) {
+            console.warn("[ModSettingsManager] erasing previous storage..", localStorage.length);
+            localStorage.clear();
+        }  
+        const modSettings = JSON.parse(localStorage.getItem("modSettings") || '{}');
+        modSettings[key] = data;
+        localStorage.setItem("modSettings", JSON.stringify(modSettings));
+    },
+    read(key) {
+        const modSettings = localStorage.getItem("modSettings");
+        try {
+            if (modSettings) {
+                const data = JSON.parse(modSettings || '{}')[key];
+                if (data) {
+                    return data;
+                }
+            }
+            return null;
+        }
+        catch (e) {
+            console.error(`[ModSettingsManager][${key}] Error loading settings`, e);
+        }
+        return null;
+    }
+}
+
 export const PolicyYieldsSettings = new class {
     _data = {
         IsColorful: false
     };
 
     constructor() {
-        const data = localStorage.getItem("LFPolicyYieldsSettings");
-        try {
-            if (data) {
-                console.warn("[LFPolicyYieldsSettings] loading..", data);
-                this._data = JSON.parse(data);
-            }
-            else {
-                console.warn("[LFPolicyYieldsSettings] No settings found, using defaults");
-            }
-        }
-        catch (e) {
-            console.error("[LFPolicyYieldsSettings] Error loading settings", e);
+        const modSettings = ModSettingsManager.read("LFPolicyYieldsSettings");
+        if (modSettings) {
+            this._data = modSettings;
         }
     }
 
     save() {
         console.warn("[LFPolicyYieldsSettings] saving..", JSON.stringify(this._data));
-        localStorage.setItem("LFPolicyYieldsSettings", JSON.stringify(this._data));
+        ModSettingsManager.save("LFPolicyYieldsSettings", this._data);
     }
 
     get IsColorful() {

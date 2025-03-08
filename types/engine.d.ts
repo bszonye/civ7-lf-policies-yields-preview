@@ -366,5 +366,12 @@ declare var Configuration: {
     getUser(): {
         setValue(key: string, value: any): void;
         getValue(key: string): any;
+        saveCheckpoint(): void;
     }
+}
+
+declare var UI: {
+    getApplicationOption(cat: string, option: string): string;
+    setApplicationOption(cat: string, option: string, value: string): void;
+    commitApplicationOptions(): void;
 }
