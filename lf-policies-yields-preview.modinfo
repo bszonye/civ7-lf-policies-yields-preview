@@ -6,7 +6,8 @@
 		<Authors>leonardfactory</Authors>
 		<Package>Mod</Package>
 		<AffectsSavedGames>0</AffectsSavedGames>
-		<Version>0.7.0</Version>
+		<Version>0.7.1</Version>
+		<URL>https://forums.civfanatics.com/resources/leonardfactorys-policy-yield-previews.32012/</URL>
 	</Properties>
 	<Dependencies>
 		<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME" />
