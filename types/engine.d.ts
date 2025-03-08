@@ -114,6 +114,15 @@ interface PlayerCulture {
     getArchivedGreatWork: (numInArchive: number) => number;
     getGreatWorkType: (index: number) => number;
     getActiveTraditions: () => number[];
+    getResearched(): ProgressionResearchedNode[];
+}
+
+declare interface ProgressionResearchedNode {
+    type: number;
+    depth: number; // 1 = normal, 2 = mastery
+    maxDepth: number;
+    state: number;
+    progress: number;
 }
 
 declare interface Player {
@@ -142,6 +151,9 @@ declare interface Player {
         getMaintenanceForAllUnitsOfType: (unitType: number) => number;
     };
     Trade: any;
+    Techs: {
+        getResearched(): ProgressionResearchedNode[];
+    };
     Influence: any;
     Resources: any;
     isMinor: boolean;
@@ -248,7 +260,9 @@ declare interface Game {
     EconomicRules: Record<string, unknown>;
     DiplomacyDeals: Record<string, unknown>;
     DiplomacySessions: Record<string, unknown>;
-    Diplomacy: Record<string, unknown>;
+    Diplomacy: {
+        getPlayerEvents(playerId: number): DiplomacyAction[];
+    }
     Culture: {
         getGreatWorkType: (index: number) => number;
     }
@@ -266,6 +280,30 @@ declare interface Game {
     maxTurns: number;
     age: number;
 }
+
+declare interface DiplomacyAction {
+    uniqueID: number;
+    actionType: number;
+    actionGroup: number;
+    initialPlayer: number;
+    targetPlayer: number;
+    support: number;
+    progressScore: number;
+    completionScore: number;
+    level: number;
+    actionTypeName: string;
+    name: string;
+    canOppose: boolean;
+    description: string;
+    gameTurnStart: number;
+    gameTurnEnd: number;
+    hidden: boolean;
+    revealed: boolean;
+    failed: boolean;
+    lastStageDuration: number;
+    responseType: number;
+  }
+  
       
 declare var Game: Game;
 

@@ -1,4 +1,5 @@
 /**
+ * Return all the city states that are tributaries of the player
  * @param {Player} player
  */
 export function getPlayerCityStatesSuzerain(player) {
@@ -105,4 +106,34 @@ export function getPlayerActiveTraditionsForModifier(player, modifier) {
         count++; 
     }
     return count;
+}
+
+/**
+ * @param {Player} player
+ * @param {ResolvedModifier} modifier
+ */
+export function getPlayerCompletedMasteries(player, modifier) {
+    /** @type {ProgressionResearchedNode[]} */
+    let nodes = [];
+
+    switch (modifier.Arguments.SystemType.Value) {
+        case "SYSTEM_TECH": nodes = player.Techs.getResearched(); break;
+        case "SYSTEM_CULTURE": nodes = player.Culture.getResearched(); break;
+        default: throw new Error(`${modifier.Modifier.ModifierId}: getPlayerCompletedMasteries Unsupported SystemType: ${modifier.Arguments.SystemType.Value}`);
+    }
+
+    return nodes.filter(node => node.depth >= 2).length;
+}
+
+/**
+ * @param {Player} player
+ */
+export function getPlayerOngoingDiplomacyActions(player) {
+    let ongoingActions = Game.Diplomacy
+        .getPlayerEvents(player.id)
+        .filter(action => {
+            return action.initialPlayer == player.id || (action.targetPlayer == player.id && action.revealed);
+        });
+
+    return ongoingActions;
 }

@@ -30,12 +30,39 @@ export class PolicyYieldsContext extends PolicyExecutionContext {
     }
 
     /**
+     * @param {ResolvedModifier} modifier 
+     */
+    getAmount(modifier) {
+        if (!modifier.Arguments.Amount?.Value) {
+            throw new Error(`${modifier.Modifier.ModifierId}: Missing Amount in ModifierArguments: ${JSON.stringify(modifier.Arguments)}`);
+        }
+
+        let amount = Number(modifier.Arguments.Amount.Value);
+
+        if (modifier.Arguments.Amount?.Type === 'ScaleByGameAge') {
+            if (!modifier.Arguments.Amount.Extra) {
+                throw new Error(`${modifier.Modifier.ModifierId}: Missing Amount.Extra in ModifierArguments: ${JSON.stringify(modifier.Arguments)}`);
+            }
+
+            const ageIndex = GameInfo.Ages.lookup(Game.age)?.ChronologyIndex;
+            if (ageIndex == null) {
+                throw new Error(`${modifier.Modifier.ModifierId}: Invalid Age: ${Game.age}`);
+            }
+
+            const percentIncrease = Number(modifier.Arguments.Amount.Extra) / 100;
+            amount *= percentIncrease * (ageIndex + 1);
+        }
+
+        return amount;
+    }
+
+    /**
      * Add the amount specified in the modifier, multiplied by the amount passed as argument.
      * @param {ResolvedModifier} modifier
      * @param {number} multiplier
      */
     addYieldsAmountTimes(modifier, multiplier) {
-        const amount = Number(modifier.Arguments.getAsserted('Amount'));
+        const amount = this.getAmount(modifier);
         addYieldsAmount(this.delta, modifier, amount * multiplier);
     }
 
@@ -47,7 +74,7 @@ export class PolicyYieldsContext extends PolicyExecutionContext {
      */
     addSubjectYieldsTimes(subject, modifier, multiplier) {
         if (modifier.Arguments.Amount?.Value) {
-            const amount = Number(modifier.Arguments.Amount.Value);
+            const amount = this.getAmount(modifier);
             return addYieldsAmount(this.delta, modifier, amount * multiplier);
         }
 

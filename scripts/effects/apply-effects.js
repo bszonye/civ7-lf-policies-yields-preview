@@ -6,7 +6,7 @@ import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfArguments, getArmyC
 import { getCityAssignedResourcesCount, getCityGreatWorksCount, getCitySpecialistsCount, getCityYieldHappiness } from "../game/city.js";
 import { calculateMaintenanceEfficiencyToReduction, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
-import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getPlayerRelationshipsCountForModifier } from "../game/player.js";
+import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getPlayerCompletedMasteries, getPlayerOngoingDiplomacyActions, getPlayerRelationshipsCountForModifier } from "../game/player.js";
 import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
 import { PolicyYieldsContext } from "../core/execution-context.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "../requirements/assert-subject.js";
@@ -46,13 +46,13 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_PLAYER_ADJUST_YIELD_PER_ACTIVE_TRADITION": {
             assertSubjectPlayer(subject);
             const count = subject.isEmpty ? 0 : getPlayerActiveTraditionsForModifier(subject.player, modifier);
-            return context.addYieldsAmountTimes(modifier, count);
+            return context.addSubjectYieldsTimes(subject, modifier, count);
         }
 
         case "EFFECT_DIPLOMACY_ADJUST_YIELD_PER_PLAYER_RELATIONSHIP": {
             assertSubjectPlayer(subject);
             const allies = subject.isEmpty ? 0 : getPlayerRelationshipsCountForModifier(subject.player, modifier);
-            return context.addYieldsAmountTimes(modifier, allies);
+            return context.addSubjectYieldsTimes(subject, modifier, allies);
         }
 
         // TODO Converts x% of yield from trade route into another yield
@@ -91,7 +91,7 @@ function applyYieldsForSubject(context, subject, modifier) {
 
         case "EFFECT_PLAYER_ADJUST_YIELD": {
             assertSubjectPlayer(subject);
-            const amount = Number(modifier.Arguments.getAsserted('Amount'));
+            const amount = context.getAmount(modifier);
             return context.addYieldsAmount(modifier, subject.isEmpty ? 0 : amount);
         }
 
@@ -133,7 +133,15 @@ function applyYieldsForSubject(context, subject, modifier) {
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
 
             const cityStates = getPlayerCityStatesSuzerain(player).length;
-            return context.addYieldsAmountTimes(modifier, cityStates);
+            return context.addSubjectYieldsTimes(subject, modifier, cityStates);
+        }
+
+        case "EFFECT_PLAYER_ADJUST_YIELD_PER_COMPLETED_MASTERY": {
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            const completedMasteries = getPlayerCompletedMasteries(player, modifier);
+            return context.addSubjectYieldsTimes(subject, modifier, completedMasteries);
         }
 
         case "EFFECT_ATTACH_MODIFIERS": {
@@ -171,6 +179,15 @@ function applyYieldsForSubject(context, subject, modifier) {
             }
             
             return addYieldTypeAmountNoMultiplier(context.delta, "YIELD_GOLD", totalReduction);
+        }
+
+        // Player (Diplomacy)
+        case "EFFECT_DIPLOMACY_ADJUST_YIELD_PER_PLAYER_INVOLVED_ACTION": {
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            const ongoingActions = getPlayerOngoingDiplomacyActions(player);
+            return context.addYieldsAmountTimes(modifier, ongoingActions.length);
         }
 
 
@@ -475,6 +492,25 @@ function applyYieldsForSubject(context, subject, modifier) {
             return context.addYieldsAmountTimes(modifier, count);
         }
 
+        case "EFFECT_CITY_ADJUST_YIELD_PER_NUM_CITIES": {
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            const numSettlements = modifier.Arguments.Towns?.Value === 'true' 
+                ? subject.player.Stats.numTowns 
+                : subject.player.Stats.numCities; // Not sure about the latter.
+            
+            return context.addSubjectYieldsTimes(subject, modifier, numSettlements);
+        }
+
+        case "EFFECT_CITY_ADJUST_SUZERAIN_OF_CONSTRUCTIBLE_YIELD": {
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            const cityStates = getPlayerCityStatesSuzerain(player);
+            return context.addYieldsAmountTimes(modifier, cityStates.length);
+        }
+
         // ==============================
         // ========== Plot ==============
         // ==============================
@@ -536,7 +572,32 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_UNIT_ADJUST_ABILITY":
         case "EFFECT_UNIT_ADJUST_COMMAND_AWARD":
         case "EFFECT_UNIT_ADJUST_HEAL_PER_TURN":
-        case "EFFECT_UNIT_ADJUST_MOVEMENT":      
+        case "EFFECT_UNIT_ADJUST_MOVEMENT":  
+        // Ignored attribute effects
+        case "EFFECT_PLAYER_ADJUST_PROGRESSION_TREE_MASTERY_EFFICIENCY":
+        case "EFFECT_DIPLOMACY_ADJUST_RELATIONSHIP_GAIN_FROM_EVENT":
+        case "EFFECT_CITY_ADD_FOOD_AFTER_GROWTH_EVENT":
+        case "EFFECT_CITY_ADJUST_TOWN_UPGRADE_DISCOUNT":
+        case "EFFECT_DIPLOMACY_ADJUST_DIPLOMATIC_ACTION_TOKEN_BONUS":
+        case "EFFECT_ADJUST_CITY_IGNORE_UNHAPPINESS_EFFECT": // Todo we _could_ implement this
+        case "EFFECT_ADJUST_CITY_COMMANDER_UNHAPPINESS_REDUCTION":
+        case "EFFECT_GRANT_UNIT_PROMOTION":
+        case "EFFECT_DIPLOMACY_ADJUST_DIPLOMATIC_RESPONSE_EFFICIENCY":
+        case "EFFECT_PLAYER_ADJUST_GOLDEN_AGE_DURATION":
+        case "EFFECT_PLAYER_GRANT_TRADITION_SLOTS":
+        case "EFFECT_DO_NOTHING":
+        case "EFFECT_UNIT_ADJUST_FLANKING_ATTACK_MODIFIER":
+        case "EFFECT_PLAYER_ATTRIBUTE":
+        case "EFFECT_PLAYER_ADJUST_AGE_PROGRESS":
+        case "EFFECT_PLAYER_GRANT_WONDER_PURCHASING":
+        case "EFFECT_PLAYER_OPEN_ARCHAEOLOGY":
+        case "EFFECT_CITY_ADJUST_WORKER_CAP":
+        case "EFFECT_ADJUST_UNIT_EMBARKED_MOVEMENT":
+        case "EFFECT_CITY_ADJUST_POPULATION":
+        case "EFFECT_PLAYER_ADD_GOLDEN_AGE_CHOICE":
+        case "EFFECT_UNITS_EXTRA_RANDOM_EVENT_DAMAGE":
+        case "EFFECT_UNITS_IMMUNE_TO_RANDOM_EVENTS":
+        case "EFFECT_ADJUST_PLAYER_TRADE_DURING_WAR":
             return;
 
         default:
