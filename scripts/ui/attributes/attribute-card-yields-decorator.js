@@ -1,7 +1,6 @@
 import { previewAttributeYields } from "../../preview-yields.js";
 import { renderYieldsPreviewBox } from "../render-yields-preview.js";
 
-
 class AttributeCardYieldsDecorator {
     static hasCSSOverrides = false;
     static latestAppliedProto = null;
