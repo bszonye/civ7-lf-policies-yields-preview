@@ -1,4 +1,5 @@
 declare var engine: any;
+declare class Component {}
 declare var Controls: any;
 declare var Players: {
     get: (playerId: number) => Player;

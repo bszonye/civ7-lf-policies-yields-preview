@@ -54,8 +54,11 @@
 				<UIScripts>
 					<Item>scripts/core/settings.js</Item>
 					<Item>scripts/core/execution-context.js</Item>
-					<Item>scripts/ui/policy-chooser-item-yields-decorator.js</Item>
-					<Item>scripts/ui/screen-policies-yields-decorator.js</Item>
+					<Item>scripts/ui/render-yields-preview.js</Item>
+					<Item>scripts/ui/yields-styles.js</Item>
+					<Item>scripts/ui/policies/policy-chooser-item-yields-decorator.js</Item>
+					<Item>scripts/ui/policies/screen-policies-yields-decorator.js</Item>
+					<Item>scripts/ui/attributes/attribute-card-yields-decorator.js</Item>
 					<Item>scripts/ui/settings-init.js</Item>
 					<Item>scripts/effects/apply-effects.js</Item>
 					<Item>scripts/effects/yields.js</Item>
@@ -70,7 +73,8 @@
 					<Item>scripts/requirements/requirement.js</Item>
 					<Item>scripts/requirements/resolve-subjects.js</Item>
 					<Item>scripts/requirements/assert-subject.js</Item>
-					<Item>scripts/preview-policy-yields.js</Item>
+					<Item>scripts/preview-yields.js</Item>
+					<Item>scripts/fetch-modifiers.js</Item>
 					<Item>scripts/modifiers.js</Item>
 					<Item>scripts/cache.js</Item>
 				</UIScripts>

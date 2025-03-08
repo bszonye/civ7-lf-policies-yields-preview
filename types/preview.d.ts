@@ -88,6 +88,13 @@ declare interface ResolvedYields {
     [YieldType: string]: number;
 }
 
+declare interface YieldsPreviewResult {
+    yields: ResolvedYields;
+    modifiers: ResolvedModifier[];
+    isValid: boolean;
+    error?: string
+}
+
 declare interface UnwrappedPlayerYields {
     [YieldType: string]: {
         /** Amount generated (no negative, e.g. only cities) before percent */

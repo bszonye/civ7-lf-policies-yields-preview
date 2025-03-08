@@ -1,25 +1,37 @@
 import { applyYieldsForSubjects } from "./effects/apply-effects.js";
 import { PolicyYieldsCache } from "./cache.js";
-import { resolveModifier } from "./modifiers.js";
 import { resolveSubjectsWithRequirements } from "./requirements/resolve-subjects.js";
-import { createEmptyYieldsDelta } from "./effects/yields.js";
 import { PolicyYieldsContext } from "./core/execution-context.js";
-
+import { getModifiersForAttribute, getModifiersForTradition } from "./fetch-modifiers.js";
 
 export function previewPolicyYields(policy) {
-    if (!policy) {
+    // console.warn("previewPolicyYields for", policy.TraditionType);
+    const modifiers = getModifiersForTradition(policy?.TraditionType);
+    return previewModifiersYields(modifiers, "Policy " + policy.TraditionType);
+}
+
+/**
+ * @param {string} attribute The Attribute Type code
+ */
+export function previewAttributeYields(attribute) {
+    const modifiers = getModifiersForAttribute(attribute);
+    return previewModifiersYields(modifiers, "Attribute " + attribute);
+}
+
+/**
+ * Obtains the modifiers resolved yields.
+ * @param {ResolvedModifier[] | null} modifiers
+ * @param {string} description Used to provide debug information in case of errors.
+ * @returns {YieldsPreviewResult}
+ */
+export function previewModifiersYields(modifiers, description) {
+    if (!modifiers) {
         return { yields: {}, modifiers: [], isValid: false };
     }
 
-    // console.warn("previewPolicyYields for", policy.TraditionType);
-
-    const modifiers = getModifiersForTradition(policy.TraditionType);
-    
     try {
-        // const yieldsDelta = createEmptyYieldsDelta();
-        const yieldsContext = new PolicyYieldsContext();
-    
         // Context
+        const yieldsContext = new PolicyYieldsContext();
         const player = Players.get(GameContext.localPlayerID);
         
         modifiers.forEach(modifier => {
@@ -35,31 +47,11 @@ export function previewPolicyYields(policy) {
         };
     }
     catch (error) {
-        console.error("Error in previewPolicyYields for policy ", policy.TraditionType);
+        console.error("Error in Yields preview:", description);
         console.error(error);
         console.error(error.stack);
         return { yields: {}, modifiers, error: error.message, isValid: false };
     }
-}
-
-/**
- * Obtains the modifiers associated with the Tradition, and their requirements.
- * 
- * @param {string} traditionType 
- * @returns {ResolvedModifier[]}
- */
-function getModifiersForTradition(traditionType) {
-    // 1. Ottieni i Modifier associati alla Tradition
-    let traditionModifiers = GameInfo.TraditionModifiers
-        .filter(tm => tm.TraditionType === traditionType)
-        .map(tm => tm.ModifierId);
-
-    // 2. Ottieni i ModifierType associati ai ModifierId trovati
-    let modifiers = GameInfo.Modifiers
-        .filter(m => traditionModifiers.includes(m.ModifierId))
-        .map(m => resolveModifier(m));
-
-    return modifiers;
 }
 
 /**

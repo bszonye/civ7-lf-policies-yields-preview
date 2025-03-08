@@ -585,8 +585,33 @@ declare interface Resource extends BaseTableEntry {
   Weight: number;
 }
 
+interface ProgressionTreeNodeUnlocks {
+  ProgressionTreeNodeType: string;
+  TargetType: string;
+  AIIgnoreUnlockValue: boolean;
+  Hidden?: boolean;
+  IconString?: string;
+  RequiredTraitType?: string;
+  TargetKind: string;
+  UnlockDepth: number;
+}
 
-
+interface ProgressionTreeNodes {
+  ProgressionTreeNodeType: string;
+  CanBoost: boolean;
+  CanSteal: boolean;
+  Cost: number;
+  Description?: string;
+  IconString?: string;
+  Name: string;
+  ProgressionTree: string;
+  Repeatable: boolean;
+  RepeatableCostProgressionModel: string;
+  RepeatableCostProgressionParam1: number;
+  StartingUnlockDepth: number;
+  UILayoutColumn?: number;
+  UILayoutRow?: number;
+}
 
 declare type GameInfoArray<T> = T[] & { 
   lookup(hash: number): T | undefined;
@@ -624,6 +649,8 @@ declare interface IGameInfo {
   Features: GameInfoArray<Feature>;
   FeatureClasses: GameInfoArray<FeatureClass>;
   Resources: GameInfoArray<Resource>;
+  ProgressionTreeNodeUnlocks: GameInfoArray<ProgressionTreeNodeUnlocks>;
+  ProgressionTreeNodes: GameInfoArray<ProgressionTreeNodes>;
 }
 
 declare type IYieldTypes = {

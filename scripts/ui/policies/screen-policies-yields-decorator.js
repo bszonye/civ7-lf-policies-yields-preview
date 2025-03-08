@@ -1,4 +1,4 @@
-import { PolicyYieldsCache } from "../cache.js";
+import { PolicyYieldsCache } from "../../cache.js";
 
 class ScreenPoliciesYieldsDecorator {
     static latestAppliedProto = null;
