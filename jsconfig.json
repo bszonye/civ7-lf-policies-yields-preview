@@ -16,7 +16,7 @@
       ]
     }
   },
-  "include": ["**/*.js", "types/**/*.d.ts"],
+  "include": ["scripts/**/*.js", "types/**/*.d.ts"],
   "exclude": ["node_modules"],
   "typeAcquisition": {
     "enable": true
