@@ -515,6 +515,7 @@ function applyYieldsForSubject(context, subject, modifier) {
         // ==============================
         case "EFFECT_PLOT_ADJUST_YIELD": {
             assertSubjectPlot(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
             // TODO Percent?
             const amount = Number(modifier.Arguments.getAsserted('Amount'));
             return context.addYieldsAmount(modifier, amount);
