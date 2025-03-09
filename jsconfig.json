@@ -9,6 +9,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": false,
+    "useDefineForClassFields": false,
     "paths": {
       "/*": [
         "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Sid Meier's Civilization VII\\Base\\modules\\*"

@@ -253,7 +253,9 @@ declare interface Game {
         eruptionPercentChance: number;
         floodPercentChance: number;
     };
-    ProgressionTrees: Record<string, unknown>;
+    ProgressionTrees: {
+        getNode(player: Player, type: number): any;
+    }
     PlayerOperations: Record<string, unknown>;
     Notifications: Record<string, unknown>;
     PlacementRules: Record<string, unknown>;

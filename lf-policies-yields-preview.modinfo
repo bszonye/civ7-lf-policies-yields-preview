@@ -59,6 +59,7 @@
 					<Item>scripts/ui/policies/policy-chooser-item-yields-decorator.js</Item>
 					<Item>scripts/ui/policies/screen-policies-yields-decorator.js</Item>
 					<Item>scripts/ui/attributes/attribute-card-yields-decorator.js</Item>
+					<Item>scripts/ui/tech-civic/tech-civic-tooltip-decorator.js</Item>
 					<Item>scripts/ui/settings-init.js</Item>
 					<Item>scripts/effects/apply-effects.js</Item>
 					<Item>scripts/effects/yields.js</Item>

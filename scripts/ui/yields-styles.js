@@ -45,6 +45,15 @@ export function setupCSSStyles() {
         /*border-top-right-radius: 0.65rem;
         border-bottom-right-radius: 0.65rem;*/
     }   
+
+
+    /* Tooltips (from 23.3333) */
+    .tech-civic-tooltip.tooltip .tooltip__content {
+        width: 25.3333333333rem !important;
+    }
+    .tree-tooltip.tooltip .tooltip__content {
+        width: 25.3333333333rem !important;
+    }
     `;
     document.head.appendChild(style);
 
