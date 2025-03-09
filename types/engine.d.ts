@@ -14,6 +14,7 @@ declare var Districts: any;
 declare var Loading: any;
 declare var Locale: any;
 declare var RevealedStates: any;
+declare var WorldUI;
 
 declare interface Constructibles {
     getByComponentID: (componentId: ID) => ConstructibleInstance;

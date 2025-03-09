@@ -48,7 +48,7 @@ function patchChooserTreeModel(model) {
     proto.buildUINodeInfo = function (nodeInfo, nodeData) {
         const result = _originalBuildUINodeInfo.call(this, nodeInfo, nodeData);
         
-        processUnlockIndices(nodeData.unlockIndices, result.unlocks);
+        processUnlockIndices(nodeData.unlockIndices, result);
 
         return result;
     }
@@ -68,7 +68,7 @@ function patchTreeGrid() {
             const nodeData = Game.ProgressionTrees.getNode(this._player, card.nodeType);
             if (!nodeData) return;
             
-            processUnlockIndices(nodeData.unlockIndices, card.unlocks);
+            processUnlockIndices(nodeData.unlockIndices, card);
         });
     }
 
@@ -76,18 +76,39 @@ function patchTreeGrid() {
     proto.generateData = patchedGenerateData;
 }
 
-function processUnlockIndices(unlockIndices, unlocks) {
+/**
+ * @typedef {{ lfYieldsModifiersIds?: string[] } & (import('/base-standard/ui/tree-grid/tree-support.js').TreeGridDepthInfo | import('/base-standard/ui/tree-chooser-item/model-tree-chooser-item.js').TreeChooserDepthInfo)} YieldsDepthInfo
+ */
+
+/**
+ * 
+ * @param {any} unlockIndices 
+ * @param {import('/base-standard/ui/tech-tree-chooser/model-tech-tree-chooser.js').TechChooserNode | import('/base-standard/ui/culture-tree-chooser/model-culture-tree-chooser.js').CultureChooserNode | import('/base-standard/ui/tree-grid/tree-support.js').TreeGridCard} data 
+ */
+function processUnlockIndices(unlockIndices, data) {
     for (let i of unlockIndices) {
         try {
             const unlockInfo = GameInfo.ProgressionTreeNodeUnlocks[i];
             // console.warn('unlockInfo -->', unlockInfo.TargetKind, unlockInfo.TargetType);
-            if (unlockInfo && !unlockInfo.Hidden) {
+            if (unlockInfo) {
                 // These are the only two types of unlocks we are interested in.
                 // If we find a new one, add it here.
                 if (unlockInfo.TargetKind !== 'KIND_MODIFIER' && unlockInfo.TargetKind !== 'KIND_TRADITION') {
                     continue;
+                }                
+
+                if (unlockInfo.TargetKind === 'KIND_MODIFIER') {
+                    // console.warn('unlockInfo -->', unlockInfo.TargetKind, unlockInfo.TargetType, unlockInfo.Hidden, 'depth', unlockInfo.UnlockDepth);
+                    if (data.unlocksByDepth && unlockInfo.UnlockDepth >= 1) {
+                        // console.warn('Adding modifier id to data.unlocksByDepth.lfYieldsModifiersIds, depth:', unlockInfo.UnlockDepth);
+                        /** @type {YieldsDepthInfo} */
+                        const depth = data.unlocksByDepth[unlockInfo.UnlockDepth - 1];
+                        depth.lfYieldsModifiersIds = depth.lfYieldsModifiersIds || [];
+                        depth.lfYieldsModifiersIds.push(unlockInfo.TargetType);                    }
                 }
 
+                // === Only for traditions ===
+                if (unlockInfo.Hidden) continue;
 
                 // This is the simplest way to match the existing data (which misses the modifier id),
                 // without having to re-implement the whole logic.
@@ -98,18 +119,15 @@ function processUnlockIndices(unlockIndices, unlocks) {
 
                 // Skip if no name or description, the game does it too.
                 if (!localTooltip) continue;
-
-                const targetUnlock = unlocks?.find(u => u.tooltip == localTooltip);
+                
+                const targetUnlock = data.unlocks?.find(u => u.tooltip == localTooltip);
                 if (!targetUnlock) continue;
 
-                if (unlockInfo.TargetKind === 'KIND_MODIFIER') {
+                if (unlockInfo.TargetKind === 'KIND_TRADITION') {
                     // We need to store the modifier id in the unlocks array in order to use it
                     // to calculate the yields in the tooltip.
-                    // We use a prefix to differentiate it from the other game properties.
+                    // We use a prefix to differentiate it from the other game properties.                    
                     // We edit `unlocks` but it modifies `unlockByDepths` by reference.
-                    targetUnlock.lfYieldsModifierId = unlockInfo.TargetType;
-                }
-                else if (unlockInfo.TargetKind === 'KIND_TRADITION') {
                     targetUnlock.lfYieldsTraditionId = unlockInfo.TargetType;
                 }
             }
@@ -138,7 +156,7 @@ function patchChooserTreeTooltip(chooser, isTreeView = false) {
             console.error("[LFYieldsPreview] tech-tree-tooltip: Attempting to update Tech/Civic info tooltip, but unable to get selected node");
             return;
         }
-
+        /** @type {import('/base-standard/ui/tech-tree-chooser/model-tech-tree-chooser.js').TechChooserNode} */
         const node = self.model.findNode(self.hoveredNodeID);
         if (!node) {
             console.error("[LFYieldsPreview] tech-tree-tooltip: Attempting to update Tech/Civic info tooltip, but unable to get selected node");
@@ -151,16 +169,17 @@ function patchChooserTreeTooltip(chooser, isTreeView = false) {
         }
         // -- end of original code --
 
-        let displayedUnlocks = [];
+        /** @type {YieldsDepthInfo | null | undefined} */
+        let currentDepth = null;
 
         // Support both tooltips (Chooser & Tree) with the same decorator
         if (isTreeView) {
             let index = 0;
             if (self.level) index = self.level;
-            displayedUnlocks = node.unlocksByDepth[index]?.unlocks;
+            currentDepth = node.unlocksByDepth[index];
         }
         else {
-            displayedUnlocks = node.unlocksByDepth.find(depth => depth.isCurrent)?.unlocks;
+            currentDepth = node.unlocksByDepth.find(depth => depth.isCurrent);
         }
 
         /** @type {HTMLDivElement} */
@@ -168,8 +187,8 @@ function patchChooserTreeTooltip(chooser, isTreeView = false) {
             ? self.fragment.querySelector('.tech-tree-tooltip__unlocks-container')
             : self.fragment.querySelector('.tech-civic-tooltip__unlocks-container');
 
-        // Add tooltip for yields
-        displayedUnlocks?.forEach((unlock, i) => {
+        // Add tooltip for yields for SINGLE unlocks, e.g. Traditions
+        currentDepth?.unlocks?.forEach((unlock, i) => {
             // console.warn('unlock -->', String(chooser), JSON.stringify(unlock));
             try {
                 const previewBox = renderUnlockYieldsPreviewBox(unlock);
@@ -182,6 +201,20 @@ function patchChooserTreeTooltip(chooser, isTreeView = false) {
                 console.error(e.stack);
             }
         });
+
+        // Add tooltip for yields for MULTIPLE unlocks, e.g. Modifiers (some are hidden, so
+        // we need to show them "grouped" in the same preview box)
+        // @ts-ignore
+        const allModifierIds = currentDepth?.lfYieldsModifiersIds;
+        // console.warn('allModifierIds -->', JSON.stringify(allModifierIds), 'for', node.name);
+        if (allModifierIds?.length) {
+            const modifiers = allModifierIds.map(id => resolveModifierById(id));
+            const result = previewModifiersYields(modifiers, "Tech/Civic tooltip" + node.name);
+            const previewBox = renderYieldsPreviewBox(result);
+            if (previewBox) {
+                unlocksContainer.appendChild(previewBox);
+            }
+        }
     };
 }
 
@@ -189,13 +222,6 @@ function renderUnlockYieldsPreviewBox(unlock) {
     if (unlock.lfYieldsTraditionId) {
         const result = previewPolicyYields({ TraditionType: unlock.lfYieldsTraditionId });
         return renderYieldsPreviewBox(result);
-    }
-    else if (unlock.lfYieldsModifierId) {
-        const modifier = resolveModifierById(unlock.lfYieldsModifierId);
-        if (!modifier) return;
-
-        const yields = previewModifiersYields([modifier], "Tech/Civic Tooltip " + unlock.lfYieldsModifierId);
-        return renderYieldsPreviewBox(yields);
     }
 
     return null;
