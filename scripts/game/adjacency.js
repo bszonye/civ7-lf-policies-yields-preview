@@ -1,6 +1,6 @@
 import { PolicyYieldsCache } from "../cache.js";
 import { isConstructibleValidForCurrentAge } from "./helpers.js";
-import { getPlotConstructiblesByLocation, getPlotDistrict } from "./plot.js";
+import { getPlotConstructiblesByLocation, getPlotDistrict, isPlotQuarter } from "./plot.js";
 
 // ====================================================================================================
 // ==== CACHE ==========================================================================================
@@ -135,14 +135,69 @@ export function isPlotGrantingAdjacency(adjacency, plot) {
         const constructibles = getPlotConstructiblesByLocation(loc.x, loc.y);
         if (!constructibles.some(c => c.constructibleType?.ConstructibleType === adjacency.AdjacentConstructible)) return false;
     }
+
+    if (adjacency.AdjacentConstructibleTag) {
+        const neededTag = adjacency.AdjacentConstructibleTag;
+        const constructibles = getPlotConstructiblesByLocation(loc.x, loc.y);
+        const hasSomeTag = constructibles.some(c => {
+            const tags = PolicyYieldsCache.getTypeTags(c.constructibleType?.ConstructibleType);
+            return tags.has(neededTag);
+        });
+        if (!hasSomeTag) return false;
+    } 
+
     if (adjacency.AdjacentDistrict) {
         const district = getPlotDistrict(plot);
         if (district.districtType?.DistrictType !== adjacency.AdjacentDistrict) return false;
     }
 
+    if (adjacency.AdjacentQuarter) {
+        if (!isPlotQuarter(plot)) return false;
+    }
+
     if (adjacency.AdjacentResource) {
         const resourceType = GameplayMap.getResourceType(loc.x, loc.y);
         if (resourceType == ResourceTypes.NO_RESOURCE) return false;
+    }
+
+    if (adjacency.AdjacentResourceClass && adjacency.AdjacentResourceClass !== "NO_RESOURCECLASS") {
+        // TODO Are we sure about "NO_RESOURCECLASS" being treated as "allow any resource class"?
+        // Or should we filter by _no_ resource class?
+        const resourceType = GameplayMap.getResourceType(loc.x, loc.y);
+        const resource = GameInfo.Resources.lookup(resourceType);
+        if (resource?.ResourceClassType !== adjacency.AdjacentResourceClass) return false;
+    }
+
+    if (adjacency.AdjacentFeature) {
+        const featureType = GameplayMap.getFeatureType(loc.x, loc.y);
+        const feature = GameInfo.Features.lookup(featureType);
+        if (feature?.FeatureType !== adjacency.AdjacentFeature) return false;
+    }
+
+    if (adjacency.AdjacentFeatureClass) {
+        const featureType = GameplayMap.getFeatureType(loc.x, loc.y);
+        const feature = GameInfo.Features.lookup(featureType);
+        if (feature?.FeatureClassType !== adjacency.AdjacentFeatureClass) return false;
+    }
+
+    if (adjacency.AdjacentBiome) {
+        const biomeType = GameplayMap.getBiomeType(loc.x, loc.y);
+        const biome = GameInfo.Biomes.lookup(biomeType);
+        if (biome?.BiomeType !== adjacency.AdjacentBiome) return false;
+    }
+
+    if (adjacency.AdjacentSeaResource) {
+        const resourceType = GameplayMap.getResourceType(loc.x, loc.y);
+        if (resourceType == ResourceTypes.NO_RESOURCE) return false;
+        // const resource = GameInfo.Resources.lookup(resourceType);
+        if (!GameplayMap.isWater(loc.x, loc.y)) return false;
+    }
+
+    if (adjacency.AdjacentUniqueQuarter) {
+        throw new Error(`AdjacencyYieldChange.AdjacentUniqueQuarter not implemented (plot ${plot}, adjacency ${adjacency.ID})`);
+    }
+    if (adjacency.AdjacentUniqueQuarterType) {
+        throw new Error(`AdjacencyYieldChange.AdjacentUniqueQuarterType not implemented (plot ${plot}, adjacency ${adjacency.ID})`);
     }
 
     if (adjacency.Age) {
