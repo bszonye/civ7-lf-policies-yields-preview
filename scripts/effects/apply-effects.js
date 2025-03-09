@@ -572,7 +572,8 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_UNIT_ADJUST_ABILITY":
         case "EFFECT_UNIT_ADJUST_COMMAND_AWARD":
         case "EFFECT_UNIT_ADJUST_HEAL_PER_TURN":
-        case "EFFECT_UNIT_ADJUST_MOVEMENT":  
+        case "EFFECT_UNIT_ADJUST_MOVEMENT":
+        case "EFFECT_UNIT_ADJUST_EMBARKATION_TYPE":
         // Ignored attribute effects
         case "EFFECT_PLAYER_ADJUST_PROGRESSION_TREE_MASTERY_EFFICIENCY":
         case "EFFECT_DIPLOMACY_ADJUST_RELATIONSHIP_GAIN_FROM_EVENT":
@@ -598,9 +599,16 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_UNITS_EXTRA_RANDOM_EVENT_DAMAGE":
         case "EFFECT_UNITS_IMMUNE_TO_RANDOM_EVENTS":
         case "EFFECT_ADJUST_PLAYER_TRADE_DURING_WAR":
+        // Tree
+        case "EFFECT_GRANT_GREAT_WORK":
+        case "EFFECT_PLAYER_UNLOCK_PANTHEON":
             return;
 
         default:
+            if (modifier.EffectType?.startsWith('TRIGGER_')) {
+                return;
+            }
+            
             throw new Error(`${modifier.Modifier.ModifierId}: Unhandled EffectType: ${modifier.EffectType}`);
     }
 }

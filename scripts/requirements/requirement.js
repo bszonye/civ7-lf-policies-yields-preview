@@ -347,6 +347,11 @@ export function isRequirementSatisfied(player, subject, requirement) {
             throw new Error(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
         }
 
+        case "REQUIREMENT_PLAYER_IS_MAJOR": {
+            assertSubjectPlayer(subject);
+            return subject.player.isMajor;
+        }
+
         // Ignored requirements. Usually because they relate to _combat_ bonuses, and we don't display those.
         case "REQUIREMENT_COMMANDER_HAS_X_PROMOTIONS":
         case "REQUIREMENT_PLOT_IS_SUZERAIN":
