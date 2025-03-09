@@ -124,6 +124,11 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return cityReligion === playerReligion.getReligionType();
         }
 
+        case "REQUIREMENT_CITY_HAS_ANY_WONDER": {
+            assertSubjectCity(subject);
+            return subject.city.Constructibles.getNumWonders() > 0;
+        }
+
         // Plot
         case "REQUIREMENT_PLOT_DISTRICT_CLASS": {
             assertSubjectPlot(subject);
@@ -172,6 +177,26 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return isPlotQuarter(subject.plot);
         }
 
+        case "REQUIREMENT_PLOT_IS_LAKE": {
+            assertSubjectPlot(subject);
+            const loc = GameplayMap.getLocationFromIndex(subject.plot);
+            return GameplayMap.isLake(loc.x, loc.y);
+        }
+
+        case "REQUIREMENT_PLOT_IS_RIVER": {
+            assertSubjectPlot(subject);
+            const loc = GameplayMap.getLocationFromIndex(subject.plot);
+            return GameplayMap.isRiver(loc.x, loc.y);
+        }
+
+        case "REQUIREMENT_PLOT_BIOME_TYPE_MATCHES": {
+            assertSubjectPlot(subject);
+            const loc = GameplayMap.getLocationFromIndex(subject.plot);
+            const biomeType = GameplayMap.getBiomeType(loc.x, loc.y);
+            const biome = GameInfo.Biomes.lookup(biomeType);
+            return biome?.BiomeType == requirement.Arguments.getAsserted('BiomeType');
+        }
+
         case "REQUIREMENT_PLOT_TERRAIN_TYPE_MATCHES": {
             assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
@@ -194,6 +219,14 @@ export function isRequirementSatisfied(player, subject, requirement) {
             }
 
             throw new Error(`Unhandled REQUIREMENT_PLOT_FEATURE_TYPE_MATCHES: ${requirement.Requirement.RequirementId} with Arguments: ${JSON.stringify(requirement.Arguments)}`);
+        }
+
+        case "REQUIREMENT_PLOT_ADJACENT_TO_LAKE": {
+            assertSubjectPlot(subject);
+            return getAdjacentPlots(subject.plot).some(plot => {
+                const loc = GameplayMap.getLocationFromIndex(plot);
+                return GameplayMap.isLake(loc.x, loc.y);
+            });
         }
 
         case "REQUIREMENT_PLOT_ADJACENT_TERRAIN_TYPE_MATCHES": {
@@ -220,6 +253,15 @@ export function isRequirementSatisfied(player, subject, requirement) {
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             return GameplayMap.getOwner(loc.x, loc.y) == player.id;
         }  
+
+        case "REQUIREMENT_PLOT_RESOURCE_TAG_MATCHES": {
+            assertSubjectPlot(subject);
+            const loc = GameplayMap.getLocationFromIndex(subject.plot);
+            const resource = GameplayMap.getResourceType(loc.x, loc.y);
+			if (resource == ResourceTypes.NO_RESOURCE) return false;
+            // No arguments present on DB
+            return true;
+        }
 
         // Units
         case "REQUIREMENT_UNIT_TAG_MATCHES": {
@@ -275,10 +317,41 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return isPlayerAtPeaceWithMajors(subject.player);
         }
 
+        case "REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS": {
+            assertSubjectPlayer(subject);
+            let totalSettlements = 0;
+
+            const ownSettlementIncrement = Number(requirement.Arguments.CountPerOwnSettlement?.Value || '1');
+            const conqueredSettlementIncrement = Number(requirement.Arguments.CountPerConqueredSettlement?.Value || '1');
+
+            const onlyCities = requirement.Arguments.OnlyCities?.Value === 'true';
+            const onlyTowns = requirement.Arguments.OnlyTowns?.Value === 'true';
+            const onlyHomelands = requirement.Arguments.OnlyHomelands?.Value === 'true';
+
+            for (const city of subject.player.Cities.getCities()) {
+                if (onlyCities && city.isTown) continue;
+                if (onlyTowns && !city.isTown) continue;
+                if (onlyHomelands && city.isDistantLands) continue;
+                
+                const increment = city.originalOwner == subject.player.id
+                    ? ownSettlementIncrement
+                    : conqueredSettlementIncrement;
+
+                totalSettlements += increment;
+            }
+            return totalSettlements >= Number(requirement.Arguments.getAsserted('RequiredCount'));
+        }
+
+        case "REQUIREMENT_PLAYER_HAS_X_WAR_SUPPORT": {
+            assertSubjectPlayer(subject);
+            throw new Error(`Unhandled RequirementType: ${requirement.Requirement.RequirementType}`);
+        }
+
         // Ignored requirements. Usually because they relate to _combat_ bonuses, and we don't display those.
         case "REQUIREMENT_COMMANDER_HAS_X_PROMOTIONS":
         case "REQUIREMENT_PLOT_IS_SUZERAIN":
         case "REQUIREMENT_ENGAGED_TARGET_OF_TARGET_MATCHES":
+        case "REQUIREMENT_OPPONENT_IS_DISTRICT":
         case "REQUIREMENT_PLOT_IN_COMMAND_RADIUS": // IRON_CROSS
         case "REQUIREMENT_PLAYER_IS_ATTACKING": {
             return false;

@@ -66,6 +66,7 @@ interface City {
         getIdsOfType: (type: string) => ID[];
         hasConstructible: (type: string, unknownArg: boolean) => boolean;
         getGreatWorkBuildings: () => GreatWorkBuilding[];
+        getNumWonders: () => number;
     };
     Workers: {
         getNumWorkersAtPlot: (plotIndex: number) => number;

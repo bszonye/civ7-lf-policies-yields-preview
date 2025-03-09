@@ -91,8 +91,7 @@ function applyYieldsForSubject(context, subject, modifier) {
 
         case "EFFECT_PLAYER_ADJUST_YIELD": {
             assertSubjectPlayer(subject);
-            const amount = context.getAmount(modifier);
-            return context.addYieldsAmount(modifier, subject.isEmpty ? 0 : amount);
+            return context.addSubjectYieldsTimes(subject, modifier, subject.isEmpty ? 0 : 1);
         }
 
         // TODO This is really complex, like "+1 for each time a disaster provided fertility".
