@@ -1,6 +1,6 @@
 import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
 import { getCityGreatWorksCount, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
-import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast } from "../game/plot.js";
+import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast, hasPlotDistrictOfType } from "../game/plot.js";
 import { isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "./assert-subject.js";
 import { PolicyExecutionContext } from "../core/execution-context.js";
@@ -304,6 +304,23 @@ export function isRequirementSatisfied(player, subject, requirement) {
         case "REQUIREMENT_UNIT_IN_OWNER_TERRITORY": {
             assertSubjectUnit(subject);
             return GameplayMap.getOwner(subject.unit.location.x, subject.unit.location.y) == player.id;
+        }
+
+        case "REQUIREMENT_UNIT_ON_DISTRICT": {
+            assertSubjectUnit(subject);
+
+            if (requirement.Arguments.Friendly) {
+                const requiresFriendly = requirement.Arguments.Friendly.Value === 'true';
+                const plotOwner = GameplayMap.getOwner(subject.unit.location.x, subject.unit.location.y);
+                if (requiresFriendly && plotOwner != player.id) return false;
+                if (!requiresFriendly && plotOwner == player.id) return false;
+            }
+
+            if (requirement.Arguments.DistrictType) {
+                if (!hasPlotDistrictOfType(subject.plot, requirement)) return false;
+            }
+            
+            return true;
         }
 
         // Player (Owner)

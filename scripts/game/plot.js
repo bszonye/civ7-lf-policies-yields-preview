@@ -34,6 +34,18 @@ export function hasPlotDistrictOfClass(plot, requirement) {
 }
 
 /**
+ * @param {number} plot
+ * @param {ResolvedRequirement} requirement
+ * @returns {boolean}
+ */
+export function hasPlotDistrictOfType(plot, requirement) {
+    const { districtType } = getPlotDistrict(plot);
+
+    const requiredClasses = parseArgumentsArray(requirement.Arguments, 'DistrictType');
+    return districtType != null && requiredClasses.includes(districtType?.DistrictType);
+}
+
+/**
  * @param {number} x
  * @param {number} y
  * @returns {{ constructible: ConstructibleInstance, constructibleType: Constructible }[]}

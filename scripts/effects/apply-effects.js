@@ -539,7 +539,11 @@ function applyYieldsForSubject(context, subject, modifier) {
             const amount = Math.max(bonus, unitType?.Maintenance || 0);
             return context.addYieldTypeAmount("YIELD_GOLD", amount);
         }
-        
+
+        case "EFFECT_UNIT_ADJUST_PLAYER_YIELD": {
+            assertSubjectUnit(subject);
+            return context.addSubjectYieldsTimes(subject, modifier, subject.isEmpty ? 0 : 1);
+        }
 
         // Ignored effects
         case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION":
