@@ -1,6 +1,17 @@
 import { PolicyYieldsCache } from "../cache.js";
 
 /**
+ * Maintenance reduction cannot be more than the maintenance cost itself.
+   Negative values are unbounded.
+ * 
+   @param {number} maintenanceCost Positive amount (e.g. 3 to indicate 3 golds spent)
+ * @param {number} value The value to be bounded in order to not exceed the maintenance cost 
+ */
+function getBoundedMaintenanceReduction(value, maintenanceCost) {
+    return Math.min(value, maintenanceCost);
+}
+
+/**
  * @param {ResolvedModifier} modifier
  * @param {number} count
  * @param {number} maintenanceCost Total maintenance cost (expected a _positive_ value)
@@ -8,8 +19,8 @@ import { PolicyYieldsCache } from "../cache.js";
  */
 export function calculateMaintenanceEfficiencyToReduction(modifier, count, maintenanceCost, isConstructible = false) {
     if (modifier.Arguments.Amount?.Value) {
-        const reduction = Number(modifier.Arguments.Amount.Value) * count;
-        return reduction;
+        const reduction = Number(modifier.Arguments.Amount.Value) * count;        
+        return getBoundedMaintenanceReduction(reduction, maintenanceCost);
     }
     if (modifier.Arguments.Percent?.Value) {
         if (maintenanceCost < 0) {
@@ -34,7 +45,7 @@ export function calculateMaintenanceEfficiencyToReduction(modifier, count, maint
             value = -value;
         }
 
-        return value;
+        return getBoundedMaintenanceReduction(value, maintenanceCost);
     }
     throw new Error(`Unhandled ModifierArguments: ${JSON.stringify(modifier.Arguments)}. Cannot calculate maintenance reduction.`);
 }
