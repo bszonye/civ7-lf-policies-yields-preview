@@ -613,6 +613,52 @@ interface ProgressionTreeNodes {
   UILayoutRow?: number;
 }
 
+declare interface Improvement extends BaseTableEntry {
+  ConstructibleType: string;
+  AdjacentSeaResource: number;
+  AirSlots: number;
+  BarbarianCamp: number;
+  BuildInLine: number;
+  BuildOnFrontier: number;
+  CanBuildOnNonDistrict: number;
+  CanBuildOutsideTerritory: number;
+  CityBuildable: number;
+  DefenseModifier: number;
+  DisableTurns: number;
+  EmbarkCostMultiplier: number;
+  EnableTurns: number;
+  Energy: number;
+  ExclusionZone: number;
+  FeatureClassValid: string | null;
+  FeatureValid: string | null;
+  FloodplainValid: number;
+  FreeOnRepair: number;
+  Housing: number;
+  ImprovementOnRemove: string | null;
+  MustBeAppealing: number;
+  OnePerSettlement: number;
+  RemoveOnEntry: number;
+  ResourceTier: number;
+  SameAdjacentValid: number;
+  TraitType: string | null;
+  UnitBuildable: number;
+  WeaponSlots: number;
+  Workable: number;
+}
+
+declare interface DistrictFreeConstructible extends BaseTableEntry {
+  BiomeType?: string; // Campo opzionale, tipo TEXT
+  ConstructibleType: string; // Campo obbligatorio, tipo TEXT
+  DistrictType: string; // Campo obbligatorio, tipo TEXT
+  FeatureType?: string; // Campo opzionale, tipo TEXT
+  Priority: number; // Campo obbligatorio, tipo INTEGER con valore predefinito 1
+  ResourceType?: string; // Campo opzionale, tipo TEXT
+  RiverType?: string; // Campo opzionale, tipo TEXT
+  TerrainType?: string; // Campo opzionale, tipo TEXT
+  Tier: number; // Campo obbligatorio, tipo INTEGER con valore predefinito 1
+}
+
+
 declare type GameInfoArray<T> = T[] & { 
   lookup(hash: number): T | undefined;
 };
@@ -651,6 +697,8 @@ declare interface IGameInfo {
   Resources: GameInfoArray<Resource>;
   ProgressionTreeNodeUnlocks: GameInfoArray<ProgressionTreeNodeUnlocks>;
   ProgressionTreeNodes: GameInfoArray<ProgressionTreeNodes>;
+  Improvements: GameInfoArray<Improvement>;
+  District_FreeConstructibles: GameInfoArray<DistrictFreeConstructible>;
 }
 
 declare type IYieldTypes = {
