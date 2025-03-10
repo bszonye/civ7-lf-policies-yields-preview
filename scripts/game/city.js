@@ -2,17 +2,25 @@ import { doesConstructibleGrantsWarehouseYields } from "./warehouse.js";
 
 
 const BuildingsByTagCache = new class {
+    /** @type {Map<string, string[]>} */
     _cache = new Map();
 
-    getBuildingTypesByTag(tag) {
+    /**
+     * @param {string} tag
+     * @returns {string[]}
+     */
+    getValidBuildingTypesByTag(tag) {
         if (this._cache.has(tag)) {
-            return this._cache.get(tag);
+            return this._cache.get(tag) || [];
         }
 
         const buildingTypes = GameInfo.TypeTags
             .filter(typeTag => typeTag.Tag === tag)
             .map(typeTag => typeTag.Type)
-            .filter(type => GameInfo.Constructibles.find(c => c.ConstructibleType === type)?.ConstructibleClass == 'BUILDING');
+            .filter(type => {
+                const constructibleType = GameInfo.Constructibles.find(c => c.ConstructibleType === type);
+                return constructibleType?.ConstructibleClass == 'BUILDING' && doesConstructibleGrantsWarehouseYields(constructibleType);
+            });
 
         this._cache.set(tag, buildingTypes);
         return buildingTypes;
@@ -33,11 +41,8 @@ export function hasCityBuilding(city, args) {
         return city.Constructibles?.hasConstructible(args.BuildingType.Value, false);
     }
     else if (args.Tag) {
-        const buildingTypes = BuildingsByTagCache.getBuildingTypesByTag(args.Tag.Value);
-        const activeWarehouseYieldsBuildingTypes = buildingTypes
-            .filter(type => doesConstructibleGrantsWarehouseYields(type));
-            
-        return activeWarehouseYieldsBuildingTypes.some(type => city.Constructibles?.hasConstructible(type, false));
+        const buildingTypes = BuildingsByTagCache.getValidBuildingTypesByTag(args.Tag.Value);
+        return buildingTypes.some(type => city.Constructibles?.hasConstructible(type, false));
     }
 
     console.warn(`Unhandled ModifierArgument: ${args}`);
