@@ -1,5 +1,6 @@
 import { PolicyYieldsCache } from "../cache.js";
 import { isConstructibleAgeless, isConstructibleValidForQuarter } from "./helpers.js";
+import { getPlotConstructiblesByLocation } from "./plot.js";
 
 /**
  * Get the warehouse yield change yields
@@ -9,133 +10,118 @@ import { isConstructibleAgeless, isConstructibleValidForQuarter } from "./helper
 export function getYieldsForWarehouseChange(city, yieldChange) {
     // console.warn("getYieldsForWarehouseChange", city.name, yieldChange.ID);
     const plots = city.getPurchasedPlots()
-        .map(plot => ({
-            plot,
-            location: GameplayMap.getLocationFromIndex(plot)
-        }))
-        // Warehouse can only affect plots with constructibles (only Improvements! not buildings or wonders)
-        // Tested with "Hale o Kawe" wonder + Ho'okupu tradition, it doesn't give any yield
-        .filter(({ location }) => {
-            const constructibleIDs = MapConstructibles.getHiddenFilteredConstructibles(location.x, location.y);
-            const constructibles = constructibleIDs.map(id => Constructibles.getByComponentID(id));
-            return constructibles.length > 0 && constructibles.every(c => {
-                const constructibleType = GameInfo.Constructibles.lookup(c.type);
-                return constructibleType?.ConstructibleClass === 'IMPROVEMENT';
-            });
+        .map(plot => {
+            const location = GameplayMap.getLocationFromIndex(plot);
+            const constructibles = getPlotConstructiblesByLocation(location.x, location.y);
+            return {
+                plot,
+                location,
+                constructibles
+            }
+        })
+        .filter(({ plot, location, constructibles }) => {
+            // Warehouse can only affect plots with constructibles (only Improvements! not buildings or wonders)
+            // Tested with "Hale o Kawe" wonder + Ho'okupu tradition, it doesn't give any yield
+            if (
+                constructibles.length <= 0 || 
+                constructibles.some(c => {
+                    return c.constructibleType.ConstructibleClass !== 'IMPROVEMENT';
+                })
+            ) {
+                return false;
+            }
+
+            const resourceType = GameplayMap.getResourceType(location.x, location.y);
+            const terrainType = GameplayMap.getTerrainType(location.x, location.y);
+            const biomeType = GameplayMap.getBiomeType(location.x, location.y);
+            const featureType = GameplayMap.getFeatureType(location.x, location.y);
+            const feature = GameInfo.Features.lookup(featureType);
+
+            // Unprioritized checks. They are checked first, but not sure it's correct.
+            // It could be irrilevant if they're always exclusive with the prioritized checks
+            if (yieldChange.ResourceInCity) {
+                const resourceType = GameplayMap.getResourceType(location.x, location.y);
+                return resourceType != ResourceTypes.NO_RESOURCE;
+            }
+
+            if (yieldChange.BiomeInCity) {
+                const biome = GameInfo.Biomes.lookup(biomeType);
+                return biome?.BiomeType === yieldChange.BiomeInCity;
+            }
+
+            if (yieldChange.MinorRiverInCity) {
+                return GameplayMap.isRiver(location.x, location.y) && !GameplayMap.isNavigableRiver(location.x, location.y);
+            }
+
+            // TODO probably should stay after in the prioritized checks
+            if (yieldChange.NavigableRiverInCity) {
+                return GameplayMap.isNavigableRiver(location.x, location.y);
+            }
+
+            if (yieldChange.LakeInCity) {
+                return GameplayMap.isLake(location.x, location.y);
+            }
+
+            // TODO Not really sure about this one. Need to check in antiquity and exploration db
+            if (yieldChange.RouteInCity) {
+                return GameplayMap.getRouteType(location.x, location.y) != -1;
+            }
+
+            if (yieldChange.NaturalWonderInCity) {
+                return GameplayMap.isNaturalWonder(location.x, location.y);
+            }
+
+            // TODO never seen this one in the db. Need to check
+            if (yieldChange.TerrainTagInCity) {
+                const terrain = GameInfo.Terrains.lookup(terrainType);
+                if (!terrain) return false;
+                return PolicyYieldsCache.hasTypeTag(terrain.TerrainType, yieldChange.TerrainTagInCity);
+            }
+
+            // TODO to be implemented / checked. Not sure about the implementation
+            if (yieldChange.Overbuilt) {
+                
+            }
+            if (yieldChange.DistrictInCity) {
+                
+            }
+
+            // ========================================
+            // Priority based checks
+            // ========================================
+
+            // 1. Constructible (and Resources)
+            if (yieldChange.ConstructibleInCity) {
+                const constructibleType = yieldChange.ConstructibleInCity;
+                return constructibles.some(c => {
+                    return c.constructibleType.ConstructibleType === constructibleType;
+                });
+            }
+            if (resourceType != ResourceTypes.NO_RESOURCE) return false; // Skip if no ConstructibleInCity but a resource is present
+            
+
+            if (yieldChange.FeatureClassInCity) {
+                return feature?.FeatureClassType === yieldChange.FeatureClassInCity;
+            }
+
+            if (yieldChange.FeatureInCity) {
+                return feature?.FeatureType === yieldChange.FeatureInCity;
+            }
+
+            if (featureType != FeatureTypes.NO_FEATURE) return false; // Skip if no FeatureInCity but a feature is present
+
+            if (yieldChange.TerrainInCity) {
+                const terrainType = GameplayMap.getTerrainType(location.x, location.y);
+                const terrain = GameInfo.Terrains.lookup(terrainType);
+                if (!terrain) return false;
+                return terrain.TerrainType === yieldChange.TerrainInCity;
+            }
+
+            throw new Error("WarehouseYieldChange not implemented: " + yieldChange.ID + ": " + JSON.stringify(yieldChange));
         });
     
     // yieldChange.Age ?
- 
-    if (yieldChange.LakeInCity) {
-        const lakePlots = plots.filter(({ plot, location }) => {
-            return GameplayMap.isLake(location.x, location.y);
-        });
-
-        return lakePlots.length * yieldChange.YieldChange;
-    }
-    if (yieldChange.MinorRiverInCity) {
-        const riverPlots = plots.filter(({ plot, location }) => {
-            return GameplayMap.isRiver(location.x, location.y) && !GameplayMap.isNavigableRiver(location.x, location.y);
-        });
-
-        return riverPlots.length * yieldChange.YieldChange;
-    }
-    if (yieldChange.NavigableRiverInCity) {
-        const riverPlots = plots.filter(({ plot, location }) => {
-            return GameplayMap.isNavigableRiver(location.x, location.y);
-        });
-
-        return riverPlots.length * yieldChange.YieldChange
-    }
-    if (yieldChange.BiomeInCity) {
-        const biomePlots = plots.filter(({ plot, location }) => {
-            const biomeType = GameplayMap.getBiomeType(location.x, location.y);
-            const biome = GameInfo.Biomes.lookup(biomeType);
-            return biome?.BiomeType === yieldChange.BiomeInCity;
-        });
-
-        return biomePlots.length * yieldChange.YieldChange;
-    }
-    if (yieldChange.ConstructibleInCity) {
-        const count = city.Constructibles.getIdsOfType(yieldChange.ConstructibleInCity).length;
-        return count * yieldChange.YieldChange;
-    }
-
-    if (yieldChange.FeatureInCity) {
-        const featurePlots = plots.filter(({ plot, location }) => {
-            const featureType = GameplayMap.getFeatureType(location.x, location.y);
-            const feature = GameInfo.Features.lookup(featureType);
-            return feature?.FeatureType === yieldChange.FeatureInCity;
-        });
-
-        return featurePlots.length * yieldChange.YieldChange;
-    }
-    if (yieldChange.FeatureClassInCity) {
-        const featurePlots = plots.filter(({ plot, location }) => {
-            const featureType = GameplayMap.getFeatureType(location.x, location.y);
-            const feature = GameInfo.Features.lookup(featureType);
-            return feature?.FeatureClassType === yieldChange.FeatureClassInCity;
-        });
-
-        return featurePlots.length * yieldChange.YieldChange;
-    }
-    if (yieldChange.NaturalWonderInCity) {
-        const naturalWonderPlots = plots.filter(({ plot, location }) => {
-            return GameplayMap.isNaturalWonder(location.x, location.y);
-        });
-
-        return naturalWonderPlots.length * yieldChange.YieldChange;
-    }
-    if (yieldChange.ResourceInCity) {
-        const resourcePlots = plots.filter(({ plot, location }) => {
-            const resourceType = GameplayMap.getResourceType(location.x, location.y);
-            return resourceType != ResourceTypes.NO_RESOURCE;
-        });
-
-        return resourcePlots.length * yieldChange.YieldChange;
-    }
-    // TODO Not really sure about this one. Need to check in antiquity and exploration db
-    if (yieldChange.RouteInCity) {
-        const routePlots = plots.filter(({ plot, location }) => {
-            return GameplayMap.getRouteType(location.x, location.y) != -1;
-        });
-
-        return routePlots.length * yieldChange.YieldChange;
-    }
-
-    if (yieldChange.TerrainInCity) {
-        const terrainPlots = plots.filter(({ plot, location }) => {
-            const terrainType = GameplayMap.getTerrainType(location.x, location.y);
-            const terrain = GameInfo.Terrains.lookup(terrainType);
-            return terrain?.TerrainType === yieldChange.TerrainInCity;
-        });
-        // console.warn("TerrainInCity", yieldChange.TerrainInCity, terrainPlots.length, yieldChange.YieldChange);
-
-        return terrainPlots.length * yieldChange.YieldChange;
-    }
-
-    // TODO Not really sure about this one. Need to check in antiquity and exploration db
-    if (yieldChange.TerrainTagInCity) {
-        const terrainRequiredTag = yieldChange.TerrainTagInCity;
-        const terrainPlots = plots.filter(({ plot, location }) => {
-            const terrainType = GameplayMap.getTerrainType(location.x, location.y);
-            const terrain = GameInfo.Terrains.lookup(terrainType);
-            if (!terrain) return false;
-            return PolicyYieldsCache.hasTypeTag(terrain.TerrainType, terrainRequiredTag);
-        });
-
-        return terrainPlots.length * yieldChange.YieldChange;
-    }
-
-    // TODO to be implemented / checked. Not sure about the implementation
-    if (yieldChange.Overbuilt) {
-        
-    }
-    if (yieldChange.DistrictInCity) {
-        
-    }
-
-    throw new Error("WarehouseYieldChange not implemented: " + yieldChange.ID + ": " + JSON.stringify(yieldChange));
+    return plots.length * yieldChange.YieldChange;    
 }
 
 /**

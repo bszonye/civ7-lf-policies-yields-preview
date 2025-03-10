@@ -309,6 +309,7 @@ function applyYieldsForSubject(context, subject, modifier) {
                 }
                 
                 const amount = getYieldsForWarehouseChange(subject.city, warehouseYieldType);
+                // console.warn("EFFECT_CITY_GRANT_WAREHOUSE_YIELD", warehouseYieldType.ID, subject.city.name, "amount=", amount);
                 context.addYieldTypeAmount(warehouseYieldType.YieldType, amount);
             });
             return;
