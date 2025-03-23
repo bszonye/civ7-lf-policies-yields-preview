@@ -9,7 +9,7 @@ import { resolveSubjectsWithRequirements } from "../requirements/resolve-subject
 import { getPlayerActiveTraditionsForModifier, getPlayerCityStatesSuzerain, getPlayerCompletedMasteries, getPlayerOngoingDiplomacyActions, getPlayerRelationshipsCountForModifier } from "../game/player.js";
 import { findCityConstructiblesMatchingWarehouse, getYieldsForWarehouseChange } from "../game/warehouse.js";
 import { PolicyYieldsContext } from "../core/execution-context.js";
-import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "../requirements/assert-subject.js";
+import { assertSubjectCity, assertSubjectConstructible, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "../requirements/assert-subject.js";
 import { PolicyYieldsCache } from "../cache.js";
 
 /**
@@ -503,9 +503,22 @@ function applyYieldsForSubject(context, subject, modifier) {
             return context.addSubjectYieldsTimes(subject, modifier, numSettlements);
         }
 
+        // City OR Constructible
         case "EFFECT_CITY_ADJUST_SUZERAIN_OF_CONSTRUCTIBLE_YIELD": {
-            assertSubjectCity(subject);
+            if (subject.type !== "City" && subject.type !== "Constructible") {
+                throw new Error(`Invalid subject type for EFFECT_CITY_ADJUST_SUZERAIN_OF_CONSTRUCTIBLE_YIELD: ${subject.type}`);
+            }
+
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+
+            // If this is a Constructible, we need to check if it has the required tag.
+            if (subject.type === 'Constructible' && modifier.Arguments.Tag?.Value) {
+                const type = subject.constructibleType?.ConstructibleType;
+                const requiredTag = modifier.Arguments.Tag.Value;
+                if (!PolicyYieldsCache.hasTypeTag(type ?? '', requiredTag)) {
+                    return context.addYieldsAmount(modifier, 0);
+                }
+            }
 
             const cityStates = getPlayerCityStatesSuzerain(player);
             return context.addYieldsAmountTimes(modifier, cityStates.length);
@@ -607,6 +620,13 @@ function applyYieldsForSubject(context, subject, modifier) {
         // Tree
         case "EFFECT_GRANT_GREAT_WORK":
         case "EFFECT_PLAYER_UNLOCK_PANTHEON":
+        // City State bonuses
+        case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_PRODUCTION_PER_SUZERAIN_OF":
+        case "EFFECT_PLAYER_GRANT_PROGRESSION":
+        case "EFFECT_ADJUST_PLAYER_FREE_TECH_ON_CITY_STATE":
+        case "EFFECT_ADJUST_PLAYER_VALID_IMPROVEMENT":
+        case "EFFECT_CITY_ADD_RESOURCE_TO_PLOT":
+        case "EFFECT_CITY_ADJUST_TRADE_ROUTE_RANGE_PER_SUZERAIN_OF":
             return;
 
         default:

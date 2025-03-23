@@ -58,6 +58,15 @@ declare type CitySubject = CreateSubject<'City', {
     player: Player;
 }>;
 
+declare type ConstructibleSubject = CreateSubject<'Constructible', {
+    constructible: ConstructibleInstance;
+    constructibleType: Constructible | undefined;
+    /** Constructible hex plot index */
+    plot: number;
+    /** Player owning the city */
+    player: Player;
+}>;
+
 declare type UnitSubject = CreateSubject<'Unit', {
     unit: UnitInstance;
     /** Unit location plot index */
@@ -70,7 +79,7 @@ declare type PlayerSubject = CreateSubject<'Player', {
     player: Player;
 }>;
 
-declare type PreviewSubject = CitySubject | PlotSubject | UnitSubject | PlayerSubject;
+declare type PreviewSubject = ConstructibleSubject | CitySubject | PlotSubject | UnitSubject | PlayerSubject;
 
 declare interface YieldsDelta {
     Amount: {

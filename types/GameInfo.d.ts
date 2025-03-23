@@ -658,6 +658,18 @@ declare interface DistrictFreeConstructible extends BaseTableEntry {
   Tier: number; // Campo obbligatorio, tipo INTEGER con valore predefinito 1
 }
 
+declare interface CityStateBonus extends BaseTableEntry {
+  CityStateBonusType: string;
+  CityStateType: string;
+  Description: string;
+  Name: string;
+}
+
+declare interface CityStateBonusModifier {
+  CityStateBonusType: string;
+  ModifierID: string;
+}
+
 
 declare type GameInfoArray<T> = T[] & { 
   lookup(hash: number): T | undefined;
@@ -699,6 +711,8 @@ declare interface IGameInfo {
   ProgressionTreeNodes: GameInfoArray<ProgressionTreeNodes>;
   Improvements: GameInfoArray<Improvement>;
   District_FreeConstructibles: GameInfoArray<DistrictFreeConstructible>;
+  CityStateBonuses: GameInfoArray<CityStateBonus>;
+  CityStateBonusModifiers: GameInfoArray<CityStateBonusModifier>;
 }
 
 declare type IYieldTypes = {

@@ -54,6 +54,12 @@ export function setupCSSStyles() {
     .tree-tooltip.tooltip .tooltip__content {
         width: 25.3333333333rem !important;
     }
+
+    /* City State bonus */
+    .suzerain-bonus__choices-container div.yields-preview__container {
+        margin-top: 0.3rem;
+        margin-right: 0.3rem;
+    }
     `;
     document.head.appendChild(style);
 

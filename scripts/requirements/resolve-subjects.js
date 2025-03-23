@@ -1,6 +1,8 @@
+import { findCityConstructibles } from "../game/constructibles.js";
 import { isNotNull } from "../game/helpers.js";
 import { resolveRequirementSet } from "../modifiers.js";
 import { isRequirementSatisfied } from "./requirement.js";
+import { PolicyYieldsCache } from "../cache.js";
 
 /**
  * @param {Player} player
@@ -139,13 +141,54 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
                         });
             });
         }
-
+        
+        // We treat the MAJOR_PLAYERS as a special case, since we are interested only 
+        // in our player
+        case "COLLECTION_MAJOR_PLAYERS":
         case "COLLECTION_OWNER":
             return [{
                 type: "Player",
                 isEmpty: false,
                 player,
             }];
+
+        // Constructibles 
+        case "COLLECTION_PLAYER_CONSTRUCTIBLES": {
+            return player.Cities.getCities().flatMap(city => {
+                return findCityConstructibles(city).flatMap(({ constructible, constructibleType }) => {
+                    return {
+                        type: "Constructible",
+                        isEmpty: false,
+                        player,
+                        plot: GameplayMap.getIndexFromLocation(constructible.location),
+                        constructible,
+                        constructibleType
+                    };
+                });
+            });
+        }
+
+        // Doesn't exist in the game, but we can handle it
+        case "COLLECTION_CITY_CONSTRUCTIBLES": {
+            if (parentSubject?.type !== "City") {
+                throw new Error("COLLECTION_CITY_CONSTRUCTIBLES requires a parentSubject (City)");
+            }
+
+            if (parentSubject.isEmpty === true) {
+                return [ { isEmpty: true, type: "Constructible" } ];
+            }
+
+            return findCityConstructibles(parentSubject.city).map(({ constructible, constructibleType }) => {
+                return {
+                    type: "Constructible",
+                    isEmpty: false,
+                    player,
+                    plot: GameplayMap.getIndexFromLocation(constructible.location),
+                    constructible,
+                    constructibleType
+                };
+            });
+        }
 
         // Nested (City)
         case "COLLECTION_CITY_PLOT_YIELDS": {

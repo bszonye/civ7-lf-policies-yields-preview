@@ -369,6 +369,12 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return subject.player.isMajor;
         }
 
+        case "REQUIREMENT_PLAYER_ELIGIBLE_CS_BONUS": {
+            // These modifiers are visible in the UI only when you can
+            // choose them, so if you can _see_ them, you're eligible.
+            return true;
+        }
+
         // Ignored requirements. Usually because they relate to _combat_ bonuses, and we don't display those.
         case "REQUIREMENT_COMMANDER_HAS_X_PROMOTIONS":
         case "REQUIREMENT_PLOT_IS_SUZERAIN":

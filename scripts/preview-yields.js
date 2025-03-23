@@ -2,7 +2,7 @@ import { applyYieldsForSubjects } from "./effects/apply-effects.js";
 import { PolicyYieldsCache } from "./cache.js";
 import { resolveSubjectsWithRequirements } from "./requirements/resolve-subjects.js";
 import { PolicyYieldsContext } from "./core/execution-context.js";
-import { getModifiersForAttribute, getModifiersForTradition } from "./fetch-modifiers.js";
+import { getCityStateBonusModifier, getModifiersForAttribute, getModifiersForTradition } from "./fetch-modifiers.js";
 
 export function previewPolicyYields(policy) {
     // console.warn("previewPolicyYields for", policy.TraditionType);
@@ -16,6 +16,16 @@ export function previewPolicyYields(policy) {
 export function previewAttributeYields(attribute) {
     const modifiers = getModifiersForAttribute(attribute);
     return previewModifiersYields(modifiers, "Attribute " + attribute);
+}
+
+/**
+ * Obtains the modifiers resolved for the given CityStateBonusType.
+ * @param {string} bonusType
+ * @returns {YieldsPreviewResult}
+ */
+export function previewCityStateBonusYields(bonusType) {
+    const modifiers = getCityStateBonusModifier(bonusType);
+    return previewModifiersYields(modifiers, "CityStateBonus " + bonusType);
 }
 
 /**

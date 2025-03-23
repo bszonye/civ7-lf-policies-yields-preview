@@ -47,3 +47,24 @@ export function getModifiersForAttribute(attributeType) {
 
     return modifiers;
 }
+
+/**
+ * Obtains modifier for the given CityStateBonusType.
+ * @param {string} bonusType
+ * @returns {ResolvedModifier[] | null}
+ */
+export function getCityStateBonusModifier(bonusType) {
+    if (!bonusType) {
+        return null;
+    }
+
+    const bonusModifiers = new Set(GameInfo.CityStateBonusModifiers
+        .filter(cs => cs.CityStateBonusType === bonusType)
+        .map(cs => cs.ModifierID));
+
+    let modifiers = GameInfo.Modifiers
+        .filter(m => bonusModifiers.has(m.ModifierId))
+        .map(m => resolveModifier(m));
+
+    return modifiers;
+}
