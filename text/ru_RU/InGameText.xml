@@ -5,7 +5,7 @@
             <Text>Leonardfactory: Прогноз дохода от социальных политик</Text>
         </Row>
         <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL" Language="ru_RU">
-            <Text>Отображать Доход Различными Цветами</Text>
+            <Text>Отображать доход различными цветами</Text>
         </Row>
         <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL_DESC" Language="ru_RU">
             <Text>Отображает значения дохода различными цветами для лучшего восприятия информации.</Text>
