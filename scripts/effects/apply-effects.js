@@ -14,7 +14,7 @@ import { PolicyYieldsCache } from "../cache.js";
 
 /**
  * @param {PolicyYieldsContext} yieldsContext 
- * @param {Subject[]} subjects 
+ * @param {PreviewSubject[]} subjects 
  * @param {ResolvedModifier} modifier 
  * @returns 
  */
@@ -26,7 +26,7 @@ export function applyYieldsForSubjects(yieldsContext, subjects, modifier) {
 
 /**
  * @param {PolicyYieldsContext} context 
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @param {ResolvedModifier} modifier
  */
 function applyYieldsForSubject(context, subject, modifier) {

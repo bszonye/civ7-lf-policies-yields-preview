@@ -68,7 +68,7 @@ export class PolicyYieldsContext extends PolicyExecutionContext {
 
     /**
      * Add the amount specified in the modifier for the subject
-     * @param {Subject} subject 
+     * @param {PreviewSubject} subject 
      * @param {ResolvedModifier} modifier
      * @param {number} multiplier
      */
@@ -97,7 +97,7 @@ export class PolicyYieldsContext extends PolicyExecutionContext {
 }
 
 /**
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @param {string} yieldType
  */
 function getSubjectBaseYield(subject, yieldType) {

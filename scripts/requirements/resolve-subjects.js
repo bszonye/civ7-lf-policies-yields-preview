@@ -5,8 +5,8 @@ import { isRequirementSatisfied } from "./requirement.js";
 /**
  * @param {Player} player
  * @param {ResolvedModifier} modifier 
- * @param {Subject | null} parentSubject May be a city, a plot, a player, etc. Usually a city for nested modifiers (EFFECT_ATTACH_MODIFIER_TO_CITY)
- * @returns {Subject[]}
+ * @param {PreviewSubject | null} parentSubject May be a city, a plot, a player, etc. Usually a city for nested modifiers (EFFECT_ATTACH_MODIFIER_TO_CITY)
+ * @returns {PreviewSubject[]}
  */
 export function resolveSubjectsWithRequirements(player, modifier, parentSubject = null) {
     const baseSubjects = resolveBaseSubjects(modifier, parentSubject);
@@ -26,7 +26,7 @@ export function resolveSubjectsWithRequirements(player, modifier, parentSubject 
 
 /**
  * @param {Player} player
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @param {ResolvedRequirementSet | null} requirementSet
  */
 function filterSubjectByRequirementSet(player, subject, requirementSet) {
@@ -104,8 +104,8 @@ function wrapUnitSubjects(units) {
 
 /**
  * @param {ResolvedModifier} modifier
- * @param {Subject | null} parentSubject
- * @returns {Subject[]}
+ * @param {PreviewSubject | null} parentSubject
+ * @returns {PreviewSubject[]}
  */
 function resolveBaseSubjects(modifier, parentSubject = null) {
     const player = Players.get(GameContext.localPlayerID);

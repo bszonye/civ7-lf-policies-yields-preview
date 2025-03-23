@@ -7,7 +7,7 @@ import { PolicyExecutionContext } from "../core/execution-context.js";
 
 /**
  * @param {Player} player
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @param {ResolvedRequirement} requirement
  * @returns
  */

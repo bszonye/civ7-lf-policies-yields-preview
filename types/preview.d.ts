@@ -70,7 +70,7 @@ declare type PlayerSubject = CreateSubject<'Player', {
     player: Player;
 }>;
 
-declare type Subject = CitySubject | PlotSubject | UnitSubject | PlayerSubject;
+declare type PreviewSubject = CitySubject | PlotSubject | UnitSubject | PlayerSubject;
 
 declare interface YieldsDelta {
     Amount: {

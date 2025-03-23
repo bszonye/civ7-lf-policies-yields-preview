@@ -38,4 +38,5 @@ class PolicyChooserItemYieldsDecorator {
     }
 }
 
+// @ts-ignore
 Controls.decorate('policy-chooser-item', (val) => new PolicyChooserItemYieldsDecorator(val));

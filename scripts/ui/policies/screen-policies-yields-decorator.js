@@ -40,4 +40,5 @@ class ScreenPoliciesYieldsDecorator {
     }
 }
 
+// @ts-ignore
 Controls.decorate('screen-policies', (val) => new ScreenPoliciesYieldsDecorator(val));

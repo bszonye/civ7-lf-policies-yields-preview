@@ -1,5 +1,5 @@
 /**
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @returns {asserts subject is CitySubject}
  */
 export function assertSubjectCity(subject) {
@@ -9,7 +9,7 @@ export function assertSubjectCity(subject) {
 }
 
 /**
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @returns {asserts subject is PlotSubject | CitySubject | UnitSubject}
  */
 export function assertSubjectPlot(subject) {
@@ -19,7 +19,7 @@ export function assertSubjectPlot(subject) {
 }
 
 /**
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @returns {asserts subject is UnitSubject}
  */
 export function assertSubjectUnit(subject) {
@@ -30,7 +30,7 @@ export function assertSubjectUnit(subject) {
 
 /**
  * For now, it should always be possible to match any subject against player data.
- * @param {Subject} subject
+ * @param {PreviewSubject} subject
  * @returns {asserts subject is PlayerSubject | CitySubject | UnitSubject | PlotSubject}
  */
 export function assertSubjectPlayer(subject) {
