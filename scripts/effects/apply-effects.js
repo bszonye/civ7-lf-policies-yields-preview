@@ -510,18 +510,43 @@ function applyYieldsForSubject(context, subject, modifier) {
             }
 
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            const cityStates = getPlayerCityStatesSuzerain(player);
 
-            // If this is a Constructible, we need to check if it has the required tag.
-            if (subject.type === 'Constructible' && modifier.Arguments.Tag?.Value) {
-                const type = subject.constructibleType?.ConstructibleType;
-                const requiredTag = modifier.Arguments.Tag.Value;
-                if (!PolicyYieldsCache.hasTypeTag(type ?? '', requiredTag)) {
-                    return context.addYieldsAmount(modifier, 0);
+            // If this is a Constructible, we need to check its condition
+            if (subject.type === 'Constructible') {
+                // By tag
+                if (modifier.Arguments.Tag?.Value) {
+                    const type = subject.constructibleType?.ConstructibleType;
+                    const requiredTag = modifier.Arguments.Tag.Value;
+                    if (!PolicyYieldsCache.hasTypeTag(type ?? '', requiredTag)) {
+                        return context.addYieldsAmount(modifier, 0);
+                    }
+                    
+                    return context.addYieldsAmountTimes(modifier, cityStates.length);
                 }
+
+                // By ConstructibleType
+                if (modifier.Arguments.ConstructibleType?.Value) {
+                    const type = subject.constructibleType?.ConstructibleType;
+                    if (type !== modifier.Arguments.ConstructibleType.Value) {
+                        return context.addYieldsAmount(modifier, 0);
+                    }
+
+                    return context.addYieldsAmountTimes(modifier, cityStates.length);
+                }
+
+                console.warn(`EFFECT_CITY_ADJUST_SUZERAIN_OF_CONSTRUCTIBLE_YIELD: Unhandled modifier arguments: ${JSON.stringify(modifier.Arguments)}`);
+                // We don't want to add yields since we don't know the amount, it's not zero
+                return;
             }
 
-            const cityStates = getPlayerCityStatesSuzerain(player);
-            return context.addYieldsAmountTimes(modifier, cityStates.length);
+            // We don't know about specific filters for this modifier type when
+            // applied to a city. So we just apply it always.
+            if (subject.type === 'City') {
+                return context.addYieldsAmountTimes(modifier, cityStates.length);
+            }
+
+            throw new Error(`Unhandled subject type for EFFECT_CITY_ADJUST_SUZERAIN_OF_CONSTRUCTIBLE_YIELD: ${JSON.stringify(subject)}`);
         }
 
         // ==============================
