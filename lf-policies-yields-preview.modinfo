@@ -32,6 +32,8 @@
 					<Item>text/it_IT/InGameText.xml</Item>
 					<Item>text/ko_KR/InGameText.xml</Item>
 					<Item>text/ru_RU/InGameText.xml</Item>
+					<Item>text/zh_Hans_CN/InGameText.xml</Item>
+					<Item>text/zh_Hant_HK/InGameText.xml</Item>
 				</UpdateText>
 				<UIScripts>
 					<Item>scripts/core/settings.js</Item>
@@ -50,6 +52,8 @@
 					<Item>text/it_IT/InGameText.xml</Item>
 					<Item>text/ko_KR/InGameText.xml</Item>
 					<Item>text/ru_RU/InGameText.xml</Item>
+					<Item>text/zh_Hans_CN/InGameText.xml</Item>
+					<Item>text/zh_Hant_HK/InGameText.xml</Item>
 				</UpdateText>
 				<UIScripts>
 					<Item>scripts/core/settings.js</Item>
@@ -89,5 +93,7 @@
 		<File>text/it_IT/ModInfoText.xml</File>
 		<File>text/ko_KR/ModInfoText.xml</File>
 		<File>text/ru_RU/ModInfoText.xml</File>
+		<File>text/zh_Hans_CN/ModInfoText.xml</File>
+		<File>text/zh_Hant_HK/ModInfoText.xml</File>
 	</LocalizedText>
 </Mod>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Row Tag="LOC_OPTIONS_GROUP_LF_YIELDS" Language="zh_Hans_CN">
+            <Text>政策收益预览设置</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL" Language="zh_Hans_CN">
+            <Text>社会政策收益颜色标注</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_OPTION_COLORFUL_DESC" Language="zh_Hans_CN">
+            <Text>根据政策类型使用不同颜色标注收益项目，便于快速识别</Text>
+        </Row>
+    </LocalizedText>
+</Database>

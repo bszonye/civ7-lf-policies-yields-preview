@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_NAME" Language="zh_Hans_CN">
+            <Text>政策收益预览模组</Text>
+        </Row>
+        <Row Tag="LOC_MOD_LF_YIELDS_MOD_DESC" Language="zh_Hans_CN">
+            <Text>在政府界面为社会组织政策（及危机政策）卡添加收益预览，显示每张政策卡当前生效的收益影响。</Text>
+        </Row>
+    </LocalizedText>
+</Database>
