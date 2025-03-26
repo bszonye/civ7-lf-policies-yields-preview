@@ -31,7 +31,7 @@
 					<Item>text/en_US/InGameText.xml</Item>
 					<Item>text/it_IT/InGameText.xml</Item>
 					<Item>text/ko_KR/InGameText.xml</Item>
-					<File>text/ru_RU/InGameText.xml</File>
+					<Item>text/ru_RU/InGameText.xml</Item>
 				</UpdateText>
 				<UIScripts>
 					<Item>scripts/core/settings.js</Item>
@@ -49,7 +49,7 @@
 					<Item>text/en_US/InGameText.xml</Item>
 					<Item>text/it_IT/InGameText.xml</Item>
 					<Item>text/ko_KR/InGameText.xml</Item>
-					<File>text/ru_RU/InGameText.xml</File>
+					<Item>text/ru_RU/InGameText.xml</Item>
 				</UpdateText>
 				<UIScripts>
 					<Item>scripts/core/settings.js</Item>
