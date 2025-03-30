@@ -63,9 +63,15 @@ class AttributeCardYieldsDecorator {
             _render.call(this);
             this.setupYieldContainer();
 
-            /** @type {HTMLDivElement} */
-            const cardContent = this.cardDescription.parentNode;
-            cardContent.appendChild(this.yieldsContainer);
+            if (!this.isSmallCard) {
+                /** @type {HTMLDivElement} */
+                const cardContent = this.cardDescription.parentNode;
+                cardContent.appendChild(this.yieldsContainer);
+            }
+            else {
+                this.Root.classList.add('policy-yield-previews__small-attribute');
+                this.Root.appendChild(this.yieldsContainer);
+            }
         };
     }
 }

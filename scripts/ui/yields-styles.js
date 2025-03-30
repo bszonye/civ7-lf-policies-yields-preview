@@ -60,6 +60,14 @@ export function setupCSSStyles() {
         margin-top: 0.3rem;
         margin-right: 0.3rem;
     }
+
+    /** Attributes */
+    .policy-yield-previews__small-attribute {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
     `;
     document.head.appendChild(style);
 
