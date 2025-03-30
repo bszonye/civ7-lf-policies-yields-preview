@@ -670,6 +670,67 @@ declare interface CityStateBonusModifier {
   ModifierID: string;
 }
 
+declare interface DiplomacyActionGroup extends BaseTableEntry {
+  DiplomacyActionGroupType: string;
+  Name: string;
+}
+
+declare interface DiplomacyActionGroupSubtype extends BaseTableEntry {
+  DiplomacyActionGroupSubtypeType: string;
+  Name: string;
+}
+
+declare interface DiplomacyActionTag extends BaseTableEntry {
+  DiplomacyActionTagType: string;
+  Name: string;
+}
+
+declare interface DiplomacyAction extends BaseTableEntry {
+  DiplomacyActionType: string;
+  AllyOnly: boolean;
+  AlwaysNotifyTarget: boolean;
+  BaseDuration: number;
+  BaseTokenCost: number;
+  BlocksTargetProject: boolean;
+  CancelPenalty: number;
+  ChangeSupportMsg?: string;
+  Description: string;
+  DiplomacyActionTag?: string;
+  EnvoysInfluenceProgress: boolean;
+  IsMutualSupport: boolean;
+  MaxThirdPartySupport: number;
+  Momentum: number;
+  MustStartFromUnit: boolean;
+  Name: string;
+  NegativeProgressAllowed: boolean;
+  NumTimesPerPlayer: number;
+  Opposable: boolean;
+  Opposed: boolean;
+  OpposeDesc?: string;
+  OpposeRemovedDesc?: string;
+  RandomInitialProgress: number;
+  RejectionRefundsInfluence: boolean;
+  RelativeZero: number;
+  RequestString?: string;
+  RequiresUnlock: boolean;
+  RevealChance: number;
+  RevealPenaltyRelationshipHit: number;
+  SingleInstanceProject: boolean;
+  SuccessChance: number;
+  Supportable: boolean;
+  SupportDesc?: string;
+  SupportFavors: number;
+  SupportRemovedDesc?: string;
+  SupportWindow: number;
+  Symmetrical: boolean;
+  TargetFavors: number;
+  TargetFavorsFreq: number;
+  UIIconPath: string;
+  UnsupportPenalty: number;
+  WarOnly: boolean;
+}
+
+
 
 declare type GameInfoArray<T> = T[] & { 
   lookup(hash: number): T | undefined;
@@ -713,6 +774,10 @@ declare interface IGameInfo {
   District_FreeConstructibles: GameInfoArray<DistrictFreeConstructible>;
   CityStateBonuses: GameInfoArray<CityStateBonus>;
   CityStateBonusModifiers: GameInfoArray<CityStateBonusModifier>;
+  DiplomacyActionGroups: GameInfoArray<DiplomacyActionGroup>;
+  DiplomacyActionGroupSubtypes: GameInfoArray<DiplomacyActionGroupSubtype>;
+  DiplomacyActionTags: GameInfoArray<DiplomacyActionTag>;
+  DiplomacyActions: GameInfoArray<DiplomacyAction>;
 }
 
 declare type IYieldTypes = {

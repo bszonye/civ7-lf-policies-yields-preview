@@ -127,12 +127,23 @@ export function getPlayerCompletedMasteries(player, modifier) {
 
 /**
  * @param {Player} player
+ * @param {ResolvedModifier} modifier
  */
-export function getPlayerOngoingDiplomacyActions(player) {
+export function getPlayerOngoingDiplomacyActions(player, modifier) {
     let ongoingActions = Game.Diplomacy
         .getPlayerEvents(player.id)
         .filter(action => {
-            return action.initialPlayer == player.id || (action.targetPlayer == player.id && action.revealed);
+            const isValid = action.initialPlayer == player.id || (action.targetPlayer == player.id && action.revealed);
+            if (!isValid) return false;
+
+            if (modifier.Arguments.ActionGroupType?.Value) {
+                const actionGroupType = GameInfo.DiplomacyActionGroups.lookup(action.actionGroup);
+                if (!actionGroupType) return false;
+                const actionGroupTypeName = actionGroupType.Name;
+                if (actionGroupTypeName != modifier.Arguments.ActionGroupType.Value) return false;
+            }
+
+            return true;
         });
 
     return ongoingActions;

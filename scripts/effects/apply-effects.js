@@ -185,7 +185,7 @@ function applyYieldsForSubject(context, subject, modifier) {
             assertSubjectPlayer(subject);
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
 
-            const ongoingActions = getPlayerOngoingDiplomacyActions(player);
+            const ongoingActions = getPlayerOngoingDiplomacyActions(player, modifier);
             return context.addYieldsAmountTimes(modifier, ongoingActions.length);
         }
 
