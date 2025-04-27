@@ -61,8 +61,8 @@ function patchTreeGrid() {
     const _originalGenerateData = proto.generateData;
 
     // @ts-ignore
-    function patchedGenerateData () {
-        _originalGenerateData.call(this);
+    function patchedGenerateData (...args) {
+        _originalGenerateData.call(this, ...args);
 
         this._treeData.cards.forEach((card, i) => {
             const nodeData = Game.ProgressionTrees.getNode(this._player, card.nodeType);
