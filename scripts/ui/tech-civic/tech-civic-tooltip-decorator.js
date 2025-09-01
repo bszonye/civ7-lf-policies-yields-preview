@@ -1,14 +1,14 @@
 import TooltipManager, { Tooltip } from '/core/ui/tooltips/tooltip-manager.js';
-import TechTreeChooser from '/base-standard/ui/tech-tree-chooser/model-tech-tree-chooser.js'
-import CultureTreeChooser from '/base-standard/ui/culture-tree-chooser/model-culture-tree-chooser.js';
-import TechTree from '/base-standard/ui/tech-tree/model-tech-tree.js';
-import CultureTree from '/base-standard/ui/culture-tree/model-culture-tree.js';
-import { TreeGrid } from '/base-standard/ui/tree-grid/tree-grid.js';
+import { T as TechTreeChooser } from '/base-standard/ui/tech-tree-chooser/model-tech-tree-chooser.chunk.js'
+import { C as CultureTreeChooser } from '/base-standard/ui/culture-tree-chooser/model-culture-tree-chooser.chunk.js';
+import { T as TechTree } from '/base-standard/ui/tech-tree/model-tech-tree.chunk.js';
+import { C as CultureTree } from '/base-standard/ui/culture-tree/model-culture-tree.chunk.js';
+import { a as TreeGrid } from '/base-standard/ui/tree-grid/tree-grid.chunk.js';
 import { previewModifiersYields, previewPolicyYields } from '../../preview-yields.js';
 import { resolveModifierById } from '../../modifiers.js';
 import { renderYieldsPreviewBox } from '../render-yields-preview.js';
-import { getUnlockTargetDescriptions, getUnlockTargetName } from '/base-standard/ui/utilities/utilities-textprovider.js';
-import { formatStringArrayAsNewLineText } from '/core/ui/utilities/utilities-core-textprovider.js';
+import { a as getUnlockTargetDescriptions, g as getUnlockTargetName } from '/base-standard/ui/utilities/utilities-textprovider.chunk.js';
+import { a as formatStringArrayAsNewLineText } from '/core/ui/utilities/utilities-core-textprovider.chunk.js';
 
 // Preload tooltips to make sure we can override them
 import '/base-standard/ui/tooltips/tech-civic-tooltip.js';

@@ -18,18 +18,20 @@ function getBoundedMaintenanceReduction(value, maintenanceCost) {
  * @param {boolean} isConstructible
  */
 export function calculateMaintenanceEfficiencyToReduction(modifier, count, maintenanceCost, isConstructible = false) {
-    if (modifier.Arguments.Amount?.Value) {
-        const reduction = Number(modifier.Arguments.Amount.Value) * count;        
+    // constructibles mislabel percent efficiency as Amount
+    if (modifier.Arguments.Amount?.Value && !isConstructible) {
+        const reduction = Number(modifier.Arguments.Amount.Value) * count;
         return getBoundedMaintenanceReduction(reduction, maintenanceCost);
     }
-    if (modifier.Arguments.Percent?.Value) {
+    const arg = modifier.Arguments.Percent ?? modifier.Arguments.Amount;
+    if (arg?.Value) {
         if (maintenanceCost < 0) {
             console.warn(`Maintenance cost is negative: ${maintenanceCost}. Cannot calculate maintenance reduction.`);
             return 0;
         }
 
-        let percent = Number(modifier.Arguments.Percent.Value) / 100;
-        
+        let percent = Number(arg.Value) / 100;
+
         // Can be negative / positive.
         let value = percent > 0 ?
             // Positive percent is applied to yields, not to cost; this means that 2 golds
@@ -38,12 +40,6 @@ export function calculateMaintenanceEfficiencyToReduction(modifier, count, maint
             // Negative percent instead is applied directly to the maintenance cost.
             // Since percent < 0 and maintenanceCost > 0, the result is negative (reduction).
             maintenanceCost * percent;
-
-        // _ONLY_ for constructibles, -25% means a bonus not a malus.
-        // I suppose it's the same when negative, so +25% means a malus.
-        if (isConstructible) {
-            value = -value;
-        }
 
         return getBoundedMaintenanceReduction(value, maintenanceCost);
     }
