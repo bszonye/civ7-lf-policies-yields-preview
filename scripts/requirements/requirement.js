@@ -38,7 +38,11 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return hasCityBuilding(subject.city, requirement.Arguments);
         }
         case "REQUIREMENT_CITY_HAS_PROJECT": {
-            assertSubjectCity(subject); 
+            assertSubjectCity(subject);
+            // DECENTRALIZATION_MOD_TOWN_YIELDS crisis policy omits the
+            // REQUIREMENT_CITY_IS_TOWN requirement, so this requirement
+            // also needs to check for that condition.
+            if (!subject.city.isTown) return false;
             if (requirement.Arguments.HasAnyProject?.Value === "true") {
                 return subject.city.Growth.projectType !== -1;
             }
@@ -332,6 +336,15 @@ export function isRequirementSatisfied(player, subject, requirement) {
         case "REQUIREMENT_PLAYER_IS_AT_PEACE_WITH_ALL_MAJORS": {
             assertSubjectPlayer(subject);
             return isPlayerAtPeaceWithMajors(subject.player);
+        }
+
+        case "REQUIREMENT_PLAYER_HAS_CIVILIZATION_OR_LEADER_TRAIT": {
+            // Assyria DLC uses this to withhold codexes with an inverse
+            // check for `TRAIT_ASSYRIA`.  because this currently only
+            // affects codexes and not yields, it seems safe to return
+            // true unconditionally, for now.
+            // TODO: actually check the trait and the inverse option
+            return true;
         }
 
         case "REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS": {
