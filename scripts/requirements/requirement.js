@@ -43,6 +43,8 @@ export function isRequirementSatisfied(player, subject, requirement) {
             // REQUIREMENT_CITY_IS_TOWN requirement, so this requirement
             // also needs to check for that condition.
             if (!subject.city.isTown) return false;
+            // projects are inactive while Growing Town is set
+            if (subject.city.Growth.growthType == GrowthTypes.EXPAND) return false;
             if (requirement.Arguments.HasAnyProject?.Value === "true") {
                 return subject.city.Growth.projectType !== -1;
             }
