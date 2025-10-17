@@ -245,7 +245,9 @@ declare interface Game {
     Unlocks: Record<string, unknown>;
     UnitOperations: Record<string, unknown>;
     UnitCommands: Record<string, unknown>;
-    Trade: Record<string, unknown>;
+    Trade: {
+        calculateTradeRouteExportYield(routeId: ID, yieldType: string): number;
+    };
     Summary: Record<string, unknown>;
     Resources: Record<string, unknown>;
     Religion: Record<string, unknown>;

@@ -151,6 +151,42 @@ function applyYieldsForSubject(context, subject, modifier) {
             return applyYieldsForSubjects(context, nestedSubjects, nestedModifier);
         }
 
+        // Trade
+        case 'EFFECT_ADJUST_PLAYER_ALLIANCE_TRADE': {
+            assertSubjectPlayer(subject);
+
+            // These are the yield types which should be "converted" into from Gold.
+            const yieldTypeSelf = modifier.Arguments.getAsserted('YieldTypeSelf');
+            const percent = Number(modifier.Arguments.getAsserted('SelfPercent')) / 100;
+
+            if (subject.isEmpty) return context.addYieldTypeAmount(yieldTypeSelf, 0);
+
+            const player = subject.player;
+
+            let totalRoutesGold = 0;
+            for (const city of player.Cities.getCities()) {
+                const routes = city.Trade.routes;
+                for (const route of routes) {
+                    // Check if owned by us (player)
+                    if (route.leftCityID.owner !== player.id) {
+                        continue;
+                    }
+
+                    const otherPlayerID = route.rightCityID.owner;
+
+                    // Check if allied
+                    if (!otherPlayerID || otherPlayerID === player.id || !player.Diplomacy?.hasAllied(otherPlayerID)) {
+                        continue;
+                    }
+                    
+                    const routeYieldOfGold = Game.Trade.calculateTradeRouteExportYield(route.id, "YIELD_GOLD");
+                    totalRoutesGold += routeYieldOfGold;
+                }
+            }
+
+            return context.addYieldTypeAmount(yieldTypeSelf, totalRoutesGold * percent);
+        }
+
 
         // Player (Units)
         case "EFFECT_PLAYER_ADJUST_UNIT_MAINTENANCE_EFFICIENCY": {
