@@ -101,7 +101,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
             assertSubjectCity(subject);
             const loc = subject.city.location;
             const units = MapUnits.getUnits(loc.x, loc.y);
-            return units.some(unit => unit.owner == player.id);
+            return units.some(unit => unit.owner == player.id && unit.isCombat);
         }
 
         case "REQUIREMENT_CITY_HAS_GREAT_WORK": {
