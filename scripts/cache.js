@@ -5,6 +5,10 @@ export const PolicyYieldsCache = new class {
     _typeTags = {};
     /** @type {Map<number, number>} */
     _cityTradeYields = new Map();
+    /** @type {Record<string, Set<string>>} */
+    _leaderTraits = {};
+    /** @type {Record<string, Set<string>>} */
+    _civilizationTraits = {};
 
     _localeTradeYieldDescription = Locale.compose("LOC_ATTR_YIELD_FROM_TRADE");
 
@@ -71,6 +75,45 @@ export const PolicyYieldsCache = new class {
         }
 
         return this._cityTradeYields.get(city.id.id);
+    }
+
+    /**
+     * @param {string | null | undefined} leaderType
+     * @returns {Set<string>}
+     */
+    getLeaderTraits(leaderType) {
+        if (!leaderType) {
+            return new Set();
+        }
+
+        if (!this._leaderTraits[leaderType]) {
+            const traits = GameInfo.LeaderTraits
+                .filter(lt => lt.LeaderType === leaderType)
+                .map(lt => lt.TraitType);
+            this._leaderTraits[leaderType] = new Set(traits);
+        }
+
+        return this._leaderTraits[leaderType];
+    }
+
+    /**
+     * @param {string | null | undefined} civilizationType
+     * @returns {Set<string>}
+     */
+    getCivilizationTraits(civilizationType) {
+        if (!civilizationType) {
+            return new Set();
+        }
+
+        if (!this._civilizationTraits[civilizationType]) {
+            const traits = GameInfo.CivilizationTraits
+                .filter(ct => ct.CivilizationType === civilizationType)
+                .map(ct => ct.TraitType);
+
+            this._civilizationTraits[civilizationType] = new Set(traits);
+        }
+
+        return this._civilizationTraits[civilizationType];
     }
 }
 

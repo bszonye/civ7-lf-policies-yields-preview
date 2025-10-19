@@ -51,6 +51,7 @@ interface City {
     };
     Growth: {
         projectType: number;
+        growthType: number;        
     };
     Yields: {
         getNetYield: (yieldType: string) => number;
@@ -74,6 +75,9 @@ interface City {
         hasMaxWorkersAtPlot: (plotIndex: number) => boolean;
         getNumWorkers: () => number;
         getCityWorkerCap: () => number;
+    };
+    Trade: {
+        routes: TradeRouteInstance[];
     }
 }
 
@@ -162,6 +166,15 @@ declare interface Player {
     isMajor: boolean;
     id: number;
     isDistantLands(coord: Location): boolean;
+    civilizationType: number;
+    leaderType: number;
+    isHuman: boolean;
+    isAI: boolean;
+    isIndependent: boolean;
+    isBarbarian: boolean;
+    wasEverAlive: boolean;
+    level: number; // Hash
+    isValid: boolean;
 }
 
 declare var Player: Player;
@@ -423,4 +436,8 @@ declare var UI: {
     getApplicationOption(cat: string, option: string): string;
     setApplicationOption(cat: string, option: string, value: string): void;
     commitApplicationOptions(): void;
+}
+
+declare var GrowthTypes: {
+    EXPAND: number;
 }

@@ -4,6 +4,7 @@ import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPl
 import { isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "./assert-subject.js";
 import { PolicyExecutionContext } from "../core/execution-context.js";
+import { PolicyYieldsCache } from "../cache.js";
 
 /**
  * @param {Player} player
@@ -43,13 +44,15 @@ export function isRequirementSatisfied(player, subject, requirement) {
             // REQUIREMENT_CITY_IS_TOWN requirement, so this requirement
             // also needs to check for that condition.
             if (!subject.city.isTown) return false;
+
             // projects are inactive while Growing Town is set
             if (subject.city.Growth.growthType == GrowthTypes.EXPAND) return false;
-            if (requirement.Arguments.HasAnyProject?.Value === "true") {
-                return subject.city.Growth.projectType !== -1;
-            }
-
             if (subject.city.Growth.projectType === -1) return false;
+
+            // If no specific project is required, just having any project is enough
+            if (requirement.Arguments.HasAnyProject?.Value === "true") {
+                return true;
+            }
 
             const projectTypeName = GameInfo.Projects.lookup(subject.city.Growth.projectType)?.ProjectType;
             return projectTypeName === requirement.Arguments.getAsserted('ProjectType');
@@ -341,12 +344,17 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         case "REQUIREMENT_PLAYER_HAS_CIVILIZATION_OR_LEADER_TRAIT": {
+            assertSubjectPlayer(subject);
             // Assyria DLC uses this to withhold codexes with an inverse
-            // check for `TRAIT_ASSYRIA`.  because this currently only
-            // affects codexes and not yields, it seems safe to return
-            // true unconditionally, for now.
-            // TODO: actually check the trait and the inverse option
-            return true;
+            // check for `TRAIT_ASSYRIA`.
+            const civilizationType = GameInfo.Civilizations.lookup(subject.player.civilizationType)?.CivilizationType;
+            const civilizationTraits = PolicyYieldsCache.getCivilizationTraits(civilizationType);
+            
+            const leaderType = GameInfo.Leaders.lookup(subject.player.leaderType)?.LeaderType;
+            const leaderTraits = PolicyYieldsCache.getLeaderTraits(leaderType);
+
+            const requiredTrait = requirement.Arguments.getAsserted('TraitType');
+            return civilizationTraits.has(requiredTrait) || leaderTraits.has(requiredTrait);            
         }
 
         case "REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS": {

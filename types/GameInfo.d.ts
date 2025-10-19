@@ -730,7 +730,35 @@ declare interface DiplomacyAction extends BaseTableEntry {
   WarOnly: boolean;
 }
 
+declare interface CivilizationTrait extends BaseTableEntry {
+  CivilizationType: string;
+  TraitType: string;
+}
 
+declare interface Civilization extends BaseTableEntry {
+  CivilizationType: string;
+  Adjective: string;
+  CapitalName: string;
+  Description: string;
+}
+
+declare interface Leader extends BaseTableEntry {
+  LeaderType: string;
+  AITargetCityPercentage: number;
+  BasePersonaType?: string | null;
+  DiscountRate: number;
+  InheritFrom: string;
+  IsBarbarianLeader: boolean;
+  IsIndependentLeader: boolean;
+  IsMajorLeader: boolean;
+  Name: string;
+  OperationList?: string | null;
+}
+
+declare interface LeaderTrait extends BaseTableEntry {
+  LeaderType: string;
+  TraitType: string;
+}
 
 declare type GameInfoArray<T> = T[] & { 
   lookup(hash: number): T | undefined;
@@ -778,6 +806,10 @@ declare interface IGameInfo {
   DiplomacyActionGroupSubtypes: GameInfoArray<DiplomacyActionGroupSubtype>;
   DiplomacyActionTags: GameInfoArray<DiplomacyActionTag>;
   DiplomacyActions: GameInfoArray<DiplomacyAction>;
+  CivilizationTraits: GameInfoArray<CivilizationTrait>;
+  Civilizations: GameInfoArray<Civilization>;
+  LeaderTraits: GameInfoArray<LeaderTrait>;
+  Leaders: GameInfoArray<Leader>;
 }
 
 declare type IYieldTypes = {
