@@ -1,5 +1,5 @@
 import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
-import { getCityGreatWorksCount, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
+import { getCityGreatWorksCount, getCityWalledDistricts, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
 import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast, hasPlotDistrictOfType } from "../game/plot.js";
 import { isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectUnit } from "./assert-subject.js";
@@ -99,9 +99,29 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_CITY_HAS_GARRISON_UNIT": {
             assertSubjectCity(subject);
-            const loc = subject.city.location;
-            const units = MapUnits.getUnits(loc.x, loc.y);
-            return units.some(unit => unit.owner == player.id && unit.isCombat);
+            const cityCenterLocation = subject.city.location;
+            const walledDistricts = getCityWalledDistricts(subject.city);
+
+            // We need to check the city center and all walled districts for military units.
+            const checkLocations = [
+                cityCenterLocation, 
+                ...walledDistricts.map(({ district }) => district.location)
+            ];
+
+            for (const loc of checkLocations) {            
+                const units = MapUnits.getUnits(loc.x, loc.y).map(id => Units.get(id));
+                for (const unit of units) {
+                    if (unit.owner != player.id) continue;
+                    
+                    const unitTypeInfo = GameInfo.Units.lookup(unit.type);
+                    if (unitTypeInfo?.CoreClass === 'CORE_CLASS_MILITARY') {
+                        // we need only _ONE_ military unit, so we can stop here.
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
         }
 
         case "REQUIREMENT_CITY_HAS_GREAT_WORK": {

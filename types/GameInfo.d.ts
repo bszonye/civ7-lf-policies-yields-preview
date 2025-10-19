@@ -319,7 +319,7 @@ declare interface Unit extends BaseTableEntry {
   CanTargetAir: boolean;
   CanTrain: boolean;
   CanTriggerDiscovery: boolean;
-  CoreClass: string;
+  CoreClass: 'CORE_CLASS_RECON' | 'CORE_CLASS_MILITARY' | 'CORE_CLASS_CIVILIAN' | 'CORE_CLASS_SUPPORT' | string;
   CostProgressionModel: string;
   CostProgressionParam1: number;
   Description?: string | null;

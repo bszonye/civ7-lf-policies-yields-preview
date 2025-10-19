@@ -135,3 +135,32 @@ export function getCityGreatWorksCount(city) {
 export function getCityYieldHappiness(city) {
     return city.Yields.getNetYield("YIELD_HAPPINESS");
 }
+
+/**
+ * @param {City} city
+ * @param {number} districtType
+ */
+export function getCityDistricts(city, districtType) {
+    const ids = city.Districts.getIdsOfType(districtType); // e.g. DistrictTypes.URBAN
+    return ids.map(id => {
+        return {
+            district: Districts.get(id),
+        }
+    });
+}
+
+/**
+ * Returns all districts in the city that have walls. It includes Wonders.
+ * 
+ * @param {City} city
+ */
+export function getCityWalledDistricts(city) {
+    return getCityDistricts(city, DistrictTypes.URBAN)
+        .filter(({ district }) => {
+            // We need a Wall
+            const constructiblesIds = district.getConstructibleIds();
+            const constructibles = constructiblesIds.map(id => Constructibles.getByComponentID(id));
+            const constructibleTypes = constructibles.map(c => GameInfo.Constructibles.lookup(c.type));
+            return constructibleTypes.some(type => type?.DistrictDefense);
+        });
+}

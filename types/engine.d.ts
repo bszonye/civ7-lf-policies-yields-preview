@@ -10,7 +10,6 @@ declare var Players: {
 };
 declare var GameContext: any;
 declare var MapCities: any;
-declare var Districts: any;
 declare var Loading: any;
 declare var Locale: any;
 declare var RevealedStates: any;
@@ -78,7 +77,17 @@ interface City {
     };
     Trade: {
         routes: TradeRouteInstance[];
-    }
+    };
+    Districts: {
+        cityCenter: ID;
+        getIds: () => ID[];
+        getIdsOfType: (type: number) => ID[]; /* see DistrictTypes */
+        // getIdsOfTypes: (types: string[]) => ID[];
+        // removeDistrict: (districtId: ID) => void;
+        // getNumDistricts: () => number;
+        // getNumDistrictsOfType: (type: string) => number;
+        // hasDistrict: (type: string) => boolean;
+    };
 }
 
 declare type YieldStep = {
@@ -409,7 +418,7 @@ declare interface MapConstructibles {
 declare var MapConstructibles: MapConstructibles;
 
 declare var MapUnits: {
-    getUnits: (x: number, y: number) => UnitInstance[];
+    getUnits: (x: number, y: number) => ID[];
 }
 
 declare var ResourceTypes = {
@@ -439,5 +448,47 @@ declare var UI: {
 }
 
 declare var GrowthTypes: {
-    EXPAND: number;
+    EXPAND: number; // Hash
 }
+
+declare var DistrictTypes: {
+    URBAN: number; // Hash
+    RURAL: number; // Hash
+    CITY_CENTER: number; // Hash
+    WONDER: number; // Hash
+    WILDERNESS: number; // Hash
+    INVALID: -1; // Hash
+}
+
+declare interface DistrictInstance {
+    getMaxDamage: () => number;
+    getDamage: () => number;
+    isUniqueQuarter: boolean;
+    isQuarter: boolean;
+    isUrbanCore: boolean;
+    cityId: ID;
+    location: Location;
+    owner: number;
+    controllingPlayer: number;
+    originalOwner: number;
+    type: number;
+    localId: number;
+    id: ID;
+    isValid: boolean;
+    getConstructibleIds: () => ID[];
+    getConstructibleIdsOfType: (type: number) => ID[];
+    getConstructibleIdsOfClass: (classType: number) => ID[];
+    getOverbuildableConstructibleTypes: () => number[];
+    getNumRefundedPopulationIfOverbuilt: () => number;
+    changeDamage: (amount: number) => void;
+}
+
+declare interface Districts {
+    get: (districtId: ID) => DistrictInstance;
+    getAtLocation: (location: Location) => DistrictInstance;
+    getIdAtLocation: (location: Location) => ID;
+    getLocations: () => Location[];
+    // getFreeConstructible: (districtId: ID, constructibleType: number) => ID | null;
+}
+
+declare var Districts: Districts;
