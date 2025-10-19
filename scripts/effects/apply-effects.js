@@ -246,7 +246,11 @@ function applyYieldsForSubject(context, subject, modifier) {
                 return addYieldsPercentForCitySubject(context.delta, modifier, subject.city, Number(modifier.Arguments.Percent.Value)); 
             }
             else if (modifier.Arguments.Amount) {
-                return context.addYieldsAmount(modifier, Number(modifier.Arguments.Amount.Value));
+                // We don't want to use `addYieldsAmount` here, because we would need
+                // to calculate the _true_ amount manually.
+                // Instead, `addYieldsAmountTimes` will do the job correctly using `context.getAmount`
+                // internally.
+                return context.addYieldsAmountTimes(modifier, 1);
             }
             else {
                 throw new Error(`Unhandled EFFECT_CITY_ADJUST_YIELD (${modifier.Modifier.ModifierId}) ModifierArguments: ${JSON.stringify(modifier.Arguments)}`);
