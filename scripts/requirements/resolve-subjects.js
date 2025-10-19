@@ -105,6 +105,23 @@ function wrapUnitSubjects(units) {
 }
 
 /**
+ * @param {DistrictInstance[]} districts 
+ * @returns {DistrictSubject[]}
+ */
+function wrapDistrictSubjects(districts) {
+    return districts.map(district => {
+        return {
+            type: "District",
+            isEmpty: false,
+            district,
+            city: Cities.get(district.cityId),
+            plot: GameplayMap.getIndexFromLocation(district.location),
+            player: Players.get(district.owner)
+        };
+    });
+}
+
+/**
  * @param {ResolvedModifier} modifier
  * @param {PreviewSubject | null} parentSubject
  * @returns {PreviewSubject[]}
@@ -238,6 +255,7 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
             return wrapUnitSubjects(combatUnits);
         }
 
+        
         // Nested (Unit)
         case "COLLECTION_UNIT_OCCUPIED_CITY":
             console.warn("COLLECTION_UNIT_OCCUPIED_CITY not implemented");
@@ -247,6 +265,15 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
         // Recognized, but we can't provide simple yields for these:
         case "COLLECTION_PLAYER_COMBAT":
             return [];
+
+        // Districts
+        case "COLLECTION_PLAYER_DISTRICTS": {
+            const districts = player.Cities.getCities().flatMap(city => {
+                return city.Districts.getIds().map(districtId => Districts.get(districtId));
+            });
+            return wrapDistrictSubjects(districts);
+        }
+
 
         default:
             throw new Error(`Unhandled CollectionType: ${modifier.CollectionType}`);

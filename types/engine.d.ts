@@ -485,10 +485,17 @@ declare interface DistrictInstance {
 
 declare interface Districts {
     get: (districtId: ID) => DistrictInstance;
-    getAtLocation: (location: Location) => DistrictInstance;
-    getIdAtLocation: (location: Location) => ID;
+    getAtLocation: (plotIndex: number) => DistrictInstance;
+    getIdAtLocation: (plotIndex: number) => ID;
     getLocations: () => Location[];
     // getFreeConstructible: (districtId: ID, constructibleType: number) => ID | null;
 }
 
 declare var Districts: Districts;
+
+declare interface Cities {
+    get(cityId: ID): City;
+    getAtLocation(plotIndex: number): City;
+}
+
+declare var Cities: Cities;

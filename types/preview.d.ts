@@ -28,7 +28,7 @@ declare interface ResolvedModifier {
     OwnerRequirementSet: ResolvedRequirementSet | null;
 }
 
-declare type SubjectType = 'City' | 'Plot' | 'Unit' | 'Player';
+declare type SubjectType = 'City' | 'Plot' | 'Unit' | 'Player' | 'Constructible' | 'District';
 
 declare type CreateSubject<T extends SubjectType = SubjectType, Data> = {
     type: T;
@@ -75,11 +75,20 @@ declare type UnitSubject = CreateSubject<'Unit', {
     player: Player;
 }>;
 
+declare type DistrictSubject = CreateSubject<'District', {
+    city: City;
+    district: DistrictInstance;
+    /** District location plot index */
+    plot: number;
+    /** Player owning the district */
+    player: Player;
+}>;
+
 declare type PlayerSubject = CreateSubject<'Player', {
     player: Player;
 }>;
 
-declare type PreviewSubject = ConstructibleSubject | CitySubject | PlotSubject | UnitSubject | PlayerSubject;
+declare type PreviewSubject = ConstructibleSubject | CitySubject | PlotSubject | UnitSubject | PlayerSubject | DistrictSubject;
 
 declare interface YieldsDelta {
     Amount: {
