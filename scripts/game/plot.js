@@ -114,6 +114,9 @@ export function hasPlotConstructibleByArguments(location, args) {
         if (args.ConstructibleType?.Value) {
             return c.constructibleType?.ConstructibleType === args.ConstructibleType.Value;
         }
+        if (args.ConstructibleClass?.Value) {
+            return c.constructibleType.ConstructibleClass === args.ConstructibleClass.Value;
+        }
         if (args.Tag?.Value) {
             const tags = PolicyYieldsCache.getTypeTags(c.constructibleType.ConstructibleType);
             return tags.has(args.Tag.Value);
