@@ -675,6 +675,56 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return subject.player.isMajor;
         }
 
+        case "REQUIREMENT_PLAYER_HAS_ACTIVE_TRADITION": {
+            assertSubjectPlayer(subject);
+            // Variants observed across Base + DLC XML (narrative stories: ada-lovelace,
+            // bolivar, alexander) and mods gating bonuses on an earned Tradition:
+            //   - TraditionType only (the common case) — Tradition currently slotted
+            //   - TraditionType + ActiveAtGoldenAge (bolivar) — historical "was active at
+            //     Golden Age" state we can't read; throw to surface it.
+            const args = requirement.Arguments;
+            if (args.ActiveAtGoldenAge?.Value) {
+                throw new Error(`${requirement.Requirement.RequirementType}: unhandled arguments: ${JSON.stringify(args)}`);
+            }
+            // GameInfoArray.lookup only accepts a hash; use .find() for the PK string
+            // (same note as getPlayerActiveTraditionsForModifier).
+            const traditionType = args.getAsserted('TraditionType');
+            const traditionInfo = GameInfo.Traditions.find(t => t.TraditionType === traditionType);
+            if (!traditionInfo) return false;
+            return subject.player.Culture.isTraditionActive(traditionInfo.$hash) === true;
+        }
+
+        case "REQUIREMENT_TRIUMPHS_COMPLETED": {
+            assertSubjectPlayer(subject);
+            // Triumph = a completed Legacy (GameCore still calls them legacies). Variants
+            // observed across Base + DLC XML (ada-lovelace metaprogression) and mods:
+            //   - MajorOnly + MinCount      → at least MinCount completed Major Triumphs
+            //   - MajorOnly only            → MinCount defaults to 1
+            //   - TriumphTypes (comma list) → at least MinCount (default 1) of the listed
+            //     LegacyTypes completed. Mods pair this with CheckPreviousAge=AGE_X for
+            //     cross-age carry; evaluated the same way here — if the listed LegacyType
+            //     isn't in this age's Legacies table, isTriggered simply reports false,
+            //     which is the conservative preview.
+            // API per base-standard ui-next legacies-model.ts: player.Legacies.isTriggered(LegacyType).
+            const legacies = subject.player.Legacies;
+            if (!legacies) return false;
+            const args = requirement.Arguments;
+            const minCount = Number(args.MinCount?.Value ?? 1);
+            if (args.TriumphTypes?.Value) {
+                const types = args.TriumphTypes.Value.split(',').map(t => t.trim()).filter(Boolean);
+                const completed = types.filter(t => legacies.isTriggered(t) === true).length;
+                return completed >= minCount;
+            }
+            if (args.MajorOnly?.Value?.toLowerCase?.() === 'true') {
+                let completed = 0;
+                GameInfo.Legacies.forEach(legacy => {
+                    if (legacy.MajorLegacy && legacies.isTriggered(legacy.LegacyType) === true) completed++;
+                });
+                return completed >= minCount;
+            }
+            throw new Error(`${requirement.Requirement.RequirementType}: unhandled arguments: ${JSON.stringify(args)}`);
+        }
+
         case "REQUIREMENT_PLAYER_ELIGIBLE_CS_BONUS": {
             // These modifiers are visible in the UI only when you can
             // choose them, so if you can _see_ them, you're eligible.
