@@ -303,6 +303,8 @@ interface PlayerUnits {
 }
 
 interface PlayerCulture {
+    getNumAllCultureSlots: () => number;
+    getNumCultureSlots: (slotType: number) => number;
     getNumWorksInArchive: () => number;
     getArchivedGreatWork: (numInArchive: number) => number;
     getGreatWorkType: (index: number) => number;

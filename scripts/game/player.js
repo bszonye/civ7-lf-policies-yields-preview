@@ -219,7 +219,7 @@ export function getPlayerActiveTraditionsForModifier(player, modifier, previewed
         invertFilter ? ["POLICY_CULTURE_SLOT"] : ["TRADITION_CULTURE_SLOT"];
     const matchingItems = allItems.filter(type => {
         const item = GameInfo.Traditions.lookup(type);
-        return matchingTypes.includes(item.CultureSlotType);
+        return item && matchingTypes.includes(item.CultureSlotType);
     });
 
     let count = matchingItems.length;
