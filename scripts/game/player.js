@@ -219,7 +219,7 @@ export function getPlayerActiveTraditionsForModifier(player, modifier, previewed
         invertFilter ? ["POLICY_CULTURE_SLOT"] : ["TRADITION_CULTURE_SLOT"];
     const matchingItems = allItems.filter(type => {
         const item = GameInfo.Traditions.lookup(type);
-        return item && matchingTypes.includes(item.CultureSlotType);
+        return matchingTypes.includes(item?.CultureSlotType ?? "");
     });
 
     let count = matchingItems.length;
@@ -232,7 +232,7 @@ export function getPlayerActiveTraditionsForModifier(player, modifier, previewed
         //   - it isn't already slotted (would double-count).
         count += +(  // convert boolean to 1/0
             matchingTypes.includes(previewedInfo?.CultureSlotType) &&
-            !player.Culture.isTraditionActive(previewedInfo.$hash)
+            !player.Culture.isTraditionActive(previewedInfo?.$hash)
         );
     }
 
