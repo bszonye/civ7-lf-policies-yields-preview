@@ -219,7 +219,7 @@ export function getPlayerActiveTraditionsForModifier(player, modifier, previewed
         invertFilter ? ["POLICY_CULTURE_SLOT"] : ["TRADITION_CULTURE_SLOT"];
     const matchingItems = allItems.filter(type => {
         const item = GameInfo.Traditions.lookup(type);
-        return matchingTypes.includes(item?.CultureSlotType ?? "");
+        return item ? matchingTypes.includes(item.CultureSlotType) : false;
     });
 
     let count = matchingItems.length;
@@ -227,13 +227,15 @@ export function getPlayerActiveTraditionsForModifier(player, modifier, previewed
         // GameInfoArray<T>.lookup only accepts a hash; use .find() for the PK string.
         const previewedInfo = GameInfo.Traditions
             .find(t => t.TraditionType === previewedTraditionType);
-        // Self-include the previewed card iff this modifier would count it:
-        //   - it has the right slot type, POLICY or TRADITION, AND
-        //   - it isn't already slotted (would double-count).
-        count += +(  // convert boolean to 1/0
-            matchingTypes.includes(previewedInfo?.CultureSlotType) &&
-            !player.Culture.isTraditionActive(previewedInfo?.$hash)
-        );
+        if (previewedInfo) {
+            // Self-include the previewed card iff this modifier would count it:
+            //   - it has the right slot type, POLICY or TRADITION, AND
+            //   - it isn't already slotted (would double-count).
+            count += +(  // convert boolean to 1/0
+                matchingTypes.includes(previewedInfo.CultureSlotType) &&
+                !player.Culture.isTraditionActive(previewedInfo.$hash)
+            );
+        }
     }
 
     // Limit result to the total available slots.
