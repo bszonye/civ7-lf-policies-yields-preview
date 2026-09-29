@@ -1,6 +1,6 @@
 import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
 import { cityMatchesHappinessStage, getCityGreatWorksCount, getCitySpecialistsCount, getCityWalledDistricts, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
-import { hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast, hasPlotDistrictOfType, getAppealThresholdFromArgs, getPlotDistrict } from "../game/plot.js";
+import { hasPlotOwner, hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast, hasPlotDistrictOfType, getAppealThresholdFromArgs, getPlotDistrict } from "../game/plot.js";
 import { getMaxTradeRoutesPerOtherPlayer, getPlayerCityStatesSuzerain, getTradeRouteDomain, isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectTradeRoute, assertSubjectUnit } from "./assert-subject.js";
 import { PolicyExecutionContext } from "../core/execution-context.js";
@@ -369,6 +369,15 @@ export function isRequirementSatisfied(player, subject, requirement) {
                 const terrainType = GameplayMap.getTerrainType(loc.x, loc.y);
                 const terrain = GameInfo.Terrains.lookup(terrainType);
                 return terrain?.TerrainType == requirement.Arguments.getAsserted('TerrainType');
+            });
+        }
+
+        case "REQUIREMENT_PLOT_ADJACENT_TO_CITY_OTHER_CIV": {
+            assertSubjectPlot(subject);
+            const range = Number(requirement.Arguments.MaxRange?.Value || 1);
+            return getAdjacentPlots(subject.plot, range).some(plot => {
+                const loc = GameplayMap.getLocationFromIndex(plot);
+                return hasPlotOwner(loc, requirement.Arguments);
             });
         }
 
