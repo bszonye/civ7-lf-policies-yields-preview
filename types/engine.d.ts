@@ -645,7 +645,8 @@ declare interface GameplayMap {
     isWater: (x: number, y: number) => boolean;
     getPlotTag: (x: number, y: number, tag: string) => string;
     hasPlotTag: (x: number, y: number, tag: string) => boolean;
-    isPlotInAdvancedStartRegion: (x: number, y: number) => boolean;      
+    isPlotInAdvancedStartRegion: (x: number, y: number) => boolean;
+    isIsland: (x: number, y: number) => boolean;
 }
 
 declare var GameplayMap: GameplayMap;
