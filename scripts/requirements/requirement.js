@@ -89,6 +89,11 @@ export function isRequirementSatisfied(player, subject, requirement) {
             assertSubjectCity(subject);
             return subject.city.isDistantLands;
         }
+        case "REQUIREMENT_CITY_IS_ISLAND": {
+            assertSubjectCity(subject);
+            const cityCenterLocation = subject.city.location;
+            return GameplayMap.isIsland(cityCenterLocation.x, cityCenterLocation.y);
+        }
         case "REQUIREMENT_CITY_POPULATION": {
             assertSubjectCity(subject);
             // Variants observed across Base + DLC:
@@ -209,10 +214,10 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
 
         case "REQUIREMENT_PLOT_RESOURCE_VISIBLE": {
-            assertSubjectPlot(subject);            
+            assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             const resource = GameplayMap.getResourceType(loc.x, loc.y);
-			if (resource == ResourceTypes.NO_RESOURCE) return false;
+            if (resource == ResourceTypes.NO_RESOURCE) return false;
 
             const isVisible = GameplayMap.getRevealedState(GameContext.localPlayerID, loc.x, loc.y) != RevealedStates.HIDDEN;
             if (!isVisible) return false;
