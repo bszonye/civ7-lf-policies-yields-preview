@@ -795,10 +795,17 @@ function applyYieldsForSubject(context, subject, modifier) {
             assertSubjectCity(subject);
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
 
-            const numSettlements = modifier.Arguments.Towns?.Value === 'true'
-                ? subject.player.Stats.numTowns
-                : subject.player.Stats.numCities; // Not sure about the latter.
-
+            let numSettlements = 0;
+            if (modifier.Arguments.Cities?.Value === "true") {
+                numSettlements += subject.player.Stats.numCities;
+            }
+            if (modifier.Arguments.Towns?.Value === "true") {
+                numSettlements += subject.player.Stats.numTowns;
+            }
+            if (modifier.Arguments.DistantLands?.Value === "true") {
+                numSettlements += player.Cities.getCities()
+                    .filter(c => c.isDistantLands).length;
+            }
             return context.addSubjectYieldsTimes(subject, modifier, numSettlements);
         }
 
