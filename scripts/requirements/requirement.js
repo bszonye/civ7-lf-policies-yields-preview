@@ -128,6 +128,13 @@ export function isRequirementSatisfied(player, subject, requirement) {
         }
         case "REQUIREMENT_CITY_IS_ISLAND": {
             assertSubjectCity(subject);
+            // Shipped usages (1.5.0, England DLC): always Tiles=30, the same size as the engine's
+            // island definition behind GameplayMap.isIsland (Civilopedia: contiguous landmasses of
+            // at most 30 tiles). That API takes no size, so any other value throws.
+            const tiles = requirement.Arguments.Tiles?.Value;
+            if (tiles != null && Number(tiles) !== 30) {
+                throw new Error(`${requirement.Requirement.RequirementId}: REQUIREMENT_CITY_IS_ISLAND with unsupported Tiles=${tiles}`);
+            }
             const cityCenterLocation = subject.city.location;
             return GameplayMap.isIsland(cityCenterLocation.x, cityCenterLocation.y);
         }
