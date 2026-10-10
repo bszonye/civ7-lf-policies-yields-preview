@@ -230,6 +230,12 @@ interface City {
         getYield: (yieldType: string) => number;
         getYieldsForType: (yieldType: string) => YieldEntry;
     };
+    /** City happiness state, read as is by the base-game city details (model-city-details.js). */
+    Happiness?: {
+        /** Net happiness per turn, the "surplus" of REQUIREMENT_CITY_HAPPINESS. */
+        netHappinessPerTurn: number;
+        hasUnrest: boolean;
+    };
     Resources: {
         /**
          * Removed from the mod's surface: no base-game UI script calls it since game 1.5.0.

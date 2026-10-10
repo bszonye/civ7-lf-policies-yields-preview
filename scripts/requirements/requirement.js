@@ -48,6 +48,21 @@ export function isRequirementSatisfied(player, subject, requirement) {
             assertSubjectCity(subject);
             return subject.city.originalOwner === player.id;
         }
+        case "REQUIREMENT_CITY_HAPPINESS": {
+            // Shipped variants (1.5.0 Base + DLC): MinSurplusHappiness=1 + Unhappy=false
+            // (HOGUK_JONGGYO I/II influence in happy settlements, Ashoka memento), and an
+            // argument-less narrative crisis form that no preview reaches. The surplus is the
+            // city's net happiness per turn, as shown by the base-game city details.
+            assertSubjectCity(subject);
+            const args = requirement.Arguments;
+            if (!args.MinSurplusHappiness?.Value || args.Unhappy?.Value?.toLowerCase() === 'true') {
+                throw new Error(`${requirement.Requirement.RequirementId}: REQUIREMENT_CITY_HAPPINESS variant not implemented: ${JSON.stringify(args)}`);
+            }
+            const surplus = subject.city.Happiness?.netHappinessPerTurn;
+            if (surplus == null) return false;
+            return surplus >= Number(args.MinSurplusHappiness.Value);
+        }
+
         case "REQUIREMENT_SETTLEMENT_HAPPINESS_STAGE_MATCHES": {
             assertSubjectCity(subject);
             // Happiness stage system added in 1.4.1. Each usage carries a target
