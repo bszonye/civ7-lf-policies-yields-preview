@@ -540,13 +540,6 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return unitTypeInfo.CoreClass == requirement.Arguments.getAsserted('UnitCoreClass');
         }
 
-        case "REQUIREMENT_UNIT_DOMAIN_MATCHES": {
-            assertSubjectUnit(subject);
-            const unitTypeInfo = GameInfo.Units.lookup(subject.unit.type);
-            if (!unitTypeInfo) return false;
-            return unitTypeInfo.Domain == requirement.Arguments.getAsserted('UnitDomain');
-        }
-
         case "REQUIREMENT_UNIT_FORMATION_CLASS_MATCHES": {
             assertSubjectUnit(subject);
             // Added in 1.4.1. Only observed argument is UnitFormationClass (e.g.

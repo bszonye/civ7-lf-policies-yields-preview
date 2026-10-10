@@ -967,9 +967,7 @@ function applyYieldsForSubject(context, subject, modifier) {
         // Ignored effects
         case "EFFECT_UNIT_PROPERTY": // COMMANDERIES (unit upgrade discount), promotions
         case "EFFECT_ADJUST_WAR_SUPPORT_BONUS": // FAJIA, mementos, golden ages
-        case "EFFECT_CITY_ADJUST_UNIT_PRODUCTION":
         case "EFFECT_CITY_ADJUST_AVOID_RANDOM_EVENT":
-        case "EFFECT_UNIT_ADJUST_MOVEMENT":
         case "EFFECT_ADJUST_PLAYER_OR_CITY_BUILDING_PURCHASE_EFFICIENCY":
         case "EFFECT_ADJUST_PLAYER_OR_CITY_UNIT_PURCHASE_EFFICIENCY":
         case "EFFECT_ADJUST_PLAYER_UNITS_PILLAGE_BUILDING_MODIFIER":
