@@ -36,9 +36,9 @@ export const ConstructibleAdjacencies = new class {
         const type = constructibleType.ConstructibleType;
 
         if (!this._adjacencies[type]) {
-            // If the constructible is not valid for the current age, all the adjacencies are
-            // invalid. This is _not_ true for WildcardAdjacencies, which are always valid and
-            // have a flag to check if they are only valid for the current age.
+            // If the constructible is not valid for the current age (obsolete: previous age and
+            // not AGELESS), all the adjacencies are invalid. The same rule is applied to the
+            // WildcardAdjacencies below, regardless of their CurrentAgeConstructiblesOnly flag.
             const adjacencies = isConstructibleValidForCurrentAge(constructibleType)
                 ? GameInfo.Constructible_Adjacencies
                     .filter(ca => ca.ConstructibleType === type)
@@ -87,8 +87,18 @@ export const ConstructibleAdjacencies = new class {
                     if (ca.ConstructibleTag && !tags.has(ca.ConstructibleTag)) {
                         return false;
                     }
-                    // This filter includes AGELESS buildings
-                    if (ca.CurrentAgeConstructiblesOnly && !isConstructibleValidForCurrentAge(constructibleType)) {
+                    // Obsolete constructibles (previous age, not AGELESS) never receive adjacency
+                    // bonuses, wildcard rows included and regardless of CurrentAgeConstructiblesOnly.
+                    // Civilopedia (Buildings concept): "Buildings lose their adjacency bonus when
+                    // not in their original Age unless they are Ageless".
+                    // Reported with Classical Revival (ExAttributeCultural01WonderHappiness, a
+                    // ConstructibleClass="BUILDING" row WITHOUT the flag) at Modern turn 1: preview
+                    // +107 vs +52 in game, the gap being the Exploration buildings just turned
+                    // obsolete, which the old code still counted because the flag was unset.
+                    // This check subsumes CurrentAgeConstructiblesOnly as it was implemented so far
+                    // (AGELESS buildings from earlier ages still included). Whether that flag ALSO
+                    // excludes AGELESS buildings from earlier ages is unverified in-game.
+                    if (!isConstructibleValidForCurrentAge(constructibleType)) {
                         return false;
                     }
                     return true;
