@@ -115,9 +115,17 @@ export function hasPlotOwner(location, playerId, args) {
     if (isOwner !== 'true' && isOwner !== 'false') {
         throw new Error(`hasPlotOwner: unexpected IsOwner value ${JSON.stringify(args.IsOwner)}`);
     }
+
     const owner = GameplayMap.getOwner(location.x, location.y);
     if (owner === PlayerIds.NO_PLAYER) return false;
-    return (owner === playerId) === (isOwner === 'true');
+
+    const isOwnedByPlayer = owner === playerId;
+    if (isOwner === 'true') {
+        // IsOwner=true: the plot must belong to the player
+        return isOwnedByPlayer;
+    }
+    // IsOwner=false: the plot must belong to another player
+    return !isOwnedByPlayer;
 }
 
 /**
