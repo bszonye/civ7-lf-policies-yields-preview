@@ -60,6 +60,21 @@ function applyYieldsForSubject(context, subject, modifier) {
             return context.addSubjectYieldsTimes(subject, modifier, allies);
         }
 
+        // City gains ToYieldType equal to Percent% of its net FromYieldType
+        // (SAGAE_CHIBUBEOP: gold equal to 10% of culture; CATHERINE / PACHACUTI leader traits;
+        // Seowon quarter). The COLLECTION_OWNER great-person variant is not reachable from any
+        // preview, so only city subjects are accepted. Shipped arguments: FromYieldType,
+        // ToYieldType, Percent.
+        case "EFFECT_CITY_ADJUST_YIELD_CONVERSION": {
+            assertSubjectCity(subject);
+            const fromYieldType = modifier.Arguments.getAsserted('FromYieldType');
+            const toYieldType = modifier.Arguments.getAsserted('ToYieldType');
+            const percent = Number(modifier.Arguments.getAsserted('Percent')) / 100;
+            if (subject.isEmpty) return context.addYieldTypeAmount(toYieldType, 0);
+            const fromAmount = subject.city.Yields.getNetYield(fromYieldType);
+            return context.addYieldTypeAmount(toYieldType, fromAmount * percent);
+        }
+
         // Gain ToYieldType equal to Percent% of trade income in FromYieldType
         // (e.g. THRONE_OF_MY_FATHERS: 25% of YIELD_GOLD trade income → YIELD_CULTURE).
         case "EFFECT_MODIFY_PLAYER_TRADE_YIELD_CONVERSION": {
