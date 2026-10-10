@@ -112,16 +112,18 @@ export const ConstructibleAdjacencies = new class {
 
 /**
  * Given an AdjacencyYieldChange, return the plots indexes activating the adjacency
- * @param {Location} location
+ * @param {Location} location Plot holding the constructible that receives the adjacency
  * @param {AdjacencyYieldChange} adjacency
+ * @returns {number[]} Indexes of the neighbouring plots that satisfy the adjacency
  */
 export function getPlotsGrantingAdjacency(location, adjacency) {
     const adjacentPlots = GameplayMap.getPlotIndicesInRadius(location.x, location.y, 1);
+    const ownerId = GameplayMap.getOwner(location.x, location.y);
     let plots = [];
     for (const plot of adjacentPlots) {
         const loc = GameplayMap.getLocationFromIndex(plot);
         if (loc.x === location.x && loc.y === location.y) continue;
-        if (!isPlotGrantingAdjacency(adjacency, plot)) continue;
+        if (!isPlotGrantingAdjacency(adjacency, plot, ownerId)) continue;
 
         plots.push(plot);
     }
@@ -133,9 +135,11 @@ export function getPlotsGrantingAdjacency(location, adjacency) {
  * Check if a plot meets the adjacency requirements
  *
  * @param {AdjacencyYieldChange} adjacency
- * @param {number} plot
+ * @param {number} plot Index of the neighbouring plot being tested
+ * @param {number} ownerId Owner (`GameplayMap.getOwner`) of the plot holding the constructible; needed by AdjacentOtherOwner
+ * @returns {boolean}
  */
-export function isPlotGrantingAdjacency(adjacency, plot) {
+export function isPlotGrantingAdjacency(adjacency, plot, ownerId) {
     const loc = GameplayMap.getLocationFromIndex(plot);
 
     if (adjacency.AdjacentLake && !GameplayMap.isLake(loc.x, loc.y)) return false;
@@ -162,7 +166,21 @@ export function isPlotGrantingAdjacency(adjacency, plot) {
             return tags.has(neededTag);
         });
         if (!hasSomeTag) return false;
-    } 
+    }
+
+    if (adjacency.AdjacentConstructibleClass) {
+        // Shipped rows (1.5.0 Base): the three Ashoka wildcards, all IMPROVEMENT.
+        const constructibles = getPlotConstructiblesByLocation(loc.x, loc.y);
+        if (!constructibles.some(c => c.constructibleType.ConstructibleClass === adjacency.AdjacentConstructibleClass)) return false;
+    }
+
+    if (adjacency.AdjacentOtherOwner) {
+        // Shipped row (Gaul DLC): Goben, "+2 Production adjacency with tiles of other
+        // Civilizations". Unowned tiles belong to nobody and do not count; any other owner
+        // does, independent powers included (the text does not exclude them).
+        const neighbourOwner = GameplayMap.getOwner(loc.x, loc.y);
+        if (neighbourOwner === PlayerIds.NO_PLAYER || neighbourOwner === ownerId) return false;
+    }
 
     if (adjacency.AdjacentDistrict) {
         const district = getPlotDistrict(plot);

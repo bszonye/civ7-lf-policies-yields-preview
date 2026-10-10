@@ -467,6 +467,8 @@ declare interface AdjacencyYieldChange extends BaseTableEntry {
   /** Neighbour plot must be at least Charming appeal (>= APPEAL_FOR_HAPPINESS_TILE_YIELD). */
   AdjacentCharmingAppeal: boolean;
   AdjacentConstructible?: string | null;
+  /** Neighbour plot must hold a constructible of this ConstructibleClass (shipped: IMPROVEMENT, Ashoka wildcards). */
+  AdjacentConstructibleClass?: string | null;
   AdjacentConstructibleTag?: string | null;
   AdjacentDistrict?: string | null;
   AdjacentFeature?: string | null;
@@ -474,6 +476,8 @@ declare interface AdjacencyYieldChange extends BaseTableEntry {
   AdjacentLake: boolean;
   AdjacentNaturalWonder: boolean;
   AdjacentNavigableRiver: boolean;
+  /** Neighbour plot must be owned by a player other than the owner of the evaluated plot (shipped: Goben, Gaul DLC). */
+  AdjacentOtherOwner: boolean;
   AdjacentQuarter: boolean;
   AdjacentResource: boolean;
   AdjacentResourceClass: string;
@@ -483,6 +487,8 @@ declare interface AdjacencyYieldChange extends BaseTableEntry {
   AdjacentUniqueQuarter: boolean;
   AdjacentUniqueQuarterType?: string | null;
   Age?: string | null;
+  /** Engine flag: keep the activated adjacency when the city changes hands. Not relevant to the preview. */
+  PersistOnTransfer: boolean;
   ProjectMaxYield: boolean;
   Self: boolean;
   TilesRequired: number;

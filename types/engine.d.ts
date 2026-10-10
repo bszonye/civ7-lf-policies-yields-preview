@@ -707,6 +707,13 @@ declare var GrowthTypes: {
     EXPAND: number; // Hash
 }
 
+/** Engine global: sentinel player ids (`GameplayMap.getOwner` returns NO_PLAYER for unowned plots). */
+declare var PlayerIds: {
+    NO_PLAYER: number;
+    OBSERVER_ID: number;
+    WORLD_PLAYER: number;
+}
+
 /**
  * Engine global: how a city changed hands (see `City.mostRecentTranseferType`).
  * Indexable by name so the `TransferType` argument of REQUIREMENT_CITY_TRANSFER_TYPE_MATCHES
