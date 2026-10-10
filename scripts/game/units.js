@@ -73,6 +73,23 @@ export function getArmyCommanders(player) {
 }
 
 /**
+ * Sum of the experience levels of every commander unit of the player (army, fleet, squadron,
+ * aerodrome: `isCommanderUnit`). `Experience.getLevel` is a property, read as is by the
+ * base-game unit flags.
+ * @param {Player} player
+ * @returns {number}
+ */
+export function getPlayerCommanderLevels(player) {
+    let total = 0;
+    for (const id of player.Units.getUnitIds()) {
+        const unit = Units.get(id);
+        if (!unit?.isCommanderUnit) continue;
+        total += unit.Experience?.getLevel ?? 0;
+    }
+    return total;
+}
+
+/**
  * 
  * @param {UnitInstance} unit
  * @param {string} tag 

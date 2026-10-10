@@ -2,7 +2,7 @@ import { resolveModifierById } from "../modifiers.js";
 import { addYieldsAmount, addYieldsPercentForCitySubject, addYieldTypeAmount, addYieldTypeAmountNoMultiplier } from "./yields.js";
 import { computeConstructibleMaintenanceEfficiencyReduction, findCityConstructibles, findCityConstructiblesMatchingAdjacency, getBaseConstructibleMaintenance, getBuildingsCountForModifier, getBuildingTypesForModifier, getPlayerBuildingsCountForModifier } from "../game/constructibles.js";
 import { getYieldsForAdjacency, getPlotsGrantingAdjacency, AdjancenciesCache } from "../game/adjacency.js";
-import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfArguments, getArmyCommanders } from "../game/units.js";
+import { retrieveUnitTypesMaintenance, isUnitTypeInfoTargetOfArguments, getArmyCommanders, getPlayerCommanderLevels } from "../game/units.js";
 import { countCityResourcesByClass, getCityAssignedResourcesCount, getCityGreatWorksCount, getCitySpecialistsCount, getCityYieldHappiness } from "../game/city.js";
 import { computeUnitMaintenanceYieldDelta, computeWorkerMaintenanceYieldDelta, parseArgumentsArray } from "../game/helpers.js";
 import { resolveSubjectsWithRequirements } from "../requirements/resolve-subjects.js";
@@ -290,6 +290,15 @@ function applyYieldsForSubject(context, subject, modifier) {
             }
             
             return addYieldTypeAmountNoMultiplier(context.delta, "YIELD_GOLD", totalReduction);
+        }
+
+        // "+N YieldType for every Commander Level" (SENGOKU_SYNCRETISM_ANTIQUITY/MODERN): sum of
+        // the levels of all commander units. Shipped arguments: YieldType + Amount only.
+        case "EFFECT_PLAYER_ADJUST_YIELD_PER_COMMANDER_LEVEL": {
+            assertSubjectPlayer(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            const levels = getPlayerCommanderLevels(subject.player);
+            return context.addYieldsAmountTimes(modifier, levels);
         }
 
         // Player (Diplomacy)
