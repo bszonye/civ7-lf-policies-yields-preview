@@ -707,6 +707,17 @@ function applyYieldsForSubject(context, subject, modifier) {
             return context.addYieldsAmountTimes(modifier, count);
         }
 
+        // Per settlement, scaled by the routes listed on that settlement ("+N Production in all
+        // Settlements for each Trade Route it has active": KABUNAKAMA I/II; Bolivar narrative events).
+        // `city.Trade.routes` lists every route touching the city, outgoing and incoming, which is
+        // what "it has active" maps to. Shipped arguments: YieldType + Amount only.
+        case "EFFECT_CITY_ADJUST_YIELD_PER_NUM_TRADE_ROUTES": {
+            assertSubjectCity(subject);
+            if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
+            const count = (subject.city.Trade?.routes ?? []).length;
+            return context.addYieldsAmountTimes(modifier, count);
+        }
+
         // Per-city counterpart of EFFECT_PLAYER_ADJUST_YIELD_PER_NUM_TRADE_ROUTES.
         // Observed only with YieldType + Amount (QULLQA_I/II, AKSUM_SYNCRETISM_EXPLORATION/MODERN).
         case "EFFECT_CITY_ADJUST_YIELD_PER_TOTAL_NUM_TRADE_ROUTES": {
