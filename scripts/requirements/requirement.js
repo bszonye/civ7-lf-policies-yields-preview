@@ -458,7 +458,16 @@ export function isRequirementSatisfied(player, subject, requirement) {
             assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
             return GameplayMap.getOwner(loc.x, loc.y) == player.id;
-        }  
+        }
+
+        case "REQUIREMENT_PLOT_IS_HOMELANDS": {
+            // Shipped usages (1.5.0 Base + DLC), never with arguments: Trading Factory yields
+            // (inverse), Grand Bazaar gold on treasure resources, Qhapaq Nan / Kanta auto treasure
+            // fleets (city subjects), a Modern age-transition combat card (inverse, unit subject).
+            // Same test as REQUIREMENT_UNIT_IS_IN_HOMELANDS: not in the player's Distant Lands.
+            assertSubjectPlot(subject);
+            return !player.isDistantLands(GameplayMap.getLocationFromIndex(subject.plot));
+        }
 
         case "REQUIREMENT_PLOT_RESOURCE_TAG_MATCHES": {
             assertSubjectPlot(subject);
@@ -741,6 +750,28 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return subject.player.isMajor;
         }
 
+        case "REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS": {
+            assertSubjectPlayer(subject);
+            // Variants observed across 1.5.0 Base + DLC:
+            //   - Count + IncludeArchived=false, optional ObjectType: at least Count Great Works
+            //     on display ("at least 4 Great Works displayed": STRATAGEMS I/II owner
+            //     requirement, legacies, narrative). Implemented.
+            //   - Count + ObjectType without IncludeArchived (narrative): whether archived works
+            //     count by default is unknown, so it throws, like CountEqualToNaturalWondersOnMap
+            //     + NaturalWonderWorksOnly (Modern legacy).
+            const args = requirement.Arguments;
+            if (args.IncludeArchived?.Value?.toLowerCase() !== 'false'
+                || args.CountEqualToNaturalWondersOnMap?.Value?.toLowerCase() === 'true'
+                || args.NaturalWonderWorksOnly?.Value?.toLowerCase() === 'true') {
+                throw new Error(`${requirement.Requirement.RequirementId}: REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS variant not implemented: ${JSON.stringify(args)}`);
+            }
+            const minCount = Number(args.getAsserted('Count'));
+            const objectType = args.ObjectType?.Value || null;
+            const displayed = subject.player.Cities.getCities()
+                .reduce((sum, city) => sum + getCityGreatWorksCount(city, objectType), 0);
+            return displayed >= minCount;
+        }
+
         case "REQUIREMENT_PLAYER_HAS_ACTIVE_TRADITION": {
             assertSubjectPlayer(subject);
             // Variants observed across Base + DLC XML (narrative stories: ada-lovelace,
@@ -826,11 +857,6 @@ export function isRequirementSatisfied(player, subject, requirement) {
         // EFFECT_ADJUST_UNIT_POST_COMBAT_YIELD (MERRY_LIFE_AND_A_SHORT_ONE gold on kill), a triggered
         // one-shot that is also in the ignored group.
         case "REQUIREMENT_OPPONENT_UNIT_TAG_MATCHES":
-        // Owner requirement of STRATAGEMS I/II (Bulgaria): gates only EFFECT_UNIT_ADJUST_ABILITY
-        // (combat strength per great work). Only shipped usage on 1.5.0 Base + DLC.
-        case "REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS":
-        // Gates only EFFECT_ADJUST_CITY_AUTO_TREASURE_FLEET (Qhapaq Nan, Kanta), ignored above.
-        case "REQUIREMENT_PLOT_IS_HOMELANDS":
         // Gating for one-time triggered effects we already ignore (EFFECT_CITY_GRANT_YIELD on capture)
         case "REQUIREMENT_PLAYER_FIRST_TIME_SETTLEMENT_OCCUPATION":
         // Triggered events: only gate one-shot effects (EFFECT_CITY_GRANT_UNIT for BUZZARD_CULT,

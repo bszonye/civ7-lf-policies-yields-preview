@@ -142,10 +142,14 @@ export function countCityResourcesByClass(city, resourceClassType) {
 }
 
 /**
- * Get the number of great works in a city.
+ * Get the number of great works displayed in a city.
+ * The object type of a slotted work is resolved like the base-game victories screen:
+ * `Game.Culture.getGreatWorkType(slot.greatWorkIndex)` looked up in `GameInfo.GreatWorks`.
  * @param {City} city
+ * @param {string | null} [objectType] Only count works of this GreatWorkObjectType (e.g. GREATWORKOBJECT_RELIC)
+ * @returns {number}
  */
-export function getCityGreatWorksCount(city) {
+export function getCityGreatWorksCount(city, objectType = null) {
     const buildings = city.Constructibles.getGreatWorkBuildings();
     if (!buildings || buildings.length === 0) return 0;
 
@@ -154,9 +158,11 @@ export function getCityGreatWorksCount(city) {
         // TODO Maybe we should skip damanged buildings? Not sure about this
         const buildingInstance = Constructibles.getByComponentID(greatWorkBuilding.constructibleID);
         // const building = GameInfo.Constructibles.lookup(buildingInstance.type);
-        
+
         count += greatWorkBuilding.slots
             .filter(slot => slot.greatWorkIndex != -1)
+            .filter(slot => !objectType
+                || GameInfo.GreatWorks.lookup(Game.Culture.getGreatWorkType(slot.greatWorkIndex))?.GreatWorkObjectType === objectType)
             .length;
     });
     return count;

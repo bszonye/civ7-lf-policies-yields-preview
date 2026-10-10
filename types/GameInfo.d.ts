@@ -429,6 +429,19 @@ declare interface UniqueQuarter extends BaseTableEntry {
   TraitType?: string | null;
 }
 
+/**
+ * Table: GreatWorks. Resolve a slotted work with
+ * `GameInfo.GreatWorks.lookup(Game.Culture.getGreatWorkType(slot.greatWorkIndex))`
+ * (base-standard great-works and victories screens).
+ */
+declare interface GreatWork extends BaseTableEntry {
+  GreatWorkType: string;
+  /** e.g. GREATWORKOBJECT_WRITING, GREATWORKOBJECT_RELIC, GREATWORKOBJECT_ARTIFACT */
+  GreatWorkObjectType: string;
+  Name: string;
+  Image?: string | null;
+}
+
 declare interface HappinessStage extends BaseTableEntry {
   HappinessStageType: string;
   /** Lower bound of the stage (inclusive). Null means no lower bound (-Infinity). */
@@ -873,6 +886,7 @@ declare interface IGameInfo {
   Ages: GameInfoArray<Age>;
   HappinessStages: GameInfoArray<HappinessStage>;
   UniqueQuarters: GameInfoArray<UniqueQuarter>;
+  GreatWorks: GameInfoArray<GreatWork>;
   Biomes: GameInfoArray<Biome>;
   Features: GameInfoArray<Feature>;
   FeatureClasses: GameInfoArray<FeatureClass>;
