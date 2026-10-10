@@ -146,6 +146,11 @@ function resolveBaseSubjects(modifier, parentSubject = null) {
         
         case "COLLECTION_PLAYER_CITIES":
             return wrapCitySubjects(player.Cities.getCities());
+
+        // Cities currently hit by the plague (`city.isInfected`, read as is by the base-game city
+        // details). Only shipped usage on 1.5.0 Base + DLC: MIASMA_MOD_GRANT_MIGRANTS (crisis policy).
+        case "COLLECTION_PLAYER_INFECTED_CITIES":
+            return wrapCitySubjects(player.Cities.getCities().filter(city => city.isInfected));
         
         // We don't care about other players cities, since we need anyway the effect
         // applied to _our_ cities.
