@@ -30,6 +30,20 @@ export function isRequirementSatisfied(player, subject, requirement) {
             assertSubjectCity(subject);
             return subject.city.isTown;
         }
+
+        case "REQUIREMENT_CITY_TRANSFER_TYPE_MATCHES": {
+            // How the current owner obtained the city. Shipped usage (1.5.0 Base + DLC): only
+            // BAYEUX_TAPESTRY I/II, always TransferType=BY_COMBAT (culture in conquered cities).
+            // Any `CityTransferTypes` name is resolved generically; an unknown name throws rather
+            // than silently matching nothing.
+            assertSubjectCity(subject);
+            const transferTypeName = requirement.Arguments.getAsserted('TransferType');
+            const transferType = CityTransferTypes[transferTypeName];
+            if (typeof transferType !== 'number') {
+                throw new Error(`${requirement.Requirement.RequirementId}: unknown TransferType ${transferTypeName}`);
+            }
+            return subject.city.mostRecentTranseferType === transferType;
+        }
         case "REQUIREMENT_CITY_IS_ORIGINAL_OWNER": {
             assertSubjectCity(subject);
             return subject.city.originalOwner === player.id;

@@ -206,6 +206,12 @@ interface City {
     name: string;
     owner: number;
     originalOwner: number;
+    /**
+     * How the current owner obtained the city, as a `CityTransferTypes` value.
+     * The engine property name carries the original typo ("Transefer"); the base-game city
+     * banners (city-banner-data.js) read it as is.
+     */
+    mostRecentTranseferType: number;
     localId: number;
     id: ID;
     getConnectedCities: () => ID[]; // ??
@@ -699,6 +705,20 @@ declare var UI: {
 
 declare var GrowthTypes: {
     EXPAND: number; // Hash
+}
+
+/**
+ * Engine global: how a city changed hands (see `City.mostRecentTranseferType`).
+ * Indexable by name so the `TransferType` argument of REQUIREMENT_CITY_TRANSFER_TYPE_MATCHES
+ * can be resolved generically.
+ */
+declare var CityTransferTypes: {
+    NONE: number;
+    OFFER: number;
+    BY_COMBAT: number;
+    CEDE_OCCUPIED: number;
+    BY_INCORPORATE_CITY_STATE: number;
+    [name: string]: number | undefined;
 }
 
 declare var DistrictTypes: {
