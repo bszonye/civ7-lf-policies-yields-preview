@@ -492,6 +492,8 @@ declare interface AdjacencyYieldChange extends BaseTableEntry {
   AdjacentResourceClass: string;
   AdjacentRiver: boolean;
   AdjacentSeaResource: boolean;
+  /** Neighbour plot must hold this ResourceType (shipped: Armorer, Shipyard, Cannery, Laboratory). */
+  AdjacentSpecificResource?: string | null;
   AdjacentTerrain?: string | null;
   AdjacentUniqueQuarter: boolean;
   AdjacentUniqueQuarterType?: string | null;

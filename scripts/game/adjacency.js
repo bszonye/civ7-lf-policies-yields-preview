@@ -214,6 +214,14 @@ export function isPlotGrantingAdjacency(adjacency, plot, ownerId) {
         if (resource?.ResourceClassType !== adjacency.AdjacentResourceClass) return false;
     }
 
+    if (adjacency.AdjacentSpecificResource) {
+        // Shipped rows (since 1.4.0, Base only): Armorer (Horses, Iron), Shipyard (Hardwood,
+        // Niter), Cannery (Fish), Laboratory (Quinine). Always a single ResourceType.
+        const resourceType = GameplayMap.getResourceType(loc.x, loc.y);
+        const resource = GameInfo.Resources.lookup(resourceType);
+        if (resource?.ResourceType !== adjacency.AdjacentSpecificResource) return false;
+    }
+
     if (adjacency.AdjacentFeature) {
         const featureType = GameplayMap.getFeatureType(loc.x, loc.y);
         const feature = GameInfo.Features.lookup(featureType);
