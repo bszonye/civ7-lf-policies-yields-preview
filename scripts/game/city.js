@@ -185,6 +185,27 @@ export function hasCityUniqueQuarter(city, uniqueQuarterType) {
 }
 
 /**
+ * Check whether the player captured the city (from any Age) instead of founding it.
+ * An incorporated city-state keeps the independent as `originalOwner` but is not captured:
+ * mirrors the base-game occupied check (city-banner-data.js, panel-diplomacy-peace-deal.js),
+ * which excludes `CityTransferTypes.BY_INCORPORATE_CITY_STATE`. Confirmed in game on
+ * ANGARIUM (Capar-Kana), whose captured-Town bonus skips incorporated city-states.
+ * @param {City} city
+ * @param {number} playerId
+ * @returns {boolean}
+ */
+export function isCityCapturedByPlayer(city, playerId) {
+    if (city.originalOwner === playerId) return false;
+    // The property name carries the engine typo; if a patch renames it, fail loudly
+    // instead of comparing undefined and counting incorporated city-states as captured.
+    const mostRecentTransferType = city.mostRecentTranseferType;
+    if (typeof mostRecentTransferType !== 'number') {
+        throw new Error(`City.mostRecentTranseferType is not available (got ${typeof mostRecentTransferType})`);
+    }
+    return mostRecentTransferType !== CityTransferTypes.BY_INCORPORATE_CITY_STATE;
+}
+
+/**
  * @param {City} city
  */
 export function getCityYieldHappiness(city) {

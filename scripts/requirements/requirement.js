@@ -1,5 +1,5 @@
 import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
-import { cityMatchesHappinessStage, getCityGreatWorksCount, getCitySpecialistsCount, getCityWalledDistricts, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain, hasCityUniqueQuarter } from "../game/city.js";
+import { cityMatchesHappinessStage, getCityGreatWorksCount, getCitySpecialistsCount, getCityWalledDistricts, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain, hasCityUniqueQuarter, isCityCapturedByPlayer } from "../game/city.js";
 import { hasPlotOwner, hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast, hasPlotDistrictOfType, getAppealThresholdFromArgs, getPlotDistrict } from "../game/plot.js";
 import { getMaxTradeRoutesPerOtherPlayer, getPlayerCityStatesSuzerain, getTradeRouteDomain, isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectTradeRoute, assertSubjectUnit } from "./assert-subject.js";
@@ -254,7 +254,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_CITY_CONQUERED_ANY_AGE": {
             assertSubjectCity(subject);
-            return subject.city.originalOwner !== player.id;
+            return isCityCapturedByPlayer(subject.city, player.id);
         }
 
         // Plot
