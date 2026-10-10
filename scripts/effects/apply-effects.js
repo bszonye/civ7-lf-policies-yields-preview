@@ -970,6 +970,7 @@ function applyYieldsForSubject(context, subject, modifier) {
         case "EFFECT_UNIT_ADJUST_EMBARKATION_TYPE":
         // Ignored attribute effects
         case "EFFECT_PLAYER_ADJUST_PROGRESSION_TREE_MASTERY_EFFICIENCY":
+        case "EFFECT_ADJUST_CITY_TREASURE_FLEET_MOD": // legend economic L1/L2 nodes: +25% treasure fleet value, one-shot on arrival
         case "EFFECT_DIPLOMACY_ADJUST_RELATIONSHIP_GAIN_FROM_EVENT":
         case "EFFECT_CITY_ADD_FOOD_AFTER_GROWTH_EVENT":
         case "EFFECT_CITY_ADJUST_TOWN_UPGRADE_DISCOUNT":
