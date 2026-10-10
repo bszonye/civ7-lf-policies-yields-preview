@@ -357,6 +357,15 @@ declare interface Player {
     Units: PlayerUnits;
     Cities: PlayerCities;
     Culture: PlayerCulture;
+    /**
+     * Triumph (legacy) completion state. API per base-standard
+     * ui-next/screens/legacies/legacies-model.ts. May be null for some players.
+     */
+    Legacies?: {
+        /** True once the given LegacyType's Triumph has fired for this player. */
+        isTriggered: (legacyType: string) => boolean;
+        getProgress: (legacyType: string) => { progress: { current: number; total: number }[]; raceWinner: number } | null;
+    };
     Identity: any;
     Diplomacy: {
         getIdeology: () => number; // -1 if no ideology

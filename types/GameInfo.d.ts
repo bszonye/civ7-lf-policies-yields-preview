@@ -875,6 +875,23 @@ declare interface IGameInfo {
   Civilizations: GameInfoArray<Civilization>;
   LeaderTraits: GameInfoArray<LeaderTrait>;
   Leaders: GameInfoArray<Leader>;
+  Legacies: GameInfoArray<Legacy>;
+}
+
+/**
+ * A Triumph definition (GameCore still calls individual triumphs "legacies").
+ * Table: Legacies (age-scoped). Fields per base-standard
+ * ui-next/screens/legacies/legacies-model.ts (LegacyDefinition).
+ */
+declare interface Legacy {
+  $hash: number;
+  LegacyType: string;
+  LegacySubtype: string;
+  Name: string;
+  Description: string;
+  TriggerDescription: string;
+  MajorLegacy: boolean;
+  FirstPlayerOnly?: boolean;
 }
 
 declare type IYieldTypes = {
