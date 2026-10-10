@@ -759,6 +759,21 @@ export function isRequirementSatisfied(player, subject, requirement) {
         case "REQUIREMENT_PLAYER_IS_ATTACKING":
         case "REQUIREMENT_OPPONENT_IS_OTHER_IDEOLOGY": // JINGOISM combat strength vs opposing ideology
         case "REQUIREMENT_PLOT_ADJACENT_FRIENDLY_UNIT_TAG_MATCHES": // combat (GARDE_IMPERIALE, KSHATRIYA)
+        // Combat-only gating, enumerated on 1.5.0 Base + DLC data: every modifier using these
+        // requirements has an effect that already sits in the ignored combat group of apply-effects.js
+        // (EFFECT_ADJUST_UNIT_STRENGTH_MODIFIER, EFFECT_UNIT_ADJUST_ABILITY). Some usages carry
+        // inverse="true" (TRIAL_OF_TIME, TERROR_CIMBRICUS, FIRST_STRIKE): the caller flips the
+        // `false` below to `true`, which only lets an ignored effect through, so it is harmless.
+        case "REQUIREMENT_DEFENDER_IS_PLAYER_OWNED_DISTRICT":    // CITY_GUARD, TRENCHWORKS, TRIAL_OF_TIME, RUONG_LANG_XA, wall techs
+        case "REQUIREMENT_COMBAT_TYPE_MATCHES":                  // KABUNAKAMA melee / ranged strength
+        case "REQUIREMENT_UNIT_IS_FORTIFIED":                    // TRENCHWORKS fortified units, DEFILADE promotion
+        case "REQUIREMENT_UNIT_IN_ARMY":                         // TERROR_CIMBRICUS fear ability
+        case "REQUIREMENT_UNIT_IS_WOUNDED":                      // FIRST_STRIKE promotions and ability
+        case "REQUIREMENT_TARGET_IS_ADJACENT_TO_FRIENDLY_UNIT":  // KOKUTAI joint attack, DANGER_CLOSE promotion
+        // Opponent-unit tag: combat strength (BURNING_ARROW, CETBANG, LEIOMANO, TERCIO, ZERO, ...) plus
+        // EFFECT_ADJUST_UNIT_POST_COMBAT_YIELD (MERRY_LIFE_AND_A_SHORT_ONE gold on kill), a triggered
+        // one-shot that is also in the ignored group.
+        case "REQUIREMENT_OPPONENT_UNIT_TAG_MATCHES":
         // Gating for one-time triggered effects we already ignore (EFFECT_CITY_GRANT_YIELD on capture)
         case "REQUIREMENT_PLAYER_FIRST_TIME_SETTLEMENT_OCCUPATION":
         // Triggered events: only gate one-shot effects (EFFECT_CITY_GRANT_UNIT for BUZZARD_CULT,
