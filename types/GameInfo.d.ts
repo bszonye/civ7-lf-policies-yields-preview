@@ -913,7 +913,7 @@ declare interface IGameInfo {
 /**
  * A Triumph definition (GameCore still calls individual triumphs "legacies").
  * Table: Legacies (age-scoped). Fields per base-standard
- * ui-next/screens/legacies/legacies-model.ts (LegacyDefinition).
+ * ui-next/screens/legacies/legacies-model.js (LegacyDefinition).
  */
 declare interface Legacy {
   $hash: number;

@@ -377,7 +377,7 @@ declare interface Player {
     Culture: PlayerCulture;
     /**
      * Triumph (legacy) completion state. API per base-standard
-     * ui-next/screens/legacies/legacies-model.ts. May be null for some players.
+     * ui-next/screens/legacies/legacies-model.js. May be null for some players.
      */
     Legacies?: {
         /** True once the given LegacyType's Triumph has fired for this player. */

@@ -804,19 +804,25 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_TRIUMPHS_COMPLETED": {
             assertSubjectPlayer(subject);
-            // Triumph = a completed Legacy (GameCore still calls them legacies). Variants
-            // observed across Base + DLC XML (ada-lovelace metaprogression) and mods:
-            //   - MajorOnly + MinCount      → at least MinCount completed Major Triumphs
-            //   - MajorOnly only            → MinCount defaults to 1
-            //   - TriumphTypes (comma list) → at least MinCount (default 1) of the listed
-            //     LegacyTypes completed. Mods pair this with CheckPreviousAge=AGE_X for
-            //     cross-age carry; evaluated the same way here — if the listed LegacyType
-            //     isn't in this age's Legacies table, isTriggered simply reports false,
-            //     which is the conservative preview.
-            // API per base-standard ui-next legacies-model.ts: player.Legacies.isTriggered(LegacyType).
+            // Triumph = a completed Legacy (GameCore still calls them legacies). Variants observed
+            // across 1.5.0 Base + DLC (metaprogression and unlocks only, no tradition uses it):
+            //   - TriumphTypes (comma list), optional MinCount: at least MinCount (default 1) of
+            //     the listed LegacyTypes completed. Implemented.
+            //   - MajorOnly, optional MinCount: at least MinCount (default 1) completed Major
+            //     Triumphs. Implemented.
+            //   - TriumphClassTags (with MajorOnly, MinorOnly or MinCount alone): only Triumphs of
+            //     those classes count. Not implemented: throws instead of counting every class.
+            //   - CheckPreviousAge=AGE_X (with MajorOnly + MinCount): Triumphs of a previous age,
+            //     absent from this age's Legacies table. Not implemented: throws instead of
+            //     counting the current age.
+            //   - MinorOnly: not implemented, reaches the final throw.
+            // API per base-standard ui-next legacies-model.js: player.Legacies.isTriggered(LegacyType).
+            const args = requirement.Arguments;
+            if (args.TriumphClassTags?.Value || args.CheckPreviousAge?.Value) {
+                throw new Error(`${requirement.Requirement.RequirementId}: REQUIREMENT_TRIUMPHS_COMPLETED variant not implemented: ${JSON.stringify(args)}`);
+            }
             const legacies = subject.player.Legacies;
             if (!legacies) return false;
-            const args = requirement.Arguments;
             const minCount = Number(args.MinCount?.Value ?? 1);
             if (args.TriumphTypes?.Value) {
                 const types = args.TriumphTypes.Value.split(',').map(t => t.trim()).filter(Boolean);
@@ -830,7 +836,7 @@ export function isRequirementSatisfied(player, subject, requirement) {
                 });
                 return completed >= minCount;
             }
-            throw new Error(`${requirement.Requirement.RequirementType}: unhandled arguments: ${JSON.stringify(args)}`);
+            throw new Error(`${requirement.Requirement.RequirementId}: REQUIREMENT_TRIUMPHS_COMPLETED variant not implemented: ${JSON.stringify(args)}`);
         }
 
         case "REQUIREMENT_PLAYER_ELIGIBLE_CS_BONUS": {
