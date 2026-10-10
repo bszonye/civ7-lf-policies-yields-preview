@@ -798,14 +798,16 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_PLAYER_HAS_ACTIVE_TRADITION": {
             assertSubjectPlayer(subject);
-            // Variants observed across Base + DLC XML (narrative stories: ada-lovelace,
-            // bolivar, alexander) and mods gating bonuses on an earned Tradition:
-            //   - TraditionType only (the common case) — Tradition currently slotted
-            //   - TraditionType + ActiveAtGoldenAge (bolivar) — historical "was active at
-            //     Golden Age" state we can't read; throw to surface it.
+            // Variants observed across 1.5.0 Base + DLC (narrative stories of Base and many DLC,
+            // one metaprogression challenge; no tradition uses it):
+            //   - TraditionType only (61 usages): the Tradition is currently slotted. Implemented.
+            //   - TraditionType + ActiveAtGoldenAge=True (15 usages): historical "was active at the
+            //     Golden Age" state we cannot read. Throws.
+            //   - MinAmount only (tutorial challenge), TraitType only (Joseon narrative): no
+            //     TraditionType, so getAsserted below throws.
             const args = requirement.Arguments;
-            if (args.ActiveAtGoldenAge?.Value) {
-                throw new Error(`${requirement.Requirement.RequirementType}: unhandled arguments: ${JSON.stringify(args)}`);
+            if (args.ActiveAtGoldenAge?.Value?.toLowerCase() === 'true') {
+                throw new Error(`${requirement.Requirement.RequirementId}: REQUIREMENT_PLAYER_HAS_ACTIVE_TRADITION variant not implemented: ${JSON.stringify(args)}`);
             }
             // GameInfoArray.lookup only accepts a hash; use .find() for the PK string
             // (same note as getPlayerActiveTraditionsForModifier).
