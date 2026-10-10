@@ -225,7 +225,11 @@ interface City {
         getYieldsForType: (yieldType: string) => YieldEntry;
     };
     Resources: {
-        getTotalCountAssignedResources: () => number;
+        /**
+         * Removed from the mod's surface: no base-game UI script calls it since game 1.5.0.
+         * Use `getAssignedResources().length` (see `getCityAssignedResourcesCount`).
+         */
+        getTotalCountAssignedResources?: never;
         getAssignedResourcesCap(): number;
         /**
          * Returns entries for resources currently assigned to this city.

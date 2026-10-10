@@ -78,7 +78,7 @@ export function hasCityTerrain(city, args) {
  * @param {number} amount
  */
 export function hasCityResourcesAmountAssigned(city, amount) {
-    return city.Resources.getTotalCountAssignedResources() >= amount;
+    return getCityAssignedResourcesCount(city) >= amount;
 }
 
 /**
@@ -87,7 +87,7 @@ export function hasCityResourcesAmountAssigned(city, amount) {
  * @param {number} amount
  */
 export function hasCityOpenResourcesSlots(city, amount) {
-    const openSlots = city.Resources.getAssignedResourcesCap() - city.Resources.getTotalCountAssignedResources();
+    const openSlots = city.Resources.getAssignedResourcesCap() - getCityAssignedResourcesCount(city);
     return openSlots >= amount;
 }
 
@@ -102,10 +102,15 @@ export function getCitySpecialistsCount(city) {
 
 /**
  * Get the number of assigned resources in a city.
+ *
+ * Counts `getAssignedResources()` instead of calling `getTotalCountAssignedResources()`:
+ * since game 1.5.0 no base-game UI script calls the latter anymore (the old
+ * `model-resource-allocation.js` was removed), while the commerce screen computes the same
+ * number as `getAssignedResourcesCap() - getAssignedResources().length`.
  * @param {City} city
  */
 export function getCityAssignedResourcesCount(city) {
-    return city.Resources.getTotalCountAssignedResources();
+    return (city.Resources?.getAssignedResources() || []).length;
 }
 
 /**
