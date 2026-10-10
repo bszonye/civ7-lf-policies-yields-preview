@@ -828,17 +828,32 @@ function applyYieldsForSubject(context, subject, modifier) {
 
         case "EFFECT_CITY_ADJUST_YIELD_PER_NUM_CITIES": {
             assertSubjectCity(subject);
+            // Shipped variants (1.5.0 Base + DLC), always exactly one counter set to true:
+            //   - Towns, with or without Cities=false: AUGUSTUS, ROME_SYNCRETISM_MODERN, GAULOS I/II,
+            //     Clipeus Virtutis memento, Expansionist attribute.
+            //   - DistantLands: ACT_OF_SUPREMACY (England), Spain Plaza. Counts every settlement
+            //     in Distant Lands, towns included.
+            // Cities alone is not shipped but unambiguous. No counter, or a combination (sum? or an
+            // intersection such as "cities in Distant Lands"?), throws.
+            const args = modifier.Arguments;
+            const countCities = args.Cities?.Value?.toLowerCase() === 'true';
+            const countTowns = args.Towns?.Value?.toLowerCase() === 'true';
+            const countDistantLands = args.DistantLands?.Value?.toLowerCase() === 'true';
+            const enabledCounters = [countCities, countTowns, countDistantLands].filter(Boolean).length;
+            if (enabledCounters !== 1) {
+                throw new Error(`${modifier.Modifier.ModifierId}: EFFECT_CITY_ADJUST_YIELD_PER_NUM_CITIES with unhandled arguments: ${JSON.stringify(args)}`);
+            }
             if (subject.isEmpty) return context.addYieldsAmount(modifier, 0);
 
             let numSettlements = 0;
-            if (modifier.Arguments.Cities?.Value === "true") {
-                numSettlements += subject.player.Stats.numCities;
+            if (countCities) {
+                numSettlements = subject.player.Stats.numCities;
             }
-            if (modifier.Arguments.Towns?.Value === "true") {
-                numSettlements += subject.player.Stats.numTowns;
+            else if (countTowns) {
+                numSettlements = subject.player.Stats.numTowns;
             }
-            if (modifier.Arguments.DistantLands?.Value === "true") {
-                numSettlements += player.Cities.getCities()
+            else {
+                numSettlements = subject.player.Cities.getCities()
                     .filter(c => c.isDistantLands).length;
             }
             return context.addSubjectYieldsTimes(subject, modifier, numSettlements);
