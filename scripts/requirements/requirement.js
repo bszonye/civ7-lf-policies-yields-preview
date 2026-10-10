@@ -825,6 +825,8 @@ export function isRequirementSatisfied(player, subject, requirement) {
         // Owner requirement of STRATAGEMS I/II (Bulgaria): gates only EFFECT_UNIT_ADJUST_ABILITY
         // (combat strength per great work). Only shipped usage on 1.5.0 Base + DLC.
         case "REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS":
+        // Gates only EFFECT_ADJUST_CITY_AUTO_TREASURE_FLEET (Qhapaq Nan, Kanta), ignored above.
+        case "REQUIREMENT_PLOT_IS_HOMELANDS":
         // Gating for one-time triggered effects we already ignore (EFFECT_CITY_GRANT_YIELD on capture)
         case "REQUIREMENT_PLAYER_FIRST_TIME_SETTLEMENT_OCCUPATION":
         // Triggered events: only gate one-shot effects (EFFECT_CITY_GRANT_UNIT for BUZZARD_CULT,

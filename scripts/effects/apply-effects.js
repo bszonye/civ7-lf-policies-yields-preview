@@ -1032,6 +1032,23 @@ function applyYieldsForSubject(context, subject, modifier) {
         // Tree
         case "EFFECT_GRANT_GREAT_WORK":
         case "EFFECT_PLAYER_UNLOCK_PANTHEON":
+        // Civic / tech meta effects with no yield (enumerated on 1.5.0 Base + DLC). They only ever
+        // produced console errors on hover: victory point trackers, player properties, unlock and
+        // reveal effects, city limits, resource instance counts, auto treasure fleets, combat.
+        case "EFFECT_PLAYER_GRANT_VICTORY_TRACKER_POINTS":            // science/culture VP on 19 nodes (Future Tech, Industrialization, ...)
+        case "EFFECT_PLAYER_ACTIVATE_VICTORY_POINT_TRACKER":          // GDP / tourism trackers (Currency, Wheel, Capitalism, ...)
+        case "EFFECT_PLAYER_GRANT_VICTORY_POINT_TRACKER_BONUS":       // Entertainment (Revolucion tourism)
+        case "EFFECT_PLAYER_PROPERTY":                                // Future Tech / Civic boosts
+        case "EFFECT_PLAYER_GRANT_SYNCRETIC_CHOICE":                  // syncretism choice nodes
+        case "EFFECT_PLAYER_REVEAL_CULTURE_TREE":                     // Chiefdom: reveal the civ culture tree
+        case "EFFECT_ADD_BELIEF":                                     // Theology, English Reformation
+        case "EFFECT_ADJUST_CITY_LIMIT":                              // Joseon civics
+        case "EFFECT_PLAYER_ADJUST_RESOURCE_COUNT_PER_INSTANCE":      // Imperialism, Social Class, New World Riches
+        case "EFFECT_ADJUST_CITY_AUTO_TREASURE_FLEET":                // Qhapaq Nan, Kanta
+        case "EFFECT_PLAYER_DISABLE_BUILD_UNIT":                      // Kinsei (Sengoku)
+        case "EFFECT_GRANT_COMBAT_ADJACENCY":                         // Military Training: flanking
+        case "EFFECT_ADJUST_UNIT_WATER_DAMAGE_PROTECTION":            // Shipbuilding
+        case "EFFECT_PLAYER_ADJUST_UNIT_CAPTURE_ADDITIONAL_BOOTY":    // Enemy of All Nations (Pirate Republic)
         // City State bonuses
         case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_PRODUCTION_PER_SUZERAIN_OF":
         case "EFFECT_PLAYER_GRANT_PROGRESSION":
