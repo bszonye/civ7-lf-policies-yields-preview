@@ -438,10 +438,21 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_PLOT_ADJACENT_TO_CITY_OTHER_CIV": {
             assertSubjectPlot(subject);
-            const range = Number(requirement.Arguments.MaxRange?.Value || 1);
+            // Variants observed across 1.5.0 Base + DLC (Gaul DLC only):
+            //   - MaxRange + IsOwner=false (BALKAN_EXPEDITION I/II, GAUL_SYNCRETISM_*, Gaul ability
+            //     gold): some plot within MaxRange belongs to another player, i.e. "the city center
+            //     is within 6 tiles of another civilization's border". Implemented.
+            //   - MaxRange + IsCityCenterDestination=true, no IsOwner (Gaul ability production,
+            //     inverse): "no city center of your other settlements within 6 tiles". Different
+            //     semantics, not implemented: throws instead of silently matching nothing.
+            const args = requirement.Arguments;
+            if (args.IsCityCenterDestination?.Value?.toLowerCase() === 'true' || !args.IsOwner?.Value) {
+                throw new Error(`${requirement.Requirement.RequirementId}: REQUIREMENT_PLOT_ADJACENT_TO_CITY_OTHER_CIV variant not implemented: ${JSON.stringify(args)}`);
+            }
+            const range = Number(args.MaxRange?.Value || 1);
             return getAdjacentPlots(subject.plot, range).some(plot => {
                 const loc = GameplayMap.getLocationFromIndex(plot);
-                return hasPlotOwner(loc, requirement.Arguments);
+                return hasPlotOwner(loc, player.id, args);
             });
         }
 

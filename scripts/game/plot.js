@@ -102,15 +102,22 @@ export function getAdjacentPlots(plotIndex, radius = 1) {
 }
 
 /**
- * @param {Location} location
- * @param {ResolvedArguments} args
+ * Check a plot's owner against the `IsOwner` argument of a requirement.
+ * Unowned plots never match. `IsOwner=true` matches plots owned by `playerId`;
+ * `IsOwner=false` matches plots owned by any other player, city-states included.
+ * @param {Location} location Plot to test
+ * @param {number} playerId Player the ownership is compared with
+ * @param {ResolvedArguments} args Requirement arguments; `IsOwner` (true/false) is required
+ * @returns {boolean}
  */
-
-export function hasPlotOwner(location, args) {
+export function hasPlotOwner(location, playerId, args) {
+    const isOwner = args.getAsserted('IsOwner').toLowerCase();
+    if (isOwner !== 'true' && isOwner !== 'false') {
+        throw new Error(`hasPlotOwner: unexpected IsOwner value ${JSON.stringify(args.IsOwner)}`);
+    }
     const owner = GameplayMap.getOwner(location.x, location.y);
-    if (owner == -1) return false;
-    const match = owner == GameContext.localPlayerID ? "true" : "false";
-    return args.IsOwner?.Value == match;
+    if (owner === PlayerIds.NO_PLAYER) return false;
+    return (owner === playerId) === (isOwner === 'true');
 }
 
 /**
