@@ -420,6 +420,15 @@ declare interface Yield extends BaseTableEntry {
   OccupiedCityChange: number;
 }
 
+declare interface UniqueQuarter extends BaseTableEntry {
+  UniqueQuarterType: string;
+  Name: string;
+  Description?: string | null;
+  BuildingType1: string;
+  BuildingType2: string;
+  TraitType?: string | null;
+}
+
 declare interface HappinessStage extends BaseTableEntry {
   HappinessStageType: string;
   /** Lower bound of the stage (inclusive). Null means no lower bound (-Infinity). */
@@ -861,6 +870,7 @@ declare interface IGameInfo {
   Constructible_WildcardWarehouseYields: GameInfoArray<ConstructibleWildcardWarehouseYield>;
   Ages: GameInfoArray<Age>;
   HappinessStages: GameInfoArray<HappinessStage>;
+  UniqueQuarters: GameInfoArray<UniqueQuarter>;
   Biomes: GameInfoArray<Biome>;
   Features: GameInfoArray<Feature>;
   FeatureClasses: GameInfoArray<FeatureClass>;

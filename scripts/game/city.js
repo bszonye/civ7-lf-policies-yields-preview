@@ -163,6 +163,22 @@ export function getCityGreatWorksCount(city) {
 }
 
 /**
+ * Check whether the city holds a completed unique quarter of the given type.
+ * Mirrors the base-game plot tooltip: a district flagged `isUniqueQuarter` carries the quarter
+ * hash in `uniqueQuarterType`, resolved through `GameInfo.UniqueQuarters`.
+ * @param {City} city
+ * @param {string} uniqueQuarterType e.g. QUARTER_SEOWON
+ * @returns {boolean}
+ */
+export function hasCityUniqueQuarter(city, uniqueQuarterType) {
+    return city.Districts.getIds().some(districtId => {
+        const district = Districts.get(districtId);
+        if (!district?.isUniqueQuarter) return false;
+        return GameInfo.UniqueQuarters.lookup(district.uniqueQuarterType)?.UniqueQuarterType === uniqueQuarterType;
+    });
+}
+
+/**
  * @param {City} city
  */
 export function getCityYieldHappiness(city) {

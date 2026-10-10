@@ -747,6 +747,8 @@ declare interface DistrictInstance {
     getMaxDamage: () => number;
     getDamage: () => number;
     isUniqueQuarter: boolean;
+    /** Hash of the completed unique quarter on this district (resolve with GameInfo.UniqueQuarters.lookup), read as is by the base-game plot tooltip and city details. */
+    uniqueQuarterType: number;
     isQuarter: boolean;
     isUrbanCore: boolean;
     cityId: ID;

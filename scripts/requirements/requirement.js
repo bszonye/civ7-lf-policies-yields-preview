@@ -1,5 +1,5 @@
 import { hasUnitTag, isUnitTypeInfoTargetOfArguments } from "../game/units.js";
-import { cityMatchesHappinessStage, getCityGreatWorksCount, getCitySpecialistsCount, getCityWalledDistricts, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain } from "../game/city.js";
+import { cityMatchesHappinessStage, getCityGreatWorksCount, getCitySpecialistsCount, getCityWalledDistricts, hasCityBuilding, hasCityOpenResourcesSlots, hasCityResourcesAmountAssigned, hasCityTerrain, hasCityUniqueQuarter } from "../game/city.js";
 import { hasPlotOwner, hasPlotConstructibleByArguments, getPlotConstructiblesByLocation, hasPlotDistrictOfClass, isPlotQuarter, getAdjacentPlots, isPlotAdjacentToCoast, hasPlotDistrictOfType, getAppealThresholdFromArgs, getPlotDistrict } from "../game/plot.js";
 import { getMaxTradeRoutesPerOtherPlayer, getPlayerCityStatesSuzerain, getTradeRouteDomain, isPlayerAtPeaceWithMajors, isPlayerAtWarWithOpposingIdeology } from "../game/player.js";
 import { assertSubjectCity, assertSubjectPlayer, assertSubjectPlot, assertSubjectTradeRoute, assertSubjectUnit } from "./assert-subject.js";
@@ -29,6 +29,14 @@ export function isRequirementSatisfied(player, subject, requirement) {
         case "REQUIREMENT_CITY_IS_TOWN": {
             assertSubjectCity(subject);
             return subject.city.isTown;
+        }
+
+        case "REQUIREMENT_CITY_HAS_UNIQUE_QUARTER": {
+            // 37 shipped usages (1.5.0 Base + DLC), always a single UniqueQuarterType argument.
+            // Reachable from YANGBEOBMIUI (Joseon), whose "other cities" modifier uses
+            // inverse="true", applied by the caller.
+            assertSubjectCity(subject);
+            return hasCityUniqueQuarter(subject.city, requirement.Arguments.getAsserted('UniqueQuarterType'));
         }
 
         case "REQUIREMENT_CITY_TRANSFER_TYPE_MATCHES": {
