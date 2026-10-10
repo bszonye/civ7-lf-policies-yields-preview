@@ -330,8 +330,19 @@ export function isRequirementSatisfied(player, subject, requirement) {
 
         case "REQUIREMENT_PLOT_IS_RIVER": {
             assertSubjectPlot(subject);
+            // Each flag opts a river kind in. Base + DLC only use Navigable=true alone
+            // (KEMET, SHAWNEE traditions, ...) or Minor=true + Navigable=true (any river,
+            // e.g. antiquity constructibles). `isRiver` covers both kinds.
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
-            return GameplayMap.isRiver(loc.x, loc.y);
+            const navigable = requirement.Arguments.Navigable?.Value?.toLowerCase?.() === 'true';
+            const minor = requirement.Arguments.Minor?.Value?.toLowerCase?.() === 'true';
+            if (navigable && minor) {
+                return GameplayMap.isRiver(loc.x, loc.y);
+            }
+            if (navigable && requirement.Arguments.Minor == null) {
+                return GameplayMap.isNavigableRiver(loc.x, loc.y);
+            }
+            throw new Error(`${requirement.Requirement.RequirementType}: unhandled arguments: ${JSON.stringify(requirement.Arguments)}`);
         }
 
         case "REQUIREMENT_PLOT_BIOME_TYPE_MATCHES": {
