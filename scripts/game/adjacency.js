@@ -49,25 +49,22 @@ export const ConstructibleAdjacencies = new class {
 
             const wildcardAdjacencies = GameInfo.Constructible_WildcardAdjacencies
                 .filter(ca => {
-                    // Unsupported case: no shipped row sets BOTH ConstructibleClass and
-                    // ConstructibleTag, and the two-case rule below relies on them being mutually
-                    // exclusive. If a future row sets both, the combination semantics are unknown
-                    // (AND? OR?), so fail loudly instead of guessing and rendering wrong yields.
-                    if (ca.ConstructibleClass && ca.ConstructibleTag) {
-                        console.error(`[lf-policies-yields-preview] Wildcard adjacency '${ca.YieldChangeId}' sets BOTH ConstructibleClass='${ca.ConstructibleClass}' AND ConstructibleTag='${ca.ConstructibleTag}'. This combination is not handled: targeting semantics are ambiguous. Aborting the preview so we do not display incorrect yields.`);
-                        throw new Error(`Wildcard adjacency '${ca.YieldChangeId}' sets both ConstructibleClass ('${ca.ConstructibleClass}') and ConstructibleTag ('${ca.ConstructibleTag}'), which is not supported.`);
-                    }
-
-                    // Targeting pattern across ALL shipped wildcard rows (base + DLC): a row sets
-                    // EITHER ConstructibleTag OR ConstructibleClass, never both, and ConstructibleClass
-                    // is only ever "BUILDING". So which constructibles a wildcard reaches collapses to
-                    // two cases, confirmed by the description text:
-                    //   - tag-scoped row  -> any constructible carrying that tag, Wonders included
-                    //                        (MONOGATARI: GREATWORK is on Great Work buildings AND
-                    //                        Wonders -> "...Buildings and Wonders...").
-                    //   - untagged row    -> Buildings only, whether the row is bare or explicitly
+                    // Targeting pattern across ALL shipped wildcard rows (base + DLC), confirmed by
+                    // the description text of each source. ConstructibleClass is only ever "BUILDING".
+                    //   - tag-only row    -> any constructible carrying that tag, Wonders included
+                    //                        (pre-1.5.0 MONOGATARI was tag-only and its description
+                    //                        said "...Buildings and Wonders...").
+                    //   - class-only row  -> Buildings only, whether the row is bare or explicitly
                     //                        ConstructibleClass="BUILDING" (City of Peace / JO_BO
                     //                        descriptions literally say "All Buildings").
+                    //   - class + tag row -> both must match (AND). Introduced by game patch 1.5.0
+                    //                        for MONOGATARI (ConstructibleClass="BUILDING" plus
+                    //                        ConstructibleTag="GREATWORK"); its description changed
+                    //                        to "Great Work Buildings", so Wonders are now excluded.
+                    //                        The class and tag checks below apply exactly that.
+                    //                        Note: this filter runs over every wildcard row for every
+                    //                        constructible, so a throw here would kill ALL adjacency
+                    //                        previews, not just the offending tradition.
                     // Plus two cross-cutting rules: Improvements never receive wildcard adjacencies
                     // (verified in-game with City of Peace), and Walls are excluded.
                     if (constructibleType.ConstructibleClass === "IMPROVEMENT") {
