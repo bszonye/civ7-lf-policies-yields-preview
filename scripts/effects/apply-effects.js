@@ -1052,6 +1052,11 @@ function applyYieldsForSubject(context, subject, modifier) {
         // Production %/build-time modifiers (coherent with the others already in this group)
         case "EFFECT_CITY_ADJUST_PROJECT_PRODUCTION_PER_COMPLETED_MASTERY": // MO_SCIENTIFIC_01
         case "EFFECT_CITY_ADJUST_CONSTRUCTIBLE_PRODUCTION_PER_MASTERY":     // AQ_SCIENTIFIC_01
+        case "EFFECT_ADJUST_BUILDING_PRODUCTION_EFFICIENCY_PER_NUM_ACTIVE_DIPLOMATIC_ACTIONS": // GORYEO_SYNCRETISM_*, FRANKLIN
+        case "EFFECT_PLAYER_ADJUST_PROGRESSION_TREE_EFFICIENCY":            // SYSTEM_OF_IDEAS (crisis), difficulty handicaps: node cost %
+        // Triggered damage / combat-only (crisis and DLC traditions)
+        case "EFFECT_CITY_DAMAGE_CONSTRUCTIBLES":                           // IUS_REFORMANDI (crisis), narrative events
+        case "EFFECT_ADJUST_UNIT_NO_REDUCTION_DAMAGE":                      // DAIMYO (Sengoku)
         // Diplomacy
         case "EFFECT_PLAYER_RESET_RELATIONSHIP_ON_PEACE":                   // ATASSA (BUZZARD_CULT)
         // Belief yields are scoped to the Belief Picker UI (not decorated by this mod),
