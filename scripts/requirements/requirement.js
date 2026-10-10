@@ -242,6 +242,17 @@ export function isRequirementSatisfied(player, subject, requirement) {
             return hasPlotDistrictOfClass(subject.plot, requirement);
         }
 
+        case "REQUIREMENT_PLOT_HAS_X_WORKER_POPULATION": {
+            // Specialists assigned to the plot. Shipped usage (1.5.0 Base + DLC): only
+            // YANGBAN_BUREAUCRACY I/II (MinWorkerPopulation=2/3) on COLLECTION_CITY_PLOT_YIELDS,
+            // whose subjects carry both the plot index and the owning city.
+            if (subject.type !== 'Plot') {
+                throw new Error(`REQUIREMENT_PLOT_HAS_X_WORKER_POPULATION: expected Plot subject, got ${subject.type}`);
+            }
+            const minWorkers = Number(requirement.Arguments.getAsserted('MinWorkerPopulation'));
+            return (subject.city.Workers.getNumWorkersAtPlot(subject.plot) || 0) >= minWorkers;
+        }
+
         case "REQUIREMENT_PLOT_RESOURCE_VISIBLE": {
             assertSubjectPlot(subject);
             const loc = GameplayMap.getLocationFromIndex(subject.plot);
