@@ -50,7 +50,13 @@ export function isRequirementSatisfied(player, subject, requirement) {
             if (typeof transferType !== 'number') {
                 throw new Error(`${requirement.Requirement.RequirementId}: unknown TransferType ${transferTypeName}`);
             }
-            return subject.city.mostRecentTranseferType === transferType;
+            // The property name carries the engine typo; if a patch renames it, fail loudly
+            // instead of comparing undefined and silently matching nothing.
+            const mostRecentTransferType = subject.city.mostRecentTranseferType;
+            if (typeof mostRecentTransferType !== 'number') {
+                throw new Error(`${requirement.Requirement.RequirementId}: City.mostRecentTranseferType is not available (got ${typeof mostRecentTransferType})`);
+            }
+            return mostRecentTransferType === transferType;
         }
         case "REQUIREMENT_CITY_IS_ORIGINAL_OWNER": {
             assertSubjectCity(subject);
