@@ -106,6 +106,18 @@ export function getAdjacentPlots(plotIndex, radius = 1) {
  * @param {ResolvedArguments} args
  */
 
+export function hasPlotOwner(location, args) {
+    const owner = GameplayMap.getOwner(location.x, location.y);
+    if (owner == -1) return false;
+    const match = owner == GameContext.localPlayerID ? "true" : "false";
+    return args.IsOwner?.Value == match;
+}
+
+/**
+ * @param {Location} location
+ * @param {ResolvedArguments} args
+ */
+
 export function hasPlotConstructibleByArguments(location, args) {
     const constructibles = getPlotConstructiblesByLocation(location.x, location.y);
     return constructibles.some(c => {

@@ -179,10 +179,8 @@ export function isPlayerAtPeaceWithMajors(player) {
  * `_PER_ACTIVE_TRADITION` is generic — what's counted depends on the modifier's
  * arguments:
  *
- *   - `CivUnique=true` (no Invert)  → keep items WITH a `TraitType` set
- *                                     → in practice, civ-unique Traditions
- *   - `CivUnique=true, Invert=true` → keep items WITHOUT a `TraitType`
- *                                     → in practice, Social Policies
+ *   - `CivUnique=true` (no Invert)  → keep CultureSlotType="TRADITION_CULTURE_SLOT"
+ *   - `CivUnique=true, Invert=true` → keep CultureSlotType="POLICY_CULTURE_SLOT"
  *   - `CivUnique=false`             → no filter, count all slotted items
  *
  * Examples:
@@ -204,48 +202,50 @@ export function isPlayerAtPeaceWithMajors(player) {
  *     tooltip shows the "if you slot this" value.
  */
 export function getPlayerActiveTraditionsForModifier(player, modifier, previewedTraditionType = null) {
-    const requireCivUnique = modifier.Arguments.CivUnique?.Value === 'true';
-    const invertFilter = modifier.Arguments.Invert?.Value === 'true';
+    const requireCivUnique = modifier.Arguments.CivUnique?.Value === "true";
+    const invertFilter = modifier.Arguments.Invert?.Value === "true";
 
     // Pool both slot types: Traditions live in TRADITION_CULTURE_SLOT, Policies
     // in POLICY_CULTURE_SLOT, and let the filter pick which contribute.
+    const culture = player.Culture;
     const allItems = [
-        ...player.Culture.getActiveTraditions(CultureSlotTypes.TRADITION_CULTURE_SLOT),
-        ...player.Culture.getActiveTraditions(CultureSlotTypes.POLICY_CULTURE_SLOT),
+        ...culture.getActiveTraditions(CultureSlotTypes.TRADITION_CULTURE_SLOT),
+        ...culture.getActiveTraditions(CultureSlotTypes.POLICY_CULTURE_SLOT),
     ];
 
-    /** @param {Tradition | null | undefined} itemInfo */
-    const matchesFilter = (itemInfo) => {
-        if (!requireCivUnique) return true;
-        const hasTrait = !!itemInfo?.TraitType;
-        return invertFilter ? !hasTrait : hasTrait;
-    };
+    // Collect the matching items.
+    const matchingTypes =
+        !requireCivUnique ? ["POLICY_CULTURE_SLOT", "TRADITION_CULTURE_SLOT"] :
+        invertFilter ? ["POLICY_CULTURE_SLOT"] : ["TRADITION_CULTURE_SLOT"];
+    const matchingItems = allItems.filter(type => {
+        const item = GameInfo.Traditions.lookup(type);
+        return item ? matchingTypes.includes(item.CultureSlotType) : false;
+    });
 
-    let count = 0;
-    for (const item of allItems) {
-        const itemInfo = GameInfo.Traditions.lookup(item);
-        if (matchesFilter(itemInfo)) count++;
-    }
-
+    let count = matchingItems.length;
     if (previewedTraditionType) {
         // GameInfoArray<T>.lookup only accepts a hash; use .find() for the PK string.
-        const previewedInfo = GameInfo.Traditions.find(t => t.TraditionType === previewedTraditionType);
-        // Self-include the previewed card iff this modifier would count it:
-        //   - it lives in a slot the modifier pools (TRADITION/POLICY, not Crisis), AND
-        //   - it satisfies the CivUnique/Invert filter, AND
-        //   - it isn't already slotted (would double-count).
-        // The filter check makes this slot-aware automatically: e.g. previewing a
-        // Tradition on a modifier with Invert=true won't self-add, because the
-        // modifier counts only Policies in that case.
-        const isInPool = previewedInfo?.CultureSlotType === 'TRADITION_CULTURE_SLOT'
-                      || previewedInfo?.CultureSlotType === 'POLICY_CULTURE_SLOT';
-        if (isInPool && previewedInfo) {
-            const alreadyActive = player.Culture.isTraditionActive(previewedInfo.$hash);
-            if (!alreadyActive && matchesFilter(previewedInfo)) count++;
+        const previewedInfo = GameInfo.Traditions
+            .find(t => t.TraditionType === previewedTraditionType);
+        if (previewedInfo) {
+            // Self-include the previewed card iff this modifier would count it:
+            //   - it has the right slot type, POLICY or TRADITION, AND
+            //   - it isn't already slotted (would double-count).
+            count += +(  // convert boolean to 1/0
+                matchingTypes.includes(previewedInfo.CultureSlotType) &&
+                !player.Culture.isTraditionActive(previewedInfo.$hash)
+            );
         }
     }
 
-    return count;
+    // Limit result to the total available slots.
+    const tslots = culture.getNumCultureSlots(CultureSlotTypes.TRADITION_CULTURE_SLOT);
+    const pslots = culture.getNumCultureSlots(CultureSlotTypes.POLICY_CULTURE_SLOT);
+    const maxItems =
+        !requireCivUnique ? tslots + pslots :
+        invertFilter ? pslots : tslots;
+
+    return Math.min(count, maxItems);
 }
 
 /**
